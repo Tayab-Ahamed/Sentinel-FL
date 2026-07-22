@@ -1,0 +1,52 @@
+# configs/evaluation.yaml — Evaluation pipeline configuration for SENTINEL-FL.
+
+evaluation:
+
+  # ---------------------------------------------------------------------------
+  # Metrics to compute (all enabled by default)
+  # ---------------------------------------------------------------------------
+  metrics_enabled:
+    - accuracy
+    - attack_success_rate
+    - robust_accuracy
+    - precision
+    - recall
+    - f1_score
+    - false_positive_rate
+    - false_acceptance_rate
+    - false_rejection_rate
+    - detection_latency_ms
+    - communication_cost_bytes
+    - runtime_seconds
+    - peak_memory_mb
+
+  # ---------------------------------------------------------------------------
+  # Baseline comparison
+  # ---------------------------------------------------------------------------
+  baseline_comparison_enabled: true
+
+  # Name of the default baseline method to compare against.
+  # Must match a key in configs/baselines.yaml.
+  default_baseline: "no_defense"
+
+  # ---------------------------------------------------------------------------
+  # Reporting
+  # ---------------------------------------------------------------------------
+  output_dir: "experiments/reports"
+
+  # Report formats to generate: "json" and/or "markdown"
+  report_formats:
+    - json
+    - markdown
+
+  # Include per-round metric breakdown in reports.
+  per_round_tracking: true
+
+  # Number of rounds to include in the per-round table (most recent N).
+  # null = include all rounds.
+  per_round_limit: null
+
+  # ---------------------------------------------------------------------------
+  # Logging
+  # ---------------------------------------------------------------------------
+  emit_evaluation_events: true

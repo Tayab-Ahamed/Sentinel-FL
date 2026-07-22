@@ -1,0 +1,85 @@
+.chart-wrap {
+  width: 100%;
+}
+.chart-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+.chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+  color: var(--text-muted);
+  font-size: 13px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+/* Heatmap */
+.heatmap-wrapper { display: flex; flex-direction: column; gap: 12px; }
+.heatmap-scroll { overflow-x: auto; }
+.heatmap-table { border-collapse: collapse; }
+.heatmap-corner {
+  font-size: 10px; color: var(--text-muted);
+  padding: 4px 12px 4px 0;
+  text-align: left; white-space: nowrap;
+}
+.heatmap-round-head {
+  font-size: 10px; color: var(--text-muted);
+  padding: 4px 2px; text-align: center;
+}
+.heatmap-client-label {
+  font-size: 11px; color: var(--text-secondary);
+  padding: 2px 12px 2px 0;
+  white-space: nowrap; min-width: 90px;
+}
+.heatmap-cell {
+  width: 28px;
+  border: 1px solid var(--bg-base);
+  border-radius: 2px;
+  cursor: default;
+  transition: opacity var(--transition);
+}
+.heatmap-cell:hover { opacity: 0.75; }
+.heatmap-legend {
+  display: flex; gap: 16px;
+  font-size: 11px; color: var(--text-muted);
+}
+
+/* Alert timeline */
+.alert-timeline { display: flex; flex-direction: column; gap: 0; }
+.alert-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.alert-row:last-child { border-bottom: none; }
+.alert-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.alert-content { flex: 1; min-width: 0; }
+.alert-message {
+  font-size: 13px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.alert-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 11px;
+}

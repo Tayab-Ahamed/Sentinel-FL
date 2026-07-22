@@ -1,0 +1,49 @@
+# configs/update_guard.yaml — L1 Update Guard configuration for SENTINEL-FL Milestone 5.
+#
+# All fields consumed by UpdateGuard.from_config() and
+# TrustScoreManager.__init__().
+
+# ---------------------------------------------------------------------------
+# Update Guard (L1)
+# ---------------------------------------------------------------------------
+update_guard:
+  # Master switch. If false, UpdateGuard.process_round() is a no-op.
+  enabled: true
+
+  # Statistical anomaly detection method for per-client update scoring.
+  # "zscore": flag updates whose L2 norm deviates > norm_outlier_threshold_z
+  #           standard deviations from the round mean.
+  # "mad":    median absolute deviation — more robust with small n_clients.
+  anomaly_method: zscore
+
+  # Z-score threshold for norm-based outlier flagging.
+  # Updates with |z| > this value are considered norm outliers.
+  norm_outlier_threshold_z: 3.0
+
+  # Cosine-similarity threshold for residual collusion clustering.
+  # Mirrors config.collusion_sim_threshold (takes priority over root config).
+  sim_threshold: 0.85
+
+  # Minimum number of clients in a cluster to flag it as colluding.
+  min_cluster_size: 2
+
+  # If true, clients flagged as norm outliers OR colluders are removed from
+  # the FedAvg aggregation for that round.
+  exclude_flagged_clients: false
+
+  # Exponential decay rate applied to trust scores each round.
+  # 0.0 = no decay (scores accumulate indefinitely).
+  # 0.1 = 10% decay per round (score halves in ~7 rounds).
+  trust_score_decay: 0.1
+
+  # Weight applied to the anomaly score when updating a client's trust score.
+  # trust += anomaly_score * trust_score_weight
+  trust_score_weight: 0.5
+
+  # Log the full pairwise cosine similarity matrix each round.
+  # Disable for large n_clients (O(n²) log output).
+  log_similarity_matrix: false
+
+  # Norm type used for update magnitude calculation.
+  # Options: l2 | l1 | linf
+  norm_type: l2

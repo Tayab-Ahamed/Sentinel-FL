@@ -1,0 +1,83 @@
+version: "3.9"
+
+# SENTINEL-FL — Docker Compose for local development
+#
+# Services:
+#   api      — FastAPI backend (uvicorn, hot-reload)
+#   frontend — Vite dev server for the React dashboard
+#
+# Usage:
+#   docker-compose up            # start all services
+#   docker-compose up api        # start only the backend
+#   docker-compose run --rm api python scripts/run_demo.py
+
+services:
+  # ---------------------------------------------------------------------------
+  # API — FastAPI backend
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder   # use builder stage for dev (includes dev deps)
+    image: sentinel-fl-api:dev
+    container_name: sentinel_api
+    working_dir: /app
+    command:
+      - uvicorn
+      - backend.main:app
+      - --host
+      - "0.0.0.0"
+      - --port
+      - "8000"
+      - --reload
+    volumes:
+      # Mount source for hot-reload (no rebuild needed on code changes)
+      - .:/app:ro
+      # Persist experiment artefacts and checkpoints between restarts
+      - experiments_data:/app/experiments
+    ports:
+      - "8000:8000"
+    environment:
+      SENTINEL_LOG_LEVEL: INFO
+      SENTINEL_LOG_SINK: stdout
+      SENTINEL_API_HOST: "0.0.0.0"
+      SENTINEL_API_PORT: "8000"
+      SENTINEL_API_CORS_ORIGINS: "http://localhost:5173,http://localhost:3000"
+      SENTINEL_EXPERIMENTS_DIR: /app/experiments
+      SENTINEL_CONFIGS_DIR: /app/configs
+      SENTINEL_DATASET_PHASE: phase0_synthetic
+      SENTINEL_SEED: "42"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # Frontend — Vite / React dev server
+  # ---------------------------------------------------------------------------
+  frontend:
+    image: node:20-alpine
+    container_name: sentinel_frontend
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: "http://localhost:8000/api/v1"
+    depends_on:
+      - api
+    profiles:
+      # Only start frontend when explicitly requested:
+      #   docker-compose --profile frontend up
+      - frontend
+
+# ---------------------------------------------------------------------------
+# Named volumes
+# ---------------------------------------------------------------------------
+volumes:
+  experiments_data:
+    driver: local

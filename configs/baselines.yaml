@@ -1,0 +1,77 @@
+# configs/baselines.yaml — Named baseline method metrics for comparison.
+#
+# Each entry is a named defense configuration (or lack thereof).
+# Values are expected metrics from the literature / our own ablation runs.
+# null = metric not measured for that baseline.
+#
+# Consumed by BenchmarkReporter.compare_baseline(baseline_name).
+
+baselines:
+
+  # No defence whatsoever — plain FedAvg, no L1/L2/L3.
+  no_defense:
+    description: "Plain FedAvg with no backdoor defense."
+    clean_accuracy: 0.92
+    attack_success_rate: 0.95
+    robust_accuracy: null
+    precision: null
+    recall: null
+    f1_score: null
+    false_positive_rate: null
+    false_acceptance_rate: null
+    false_rejection_rate: null
+    detection_latency_ms: null
+    communication_cost_bytes: null
+    runtime_seconds: null
+    peak_memory_mb: null
+
+  # FedAvg only — no Krum, no STRIP.
+  fedavg_only:
+    description: "FedAvg aggregation only — no robust aggregation or detection."
+    clean_accuracy: 0.91
+    attack_success_rate: 0.78
+    robust_accuracy: null
+    precision: null
+    recall: null
+    f1_score: null
+    false_positive_rate: null
+    false_acceptance_rate: null
+    false_rejection_rate: null
+    detection_latency_ms: null
+    communication_cost_bytes: null
+    runtime_seconds: null
+    peak_memory_mb: null
+
+  # Multi-Krum aggregation only — L1 only, no L2/L3.
+  multi_krum_only:
+    description: "Multi-Krum robust aggregation — L1 only."
+    clean_accuracy: 0.90
+    attack_success_rate: 0.42
+    robust_accuracy: 0.88
+    precision: 0.71
+    recall: 0.65
+    f1_score: 0.68
+    false_positive_rate: 0.08
+    false_acceptance_rate: null
+    false_rejection_rate: null
+    detection_latency_ms: null
+    communication_cost_bytes: null
+    runtime_seconds: null
+    peak_memory_mb: null
+
+  # STRIP only — L3 only, no L1/L2.
+  strip_only:
+    description: "STRIP runtime detection — L3 only, no upstream defense."
+    clean_accuracy: 0.91
+    attack_success_rate: 0.51
+    robust_accuracy: 0.85
+    precision: 0.78
+    recall: 0.72
+    f1_score: 0.75
+    false_positive_rate: 0.06
+    false_acceptance_rate: 0.28
+    false_rejection_rate: 0.04
+    detection_latency_ms: 8.2
+    communication_cost_bytes: null
+    runtime_seconds: null
+    peak_memory_mb: null

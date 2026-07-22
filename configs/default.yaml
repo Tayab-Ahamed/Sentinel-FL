@@ -1,0 +1,120 @@
+# configs/default.yaml — SENTINEL-FL default configuration
+#
+# All fields correspond to the Configuration schema defined in SCHEMAS.md.
+# Values here are the Phase 0 synthetic-data defaults used in RESULTS.md.
+# Override per-experiment by creating a sibling YAML file and referencing it
+# in the Experiment.config_ref field.
+
+# ---------------------------------------------------------------------------
+# Federated learning topology
+# ---------------------------------------------------------------------------
+n_clients: 12
+n_rounds: 20
+
+# Minimum clients that must respond for a round to proceed.
+# Aggregator raises InsufficientClientsError if fewer respond (INTERFACES.md).
+min_clients: 6
+
+# ---------------------------------------------------------------------------
+# Aggregation
+# ---------------------------------------------------------------------------
+# Registered Aggregator name (see configs/registry.yaml).
+aggregator: multi_krum
+
+# Multi-Krum: assumed number of malicious clients (Blanchard et al. 2017 f parameter).
+krum_f: 3
+
+# Multi-Krum: number of client updates to include in the aggregate.
+# Typically n_clients - krum_f.
+krum_select: 9
+
+# ---------------------------------------------------------------------------
+# L1 — Update Guard / Collusion Clustering
+# ---------------------------------------------------------------------------
+# Cosine-similarity threshold above which two clients' residual updates are
+# considered part of the same colluding cluster (ARCHITECTURE.md §2.1).
+collusion_sim_threshold: 0.85
+
+# Minimum cluster size to flag as a collusion event. Must be >= 2.
+# Clusters smaller than this are not flagged — single-client outliers are
+# Multi-Krum's job, not the collusion guard's.
+collusion_min_cluster_size: 2
+
+# ---------------------------------------------------------------------------
+# L2 — Model Auditor
+# ---------------------------------------------------------------------------
+# How often (in FL rounds) to run the L2 offline audit.
+# Set high (e.g. 999) to disable L2 in ablation runs.
+audit_interval_rounds: 5
+
+# Number of labels to skip early-termination heuristic (Neural Cleanse §1.2).
+# For n_classes <= this threshold, always audit all labels.
+audit_early_termination_threshold: 10
+
+# ---------------------------------------------------------------------------
+# L3 — Runtime Sentinel (STRIP-style entropy detector)
+# ---------------------------------------------------------------------------
+# Registered Detector names to activate. All three are on by default; disable
+# individually in ablation configs.
+detectors:
+  - strip_entropy
+  # - activation_consistency  # requires PyTorch CNN — enabled in Phase 1
+  # - neural_cleanse_audit    # L2 detector, enabled when L2 is active
+
+# Number of blended perturbations per input for the STRIP entropy signal.
+strip_n_perturb: 50
+
+# False-rejection rate target used to calibrate the detection boundary.
+# At 0.02, 2% of clean inputs are expected to be incorrectly flagged.
+strip_target_frr: 0.02
+
+# ---------------------------------------------------------------------------
+# Dataset
+# ---------------------------------------------------------------------------
+# "phase0_synthetic" | "phase1_official"
+dataset_phase: phase0_synthetic
+
+# Phase 0 synthetic data parameters (ignored when dataset_phase=phase1_official).
+synthetic:
+  n_samples: 3000
+  n_features: 20
+  n_classes: 4
+  dirichlet_alpha: 0.5
+
+# ---------------------------------------------------------------------------
+# Attack simulation (for evaluation runs — never seen by defense pipeline)
+# ---------------------------------------------------------------------------
+attack:
+  type: badnet_colluding
+  target_class: 0
+  trigger_block_start: 0
+  trigger_block_end: 3
+  trigger_value: 6.0
+  poison_fraction: 0.15
+  malicious_client_indices: [2, 5, 9]
+
+# ---------------------------------------------------------------------------
+# Reproducibility
+# ---------------------------------------------------------------------------
+seed: 42
+
+# ---------------------------------------------------------------------------
+# Training (local client training per round)
+# ---------------------------------------------------------------------------
+local_epochs: 5
+local_lr: 0.2
+
+# ---------------------------------------------------------------------------
+# Model Registry
+# ---------------------------------------------------------------------------
+# Directory (relative to project root) where model checkpoints are stored.
+model_registry_dir: experiments/checkpoints
+
+# Number of most-recent non-audit-round checkpoints to retain (0 = keep all).
+registry_retention_k: 10
+
+# ---------------------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------------------
+log_level: INFO
+log_sink: stdout   # "stdout" or an absolute path to a .jsonl file

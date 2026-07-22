@@ -1,0 +1,94 @@
+# configs/registry.yaml — SENTINEL-FL component registry
+#
+# Every concrete implementation of an interface (Detector, Aggregator, AttackSimulator)
+# registers itself here by name so layers are composed by configuration, not by editing
+# layer code. See INTERFACES.md Registration Convention for the contract.
+#
+# Format:
+#   <interface_name>:
+#     <registered_name>:
+#       module: <python.module.path>
+#       class: <ClassName>
+#       description: <human-readable>
+
+# ---------------------------------------------------------------------------
+# Aggregators  (implement ai.fl_core.interfaces.Aggregator)
+# ---------------------------------------------------------------------------
+aggregators:
+  fed_avg:
+    module: ai.fl_core.fl_engine
+    class: FedAvgAggregator
+    description: "Vanilla federated averaging (no defence) — lower bound baseline"
+
+  multi_krum:
+    module: ai.fl_core.fl_engine
+    class: MultiKrumAggregator
+    description: "Blanchard et al. 2017 Multi-Krum robust aggregation"
+
+# ---------------------------------------------------------------------------
+# Detectors  (implement ai.fl_core.interfaces.Detector)
+# ---------------------------------------------------------------------------
+detectors:
+  strip_entropy:
+    module: ai.detection.runtime_sentinel
+    class: StripEntropyDetector
+    layer: L3
+    description: "STRIP-style perturbation entropy signal (Gao et al., ACSAC 2019)"
+
+  activation_consistency:
+    module: ai.detection.activation_consistency
+    class: ActivationConsistencyDetector
+    layer: L3
+    description: "Penultimate-layer activation variance signal — requires PyTorch CNN"
+    requires_pytorch: true
+
+  neural_cleanse_audit:
+    module: ai.detection.model_auditor
+    class: ModelAuditorDetector
+    layer: L2
+    description: "Neural Cleanse-style per-label trigger reverse engineering with within-cohort relative outlier test"
+
+# ---------------------------------------------------------------------------
+# Defense Strategies  (implement ai.fl_core.interfaces.DefenseStrategy)
+# ---------------------------------------------------------------------------
+strategies:
+  update_guard:
+    module: ai.detection.update_guard
+    class: CollusionGuardStrategy
+    layer: L1
+    description: "Multi-Krum + residual collusion clustering (L1 Update Guard)"
+
+  model_auditor_strategy:
+    module: ai.detection.model_auditor
+    class: ModelAuditorStrategy
+    layer: L2
+    description: "Periodic offline Neural-Cleanse-style model audit (L2 Model Auditor)"
+
+  runtime_sentinel_strategy:
+    module: ai.detection.runtime_sentinel
+    class: RuntimeSentinelStrategy
+    layer: L3
+    description: "Per-inference STRIP + activation-consistency fusion (L3 Runtime Sentinel)"
+
+# ---------------------------------------------------------------------------
+# Attack Simulators  (implement ai.fl_core.interfaces.AttackSimulator)
+# ---------------------------------------------------------------------------
+attack_simulators:
+  badnet_colluding:
+    module: ai.training.poison
+    class: BadNetsAttackSimulator
+    description: "BadNets trigger injection shared across colluding clients (Gu et al. 2017)"
+
+# ---------------------------------------------------------------------------
+# Dataset Loaders  (implement ai.fl_core.interfaces.DatasetLoader)
+# ---------------------------------------------------------------------------
+dataset_loaders:
+  phase0_synthetic:
+    module: ai.training.dataset_loader
+    class: SyntheticDatasetLoader
+    description: "Phase 0 Gaussian-blob synthetic data with Dirichlet non-IID partitioning"
+
+  phase1_official:
+    module: ai.training.dataset_loader
+    class: OfficialDatasetLoader
+    description: "Phase 1 official GSC26 Challenge 1 dataset (available from 13 July)"

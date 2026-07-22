@@ -1,0 +1,49 @@
+# configs/explainability.yaml — Explainability Module configuration for SENTINEL-FL.
+#
+# All fields consumed by SHAPExplainer, ChartGenerator, and explainer classes.
+
+explainability:
+
+  # ---------------------------------------------------------------------------
+  # SHAP (model-agnostic feature attribution)
+  # ---------------------------------------------------------------------------
+  # Enable SHAP explanations.  If False, only permutation importance is used.
+  # Automatically disabled if the `shap` package is not installed.
+  shap_enabled: true
+
+  # Number of background samples for KernelExplainer.
+  # More = more accurate but slower.  50–100 is typical.
+  shap_n_background: 50
+
+  # Number of samples used for SHAP estimation per input.
+  shap_nsamples: 100
+
+  # ---------------------------------------------------------------------------
+  # Feature importance
+  # ---------------------------------------------------------------------------
+  # Number of permutation repeats for permutation_importance().
+  permutation_n_repeats: 10
+
+  # Top-K features to include in explanation outputs.
+  top_k_features: 10
+
+  # ---------------------------------------------------------------------------
+  # Charts
+  # ---------------------------------------------------------------------------
+  # Output format: "png" only for now (SVG planned for Milestone 9+).
+  chart_format: "png"
+
+  # Chart DPI (resolution).
+  chart_dpi: 120
+
+  # Default output directory for saved charts.
+  # Can be overridden per call via save_to= parameter.
+  output_dir: "experiments/explanations"
+
+  # Colour palette for charts.
+  chart_palette: "sentinel"   # uses the project's blue/amber/red theme
+
+  # ---------------------------------------------------------------------------
+  # Logging
+  # ---------------------------------------------------------------------------
+  emit_explain_events: true

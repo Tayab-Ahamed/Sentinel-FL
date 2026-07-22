@@ -1,0 +1,67 @@
+# configs/datasets.yaml — Dataset-specific configuration for SENTINEL-FL.
+#
+# These values are consumed by DatasetRegistry.get_loader() and
+# BaseDatasetLoader subclasses.  Override in experiment-specific YAML files.
+
+# ---------------------------------------------------------------------------
+# Active dataset
+# ---------------------------------------------------------------------------
+# Which dataset to use.  Must match a key in DatasetRegistry.
+# Options: "mnist" | "cifar10" | "synthetic" | "phase1_official"
+dataset_name: mnist
+
+# Root directory for dataset downloads and .cache/
+data_dir: datasets
+
+# ---------------------------------------------------------------------------
+# Dataset-specific parameters
+# ---------------------------------------------------------------------------
+
+datasets:
+  mnist:
+    n_classes: 10
+    input_shape: [1, 28, 28]
+    mean: [0.1307]
+    std:  [0.3081]
+    # Fraction of the test set reserved as server-side clean holdout.
+    holdout_fraction: 0.5
+
+  cifar10:
+    n_classes: 10
+    input_shape: [3, 32, 32]
+    mean: [0.4914, 0.4822, 0.4465]
+    std:  [0.2023, 0.1994, 0.2010]
+    holdout_fraction: 0.5
+
+  synthetic:
+    n_samples: 3000
+    n_features: 20
+    n_classes: 4
+    holdout_fraction: 0.5
+
+# ---------------------------------------------------------------------------
+# Partitioning
+# ---------------------------------------------------------------------------
+
+partitioning:
+  # Strategy: "iid" or "dirichlet"
+  strategy: dirichlet
+
+  # Dirichlet concentration parameter α (only used when strategy=dirichlet).
+  # Typical values:
+  #   α = 0.1  — extreme non-IID (each client mostly one class)
+  #   α = 0.5  — moderate non-IID (default)
+  #   α = 10.0 — near-IID
+  dirichlet_alpha: 0.5
+
+# ---------------------------------------------------------------------------
+# Reproducibility
+# ---------------------------------------------------------------------------
+seed: 42
+
+# ---------------------------------------------------------------------------
+# Cache settings
+# ---------------------------------------------------------------------------
+cache:
+  # Enable disk cache (.npz files under data_dir/.cache/).
+  enabled: true

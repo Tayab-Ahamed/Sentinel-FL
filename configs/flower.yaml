@@ -1,0 +1,61 @@
+# configs/flower.yaml
+# SENTINEL-FL Flower Baseline Configuration
+# All fields correspond to ai.fl_core.schemas.Configuration.
+# This is the Phase 1 / Flower training configuration.
+
+# ── FL Topology ─────────────────────────────────────────────────────────────
+n_clients: 10           # Number of simulated FL clients
+n_rounds: 10            # Number of FL communication rounds
+min_clients: 5          # Minimum clients required for a round to proceed
+
+# ── Aggregation ─────────────────────────────────────────────────────────────
+aggregator: fedavg      # "fedavg" for Milestone 2 baseline (no L1 guard yet)
+krum_f: 2               # f = number of Byzantine clients assumed (L1, Milestone 3)
+krum_select: 8          # m = number of clients selected by Multi-Krum (L1)
+
+# ── L1 Collusion Guard ──────────────────────────────────────────────────────
+# (Not active for Milestone 2 baseline)
+collusion_sim_threshold: 0.85
+collusion_min_cluster_size: 2
+
+# ── L2 Model Auditor ────────────────────────────────────────────────────────
+audit_interval_rounds: 5   # Audit the global model every 5 rounds
+audit_early_termination_threshold: 10
+
+# ── L3 Runtime Sentinel ─────────────────────────────────────────────────────
+detectors:
+  - strip_entropy
+strip_n_perturb: 50
+strip_target_frr: 0.02
+
+# ── Dataset ─────────────────────────────────────────────────────────────────
+dataset_phase: phase1_official   # MNIST (downloaded via torchvision)
+synthetic:
+  n_samples: 3000
+  n_features: 20
+  n_classes: 4
+  dirichlet_alpha: 0.5
+
+attack:
+  type: badnet_colluding
+  target_class: 0
+  trigger_block_start: 0
+  trigger_block_end: 3
+  trigger_value: 6.0
+  poison_fraction: 0.15
+  malicious_client_indices: [2, 5, 9]
+
+# ── Training ────────────────────────────────────────────────────────────────
+local_epochs: 1         # Local training epochs per round (fast default)
+local_lr: 0.01          # SGD learning rate
+
+# ── Model Registry ──────────────────────────────────────────────────────────
+model_registry_dir: experiments/checkpoints
+registry_retention_k: 10    # Keep last 10 checkpoints
+
+# ── Reproducibility ─────────────────────────────────────────────────────────
+seed: 42
+
+# ── Logging ─────────────────────────────────────────────────────────────────
+log_level: INFO
+log_sink: stdout

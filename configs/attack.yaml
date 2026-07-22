@@ -1,0 +1,76 @@
+# configs/attack.yaml — Attack engine configuration for SENTINEL-FL Milestone 4.
+#
+# All fields consumed by BadNetsImageAttack.from_config() and
+# TriggerFactory.from_config().
+# Override in experiment-specific YAML files.
+
+# ---------------------------------------------------------------------------
+# Attack
+# ---------------------------------------------------------------------------
+attack:
+  # Attack type identifier. Currently: "badnets_image"
+  type: badnets_image
+
+  # Backdoor target label — the class the trigger causes the model to predict.
+  target_label: 0
+
+  # Fraction of each malicious client's eligible data to poison per round.
+  # E.g. 0.15 → 15% of non-target-class samples receive the trigger.
+  poison_fraction: 0.15
+
+  # Explicit list of malicious client indices (0-based).
+  # If non-empty, takes priority over malicious_client_fraction.
+  malicious_client_indices: [2, 5]
+
+  # Fraction of total clients that are malicious (used when
+  # malicious_client_indices is empty).
+  malicious_client_fraction: 0.25
+
+  # If true, only samples whose original label != target_label are poisoned.
+  # Recommended: true (avoids wasting poison budget on already-target samples).
+  poison_non_target_only: true
+
+# ---------------------------------------------------------------------------
+# Trigger
+# ---------------------------------------------------------------------------
+trigger:
+  # Shape of the trigger patch.
+  # Options: square | cross | checkerboard | random_noise
+  shape: square
+
+  # Side length of the trigger patch in pixels.
+  size: 4
+
+  # Where on the image the trigger is placed.
+  # Options: bottom_right | top_left | top_right | bottom_left | center
+  location: bottom_right
+
+  # Trigger pixel intensity (normalised).
+  # For MNIST: 1.0 = white (max intensity after normalisation).
+  # For CIFAR-10: use a value appropriate for the per-channel norm.
+  color: 1.0
+
+  # Blending ratio: 1.0 = fully opaque; 0.5 = 50% blend with original pixel.
+  opacity: 1.0
+
+  # Random seed for random_noise shape (ignored for other shapes).
+  seed: 0
+
+# ---------------------------------------------------------------------------
+# Evaluation
+# ---------------------------------------------------------------------------
+evaluation:
+  # Compute and log ASR after every FL round (true) or only at the end (false).
+  eval_asr_every_round: true
+
+  # Save a clean-vs-poisoned image grid after the first poisoning round.
+  save_poisoned_grid: true
+
+  # Number of poisoned samples to include in the visualisation grid.
+  n_grid_samples: 16
+
+  # Save ASR-over-rounds line chart at experiment end.
+  save_asr_curve: true
+
+  # Directory for saving visualisation artifacts (relative to experiment root).
+  output_dir: experiments/attack_eval

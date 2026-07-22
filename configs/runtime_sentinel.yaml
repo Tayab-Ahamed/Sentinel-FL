@@ -1,0 +1,70 @@
+# configs/runtime_sentinel.yaml — L3 Runtime Sentinel configuration for SENTINEL-FL.
+#
+# All fields consumed by RuntimeSentinelStrategy and sub-components.
+
+# ---------------------------------------------------------------------------
+# L3 Runtime Sentinel
+# ---------------------------------------------------------------------------
+runtime_sentinel:
+
+  # ---------------------------------------------------------------------------
+  # STRIP entropy detector (Signal 1)
+  # ---------------------------------------------------------------------------
+  # Number of blended perturbations per inference input.
+  # Higher = more accurate but slower. STRIP paper uses 100; 50 is the default.
+  n_perturb: 50
+
+  # False-rejection rate budget for boundary calibration.
+  # 0.02 = 2% of clean inputs will be rejected as false positives.
+  target_frr: 0.02
+
+  # Minimum clean samples required to calibrate the entropy boundary.
+  min_calibration_samples: 30
+
+  # ---------------------------------------------------------------------------
+  # Fusion + alert thresholds
+  # ---------------------------------------------------------------------------
+  # Fused score above which an inference is flagged and an alert is generated.
+  alert_threshold: 0.5
+
+  # Severity bands for SentinelAlert.alert_severity:
+  #   fused_score < low_medium_boundary  → "low"
+  #   low_medium_boundary ≤ score < medium_high_boundary → "medium"
+  #   score ≥ medium_high_boundary       → "high"
+  low_medium_boundary: 0.4
+  medium_high_boundary: 0.7
+
+  # ---------------------------------------------------------------------------
+  # Fusion classifier (Signal 1 + Signal 2)
+  # ---------------------------------------------------------------------------
+  # Enable the logistic fusion classifier (requires L2 audit history labels).
+  # When False or uncalibrated, falls back to weighted average.
+  fusion_enabled: true
+
+  # Weight for Signal 1 (entropy) in the weighted-average fallback.
+  # Signal 2 weight = 1.0 - fusion_signal1_weight.
+  fusion_signal1_weight: 1.0    # effectively Signal 1 only until calibrated
+
+  # Minimum number of L2 confirmed labels needed before the logistic
+  # classifier is trained (prevents premature overfitting).
+  fusion_min_labels: 10
+
+  # ---------------------------------------------------------------------------
+  # Confidence analysis / global model monitoring
+  # ---------------------------------------------------------------------------
+  # Minimum mean prediction confidence drop (absolute, 0–1) over the sliding
+  # window that triggers a confidence-drop alert.
+  confidence_drop_threshold: 0.15
+
+  # Number of rounds in the sliding window for confidence monitoring.
+  anomaly_window_rounds: 5
+
+  # ---------------------------------------------------------------------------
+  # Structured logging
+  # ---------------------------------------------------------------------------
+  # Emit L3 "input_flagged" structured log events.
+  emit_l3_events: true
+
+  # Target inference latency budget in milliseconds.
+  # Exceeded latency is logged as a warning (detection still runs; never skipped).
+  latency_budget_ms: 50

@@ -1,0 +1,8 @@
+{
+  "model_id": "a8fdecdb-4e47-4582-af44-18fc1075bda6",
+  "round_num": 2,
+  "architecture": "mnist_simplecnn_v1",
+  "parent_model_id": null,
+  "clean_accuracy": null,
+  "created_at": "2026-07-11T06:43:37.051731+00:00"
+}

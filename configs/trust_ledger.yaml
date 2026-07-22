@@ -1,0 +1,43 @@
+# configs/trust_ledger.yaml — L4 Trust Ledger configuration for SENTINEL-FL Milestone 6.
+#
+# All fields consumed by FileTrustLedger.__init__() and ReputationEngine.
+
+# ---------------------------------------------------------------------------
+# Trust Ledger (L4)
+# ---------------------------------------------------------------------------
+trust_ledger:
+  # Per-round exponential decay applied to all TrustScores.
+  # 0.0 = no decay (scores accumulate forever).
+  # 0.1 = 10% reduction per round (score halves in ~7 rounds).
+  decay_rate: 0.1
+
+  # Score threshold above which a client is considered suspicious.
+  # Used by suspicious_above() and top_k_suspicious().
+  suspicious_threshold: 0.5
+
+  # Maximum number of TrustLedgerEntry objects to keep per client
+  # in the in-memory subject index.  Older entries are evicted first.
+  max_history_per_client: 200
+
+  # Emit a structured "L4 ledger_entry_added" log event for every
+  # add_entry() call.  Disable for very high-frequency runs.
+  emit_l4_events: true
+
+  # ---------------------------------------------------------------------------
+  # Write retry / buffer
+  # ---------------------------------------------------------------------------
+  # Maximum number of write attempts before giving up and buffering.
+  write_max_retries: 3
+
+  # Back-off between retry attempts (milliseconds).
+  write_retry_backoff_ms: 50
+
+  # ---------------------------------------------------------------------------
+  # Visualization / analytics
+  # ---------------------------------------------------------------------------
+  # Number of rounds included in the default reputation heatmap window.
+  # None means include all rounds.
+  heatmap_window_rounds: 20
+
+  # Top-k default for top_k_suspicious().
+  top_k_default: 5

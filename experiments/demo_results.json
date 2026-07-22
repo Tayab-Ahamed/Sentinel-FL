@@ -1,0 +1,22 @@
+{
+  "fedavg": {
+    "clean_accuracy": 1.0,
+    "attack_success_rate": 0.9888888888888889
+  },
+  "multikrum": {
+    "clean_accuracy": 1.0,
+    "attack_success_rate": 0.2577777777777778
+  },
+  "multikrum+guard": {
+    "clean_accuracy": 1.0,
+    "attack_success_rate": 0.2577777777777778,
+    "rounds_with_any_cluster_flag": 20,
+    "rounds_correctly_flagging_malicious_cluster": 9,
+    "total_rounds": 20,
+    "strip_frr_on_clean": 0.02,
+    "strip_detection_rate_on_triggered": 0.25,
+    "strip_boundary": 0.5441216840387244,
+    "strip_mean_entropy_clean": 0.7695738842142542,
+    "strip_mean_entropy_triggered": 0.636182482695808
+  }
+}
