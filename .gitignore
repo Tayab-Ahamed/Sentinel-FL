@@ -57,6 +57,9 @@ experiments/tmpcn3i4xxj*
 # Checkpoints are large — exclude from git (stored as CI artifacts)
 experiments/checkpoints/*.npz
 experiments/checkpoints/*.npy
+experiments/checkpoints/*.pt
+*.pt
+*.pth
 
 # ---------------------------------------------------------------------------
 # Datasets — never commit raw data
