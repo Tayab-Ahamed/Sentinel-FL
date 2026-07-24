@@ -140,8 +140,15 @@ class TestConfidenceAnalyzer:
 
         probs = _probs_batch(50, 3)
         stats = batch_confidence_stats(probs)
-        for key in ("n_samples", "mean_confidence", "std_confidence",
-                    "min_confidence", "max_confidence", "mean_entropy", "mean_top2_margin"):
+        for key in (
+            "n_samples",
+            "mean_confidence",
+            "std_confidence",
+            "min_confidence",
+            "max_confidence",
+            "mean_entropy",
+            "mean_top2_margin",
+        ):
             assert key in stats
 
     def test_batch_confidence_stats_n_samples(self):
@@ -247,7 +254,9 @@ class TestFusionClassifier:
 
         rng = np.random.default_rng(0)
         fc = FusionClassifier(min_labels=5)
-        fc.fit(rng.uniform(size=10).tolist(), rng.uniform(size=10).tolist(), [i % 2 for i in range(10)])
+        fc.fit(
+            rng.uniform(size=10).tolist(), rng.uniform(size=10).tolist(), [i % 2 for i in range(10)]
+        )
         fc.reset()
         assert not fc.is_calibrated
         assert fc.n_training_examples == 0
@@ -257,7 +266,9 @@ class TestFusionClassifier:
 
         rng = np.random.default_rng(9)
         fc = FusionClassifier(min_labels=5)
-        fc.fit(rng.uniform(size=12).tolist(), rng.uniform(size=12).tolist(), [i % 2 for i in range(12)])
+        fc.fit(
+            rng.uniform(size=12).tolist(), rng.uniform(size=12).tolist(), [i % 2 for i in range(12)]
+        )
         state = fc.save_state()
         fc2 = FusionClassifier(min_labels=5)
         fc2.load_state(state)
@@ -386,8 +397,13 @@ class TestInferenceMonitor:
         m.calibrate(probs)
         m.update(probs, round_num=1)
         s = m.summary()
-        for key in ("n_rounds_monitored", "baseline_mean_conf", "current_mean_conf",
-                    "anomaly_events", "current_anomaly_score"):
+        for key in (
+            "n_rounds_monitored",
+            "baseline_mean_conf",
+            "current_mean_conf",
+            "anomaly_events",
+            "current_anomaly_score",
+        ):
             assert key in s
 
     def test_reset_wipes_all(self):
@@ -851,9 +867,7 @@ class TestRuntimeSentinelStrategyProcess:
         strip = StripEntropyDetector(n_perturb=5, min_calibration_samples=10)
         activation = ActivationConsistencyDetector()
         # Pre-add with dummy cal states
-        strategy = RuntimeSentinelStrategy(
-            detectors=[(strip, None), (activation, None)]
-        )
+        strategy = RuntimeSentinelStrategy(detectors=[(strip, None), (activation, None)])
         strategy.calibrate_all(model, X)
         # ActivationConsistencyDetector raises UnsupportedModelError → removed
         assert len(strategy._detectors) == 1
@@ -871,9 +885,15 @@ class TestSentinelMetrics:
         ctx = _make_context(model, X[0])
         strategy.process(ctx)
         m = strategy.metrics()
-        for key in ("total_inferences", "flagged_inferences", "flag_rate",
-                    "active_detectors", "per_detector_latency_ms",
-                    "alert_manager_stats", "fusion_is_calibrated"):
+        for key in (
+            "total_inferences",
+            "flagged_inferences",
+            "flag_rate",
+            "active_detectors",
+            "per_detector_latency_ms",
+            "alert_manager_stats",
+            "fusion_is_calibrated",
+        ):
             assert key in m
 
     def test_metrics_total_inferences(self):

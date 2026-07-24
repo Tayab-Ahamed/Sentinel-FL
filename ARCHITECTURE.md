@@ -332,7 +332,8 @@ single canonical location.
   flow.
 - **Scalability**: unlearning/pruning cost is one fine-tuning pass — cheap relative to
   full retraining, per Neural Cleanse's own reported cost comparison.
-- **Status**: **implemented** in `ai/remediation/` (`remediation_engine.py`,
+- **Status**: **implemented** for NumPy and PyTorch/CNN backends in `ai/remediation/`
+  (`remediation_engine.py`, `TorchModelAdapter`, activation-aware `TorchFinePruner`,
   `rollback.py`, `unlearning.py`, `pruning.py`, `adapters.py`, `triggers.py`), exposed at
   `GET /api/v1/experiments/{id}/remediation` and
   `GET /api/v1/remediation/manual-review`, configured via `configs/remediation.yaml`,
@@ -478,4 +479,3 @@ flowchart LR
     ai_fl_core -.tests.-> tests
     ai_detection -.tests.-> tests
 ```
-

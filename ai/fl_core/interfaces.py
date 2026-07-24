@@ -276,7 +276,9 @@ class DatasetLoader(ABC):
     """
 
     @abstractmethod
-    def load_client_partitions(self, n_clients: int, config: Configuration) -> list[tuple[Any, Any]]:
+    def load_client_partitions(
+        self, n_clients: int, config: Configuration
+    ) -> list[tuple[Any, Any]]:
         """Return a list of ``(X, y)`` tuples, one per client.
 
         Uses Dirichlet non-IID partitioning in Phase 0.

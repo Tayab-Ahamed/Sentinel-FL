@@ -175,11 +175,14 @@ class TestComputeCleanAccuracy:
 class TestEvaluateRound:
     def test_returns_attack_eval_result(self, evaluator, attacker):
         from ai.attacks.attack_report import AttackEvalResult
+
         X, y = _clean_data(n=50)
         model = AlwaysTargetModel(target=0, n_classes=5)
         result = evaluator.evaluate_round(
-            model=model, attacker=attacker,
-            X_clean_eval=X, y_clean_eval=y,
+            model=model,
+            attacker=attacker,
+            X_clean_eval=X,
+            y_clean_eval=y,
             round_num=0,
         )
         assert isinstance(result, AttackEvalResult)
@@ -214,6 +217,7 @@ class TestEvaluateRound:
         # First create a round report by poisoning
         X_client, y_client = _clean_data(n=40)
         from unittest.mock import MagicMock
+
         attacker.poison_client_data(X_client, y_client, "client_02", 0, MagicMock(seed=42))
 
         model = AlwaysTargetModel()

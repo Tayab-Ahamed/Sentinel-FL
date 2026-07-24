@@ -14,6 +14,7 @@ Output:
     - Console: formatted comparison table (mean ± std over seeds)
     - File:    machine-readable JSON (experiments/benchmark_results.json)
 """
+
 from __future__ import annotations
 
 import argparse
@@ -44,7 +45,7 @@ SCENARIOS = {
         "desc": "Single malicious client, BadNets trigger",
         "n_clients": 12,
         "n_rounds": 20,
-        "malicious": [2],          # 1/12 = 8%
+        "malicious": [2],  # 1/12 = 8%
         "poison_fraction": 0.30,
         "trigger_value": 6.0,
     },
@@ -52,8 +53,8 @@ SCENARIOS = {
         "desc": "Colluding minority (3 clients, individually-mild poisoning)",
         "n_clients": 12,
         "n_rounds": 20,
-        "malicious": [2, 5, 9],    # 3/12 = 25%
-        "poison_fraction": 0.15,   # mild per-client
+        "malicious": [2, 5, 9],  # 3/12 = 25%
+        "poison_fraction": 0.15,  # mild per-client
         "trigger_value": 6.0,
     },
     "colluding_aggressive": {
@@ -67,8 +68,8 @@ SCENARIOS = {
 }
 
 STRATEGIES = {
-    "fedavg":         "No defense (FedAvg baseline)",
-    "multikrum":      "Multi-Krum only",
+    "fedavg": "No defense (FedAvg baseline)",
+    "multikrum": "Multi-Krum only",
     "multikrum_guard": "Multi-Krum + L1 Collusion Guard",
 }
 
@@ -115,7 +116,10 @@ def _run_single(strategy: str, scenario: dict, seed: int) -> dict:
             Xc, yc = X_train[idx].copy(), y_train[idx].copy()
             if cid in malicious and len(Xc) > 5:
                 Xc, yc, _ = inject_trigger(
-                    Xc, yc, TARGET_CLASS, TRIGGER_BLOCK,
+                    Xc,
+                    yc,
+                    TARGET_CLASS,
+                    TRIGGER_BLOCK,
                     trigger_value=trigger_value,
                     poison_fraction=poison_fraction,
                     seed=seed * 1000 + rnd * 20 + cid,
@@ -130,6 +134,7 @@ def _run_single(strategy: str, scenario: dict, seed: int) -> dict:
             agg_delta, _ = multi_krum(updates, krum_f, krum_select)
             if strategy == "multikrum_guard":
                 from ai.detection.update_guard import detect_collusion_clusters
+
                 result = detect_collusion_clusters(
                     updates, agg_delta, sim_threshold=0.85, min_cluster_size=2
                 )
@@ -142,12 +147,19 @@ def _run_single(strategy: str, scenario: dict, seed: int) -> dict:
     m = LinearSoftmaxModel(N_FEATURES, N_CLASSES)
     m.set_params(model_params)
     clean_acc = float((m.predict(X_test) == y_test).mean())
-    asr = float((m.predict(X_test_triggered) == TARGET_CLASS).mean())
+    from ai.evaluation.metrics_engine import attack_success_rate
 
-    guard_detections = sum(
-        1 for clusters in guard_log
-        if clusters and any(set(cl) & set(malicious) for cl in clusters)
-    ) if guard_log else 0
+    asr = attack_success_rate(y_test, m.predict(X_test_triggered), TARGET_CLASS)
+
+    guard_detections = (
+        sum(
+            1
+            for clusters in guard_log
+            if clusters and any(set(cl) & set(malicious) for cl in clusters)
+        )
+        if guard_log
+        else 0
+    )
 
     return {
         "clean_accuracy": clean_acc,
@@ -203,6 +215,7 @@ def _run_scenario(
 # Table printer
 # ---------------------------------------------------------------------------
 
+
 def _print_summary(all_results: dict) -> None:
     print("\n" + "=" * 70)
     print("BENCHMARK SUMMARY")
@@ -223,6 +236,7 @@ def _print_summary(all_results: dict) -> None:
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="SENTINEL-FL benchmark runner")

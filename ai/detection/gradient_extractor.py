@@ -55,8 +55,7 @@ def extract_delta(
     """
     if len(prev_params) != len(new_params):
         raise ValueError(
-            f"Parameter list length mismatch: "
-            f"prev={len(prev_params)}, new={len(new_params)}"
+            f"Parameter list length mismatch: prev={len(prev_params)}, new={len(new_params)}"
         )
     diff_flat = np.concatenate(
         [
@@ -90,9 +89,7 @@ def extract_all_deltas(
             delta = extract_delta(prev_params, new_params)
             deltas.append(delta)
         except Exception as exc:
-            logger.warning(
-                "GradientExtractor: failed to extract delta for a client: %s", exc
-            )
+            logger.warning("GradientExtractor: failed to extract delta for a client: %s", exc)
             # Insert a zero delta as placeholder so index alignment is preserved
             total = sum(p.size for p in prev_params)
             deltas.append(np.zeros(total, dtype=np.float32))
@@ -181,9 +178,7 @@ class GradientExtractor:
         self._prev_params: list[np.ndarray] = [p.copy() for p in initial_params]
         self._norm_type = norm_type
         self._total_params = sum(p.size for p in initial_params)
-        logger.debug(
-            "GradientExtractor: initialized with %d total parameters.", self._total_params
-        )
+        logger.debug("GradientExtractor: initialized with %d total parameters.", self._total_params)
 
     def extract_round_deltas(
         self,

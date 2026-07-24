@@ -1,0 +1,213 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-07-24T12:32:06.069643+00:00",
+  "methodology": {
+    "n_clients": 12,
+    "n_rounds": 8,
+    "n_samples": 1800,
+    "n_features": 20,
+    "n_classes": 4,
+    "asr_definition": "source-only; excludes true target-class samples",
+    "acceptance": {
+      "max_asr": 0.1,
+      "max_clean_accuracy_drop": 0.1
+    }
+  },
+  "summary": {
+    "scenario_count": 8,
+    "remediation_acceptance_rate": 1.0,
+    "fedavg_asr": {
+      "mean": 0.6347276264591439,
+      "median": 0.6381322957198443,
+      "worst": 0.9455252918287937,
+      "ci95_mean": [
+        0.48978599221789887,
+        0.7709143968871595
+      ]
+    },
+    "defended_asr": {
+      "mean": 0.014105058365758755,
+      "median": 0.0,
+      "worst": 0.08949416342412451,
+      "ci95_mean": [
+        0.0,
+        0.036478599221789886
+      ]
+    },
+    "remediation_asr": {
+      "mean": 0.0,
+      "median": 0.0,
+      "worst": 0.0,
+      "ci95_mean": [
+        0.0,
+        0.0
+      ]
+    },
+    "defended_clean_accuracy": {
+      "mean": 1.0,
+      "median": 1.0,
+      "worst": 1.0,
+      "ci95_mean": [
+        1.0,
+        1.0
+      ]
+    },
+    "remediation_clean_accuracy": {
+      "mean": 1.0,
+      "median": 1.0,
+      "worst": 1.0,
+      "ci95_mean": [
+        1.0,
+        1.0
+      ]
+    },
+    "guard_detection_rate": {
+      "mean": 0.390625,
+      "median": 0.3125,
+      "worst": 0.0,
+      "ci95_mean": [
+        0.109375,
+        0.671875
+      ]
+    },
+    "worst_scenario_after_remediation": "m1-p08-t4-s42"
+  },
+  "scenarios": [
+    {
+      "scenario_id": "m1-p08-t4-s42",
+      "malicious_count": 1,
+      "malicious_fraction": 0.08333333333333333,
+      "poison_fraction": 0.08,
+      "trigger_strength": 4.0,
+      "seed": 42,
+      "fedavg_clean_accuracy": 1.0,
+      "fedavg_asr": 0.26459143968871596,
+      "defended_clean_accuracy": 1.0,
+      "defended_asr": 0.0,
+      "remediation_clean_accuracy": 1.0,
+      "remediation_asr": 0.0,
+      "guard_detection_rate": 0.0,
+      "remediation_accepted": true,
+      "elapsed_seconds": 0.05483390000881627
+    },
+    {
+      "scenario_id": "m1-p08-t7-s42",
+      "malicious_count": 1,
+      "malicious_fraction": 0.08333333333333333,
+      "poison_fraction": 0.08,
+      "trigger_strength": 7.0,
+      "seed": 42,
+      "fedavg_clean_accuracy": 1.0,
+      "fedavg_asr": 0.5758754863813229,
+      "defended_clean_accuracy": 1.0,
+      "defended_asr": 0.0,
+      "remediation_clean_accuracy": 1.0,
+      "remediation_asr": 0.0,
+      "guard_detection_rate": 0.0,
+      "remediation_accepted": true,
+      "elapsed_seconds": 0.044955699995625764
+    },
+    {
+      "scenario_id": "m1-p20-t4-s42",
+      "malicious_count": 1,
+      "malicious_fraction": 0.08333333333333333,
+      "poison_fraction": 0.2,
+      "trigger_strength": 4.0,
+      "seed": 42,
+      "fedavg_clean_accuracy": 1.0,
+      "fedavg_asr": 0.5369649805447471,
+      "defended_clean_accuracy": 1.0,
+      "defended_asr": 0.0,
+      "remediation_clean_accuracy": 1.0,
+      "remediation_asr": 0.0,
+      "guard_detection_rate": 0.0,
+      "remediation_accepted": true,
+      "elapsed_seconds": 0.04479319998063147
+    },
+    {
+      "scenario_id": "m1-p20-t7-s42",
+      "malicious_count": 1,
+      "malicious_fraction": 0.08333333333333333,
+      "poison_fraction": 0.2,
+      "trigger_strength": 7.0,
+      "seed": 42,
+      "fedavg_clean_accuracy": 1.0,
+      "fedavg_asr": 0.8287937743190662,
+      "defended_clean_accuracy": 1.0,
+      "defended_asr": 0.0,
+      "remediation_clean_accuracy": 1.0,
+      "remediation_asr": 0.0,
+      "guard_detection_rate": 0.0,
+      "remediation_accepted": true,
+      "elapsed_seconds": 0.050188399967737496
+    },
+    {
+      "scenario_id": "m3-p08-t4-s42",
+      "malicious_count": 3,
+      "malicious_fraction": 0.25,
+      "poison_fraction": 0.08,
+      "trigger_strength": 4.0,
+      "seed": 42,
+      "fedavg_clean_accuracy": 1.0,
+      "fedavg_asr": 0.46303501945525294,
+      "defended_clean_accuracy": 1.0,
+      "defended_asr": 0.0,
+      "remediation_clean_accuracy": 1.0,
+      "remediation_asr": 0.0,
+      "guard_detection_rate": 0.625,
+      "remediation_accepted": true,
+      "elapsed_seconds": 0.0506607000133954
+    },
+    {
+      "scenario_id": "m3-p08-t7-s42",
+      "malicious_count": 3,
+      "malicious_fraction": 0.25,
+      "poison_fraction": 0.08,
+      "trigger_strength": 7.0,
+      "seed": 42,
+      "fedavg_clean_accuracy": 1.0,
+      "fedavg_asr": 0.7626459143968871,
+      "defended_clean_accuracy": 1.0,
+      "defended_asr": 0.023346303501945526,
+      "remediation_clean_accuracy": 1.0,
+      "remediation_asr": 0.0,
+      "guard_detection_rate": 0.875,
+      "remediation_accepted": true,
+      "elapsed_seconds": 0.05700649996288121
+    },
+    {
+      "scenario_id": "m3-p20-t4-s42",
+      "malicious_count": 3,
+      "malicious_fraction": 0.25,
+      "poison_fraction": 0.2,
+      "trigger_strength": 4.0,
+      "seed": 42,
+      "fedavg_clean_accuracy": 1.0,
+      "fedavg_asr": 0.7003891050583657,
+      "defended_clean_accuracy": 1.0,
+      "defended_asr": 0.0,
+      "remediation_clean_accuracy": 1.0,
+      "remediation_asr": 0.0,
+      "guard_detection_rate": 0.75,
+      "remediation_accepted": true,
+      "elapsed_seconds": 0.04666190000716597
+    },
+    {
+      "scenario_id": "m3-p20-t7-s42",
+      "malicious_count": 3,
+      "malicious_fraction": 0.25,
+      "poison_fraction": 0.2,
+      "trigger_strength": 7.0,
+      "seed": 42,
+      "fedavg_clean_accuracy": 1.0,
+      "fedavg_asr": 0.9455252918287937,
+      "defended_clean_accuracy": 1.0,
+      "defended_asr": 0.08949416342412451,
+      "remediation_clean_accuracy": 1.0,
+      "remediation_asr": 0.0,
+      "guard_detection_rate": 0.875,
+      "remediation_accepted": true,
+      "elapsed_seconds": 0.051864400040358305
+    }
+  ]
+}

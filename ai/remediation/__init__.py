@@ -16,7 +16,7 @@ Public surface::
     )
 """
 
-from ai.remediation.adapters import LinearSoftmaxAdapter, ModelAdapter
+from ai.remediation.adapters import LinearSoftmaxAdapter, ModelAdapter, TorchModelAdapter
 from ai.remediation.attestation import (
     AttestationLedger,
     RemediationCertificate,
@@ -24,7 +24,7 @@ from ai.remediation.attestation import (
     model_fingerprint,
     verify_certificate,
 )
-from ai.remediation.pruning import FinePruner
+from ai.remediation.pruning import FinePruner, TorchFinePruner
 from ai.remediation.remediation_engine import RemediationEngine
 from ai.remediation.rollback import RollbackFailed, RollbackRemediator
 from ai.remediation.triggers import (
@@ -43,6 +43,8 @@ __all__ = [
     "FinePruner",
     "LinearSoftmaxAdapter",
     "ModelAdapter",
+    "TorchModelAdapter",
+    "TorchFinePruner",
     "AttestationLedger",
     "RemediationCertificate",
     "issue_certificate",

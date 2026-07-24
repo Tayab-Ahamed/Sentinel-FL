@@ -94,7 +94,9 @@ class _InProcessClientProxy(ClientProxy):
     def get_properties(self, ins: Any, timeout: float | None, group_id: int | None) -> Any:
         raise NotImplementedError("Properties not used in this simulation.")
 
-    def get_parameters(self, ins: GetParametersIns, timeout: float | None, group_id: int | None) -> Any:
+    def get_parameters(
+        self, ins: GetParametersIns, timeout: float | None, group_id: int | None
+    ) -> Any:
         raise NotImplementedError("Parameters fetched directly in round loop.")
 
     def fit(self, ins: FitIns, timeout: float | None, group_id: int | None) -> FitRes:
@@ -109,11 +111,11 @@ class _InProcessClientProxy(ClientProxy):
             metrics=metrics,
         )
 
-    def evaluate(self, ins: EvaluateIns, timeout: float | None, group_id: int | None) -> EvaluateRes:
+    def evaluate(
+        self, ins: EvaluateIns, timeout: float | None, group_id: int | None
+    ) -> EvaluateRes:
         params_np = parameters_to_ndarrays(ins.parameters)
-        loss, n_examples, metrics = self._client.evaluate(
-            params_np, config=dict(ins.config)
-        )
+        loss, n_examples, metrics = self._client.evaluate(params_np, config=dict(ins.config))
         return EvaluateRes(
             status=_ok_status(),
             loss=float(loss),
@@ -128,6 +130,7 @@ class _InProcessClientProxy(ClientProxy):
 def _ok_status():
     """Return a Flower OK status object."""
     from flwr.common import Code, Status
+
     return Status(code=Code.OK, message="")
 
 
@@ -168,6 +171,7 @@ def run_simulation(
 
     if experiment_id is None:
         import uuid
+
         experiment_id = f"flower_baseline_{uuid.uuid4().hex[:8]}"
 
     experiments_path = Path(experiments_dir)
@@ -201,7 +205,9 @@ def run_simulation(
     )
     logger.info(
         "Starting simulation: experiment=%s n_clients=%d n_rounds=%d",
-        experiment_id, config.n_clients, config.n_rounds,
+        experiment_id,
+        config.n_clients,
+        config.n_rounds,
     )
 
     # ── 3. Reproducibility ─────────────────────────────────────────────
@@ -210,7 +216,9 @@ def run_simulation(
 
     # ── 4. Dataset ─────────────────────────────────────────────────────
     mnist_loader = MNISTDatasetLoader(
-        data_dir=data_dir, dirichlet_alpha=0.5, seed=config.seed,
+        data_dir=data_dir,
+        dirichlet_alpha=0.5,
+        seed=config.seed,
     )
     partitions = mnist_loader.load_client_partitions(config.n_clients, config)
     X_val, y_val = mnist_loader.load_clean_holdout()
@@ -243,8 +251,7 @@ def run_simulation(
         )
 
     proxies: list[_InProcessClientProxy] = [
-        _InProcessClientProxy(str(i), _make_client(i))
-        for i in range(config.n_clients)
+        _InProcessClientProxy(str(i), _make_client(i)) for i in range(config.n_clients)
     ]
 
     # ── 8. Strategy ────────────────────────────────────────────────────
@@ -288,9 +295,10 @@ def run_simulation(
 
         # ── 9b. Evaluate (federated) ───────────────────────────────────
         n_eval = max(2, config.n_clients // 2)
-        eval_proxies = [proxies[i] for i in rng.choice(
-            len(proxies), size=min(n_eval, len(proxies)), replace=False
-        )]
+        eval_proxies = [
+            proxies[i]
+            for i in rng.choice(len(proxies), size=min(n_eval, len(proxies)), replace=False)
+        ]
         eval_ins = EvaluateIns(parameters=current_params, config=round_cfg)
         eval_results: list[tuple[ClientProxy, EvaluateRes]] = []
         for proxy in eval_proxies:
@@ -307,14 +315,17 @@ def run_simulation(
             all_centralized_losses.append((rnd, central_loss))
             for k, v in central_metrics.items():
                 all_centralized_metrics.setdefault(k, []).append((rnd, float(v)))
-            rounds_history.append({
-                "round": rnd,
-                "centralized_loss": round(float(central_loss), 6),
-                **{k: round(float(v), 6) for k, v in central_metrics.items()},
-            })
+            rounds_history.append(
+                {
+                    "round": rnd,
+                    "centralized_loss": round(float(central_loss), 6),
+                    **{k: round(float(v), 6) for k, v in central_metrics.items()},
+                }
+            )
             logger.info(
                 "Round %d: loss=%.4f %s",
-                rnd, central_loss,
+                rnd,
+                central_loss,
                 " ".join(f"{k}={v:.4f}" for k, v in central_metrics.items()),
             )
         else:
@@ -386,16 +397,12 @@ def _extract_rounds(history: Any) -> list[dict[str, Any]]:
         for rnd, v in vals:
             metrics_centralized.setdefault(rnd, {})[key] = v
 
-    all_rounds = sorted(
-        set(list(losses_centralized.keys()) + list(metrics_centralized.keys()))
-    )
+    all_rounds = sorted(set(list(losses_centralized.keys()) + list(metrics_centralized.keys())))
     for rnd in all_rounds:
         entry: dict[str, Any] = {"round": rnd}
         if rnd in losses_centralized:
             entry["centralized_loss"] = round(float(losses_centralized[rnd]), 6)
-        entry.update(
-            {k: round(float(v), 6) for k, v in metrics_centralized.get(rnd, {}).items()}
-        )
+        entry.update({k: round(float(v), 6) for k, v in metrics_centralized.get(rnd, {}).items()})
         rounds.append(entry)
     return rounds
 
@@ -480,6 +487,7 @@ def run_simulation_with_guard(
 
     if experiment_id is None:
         import uuid
+
         experiment_id = f"guard_{uuid.uuid4().hex[:8]}"
 
     experiments_path = Path(experiments_dir)
@@ -501,7 +509,9 @@ def run_simulation_with_guard(
         )
     logger.info(
         "Starting guarded simulation: experiment=%s n_clients=%d n_rounds=%d",
-        experiment_id, config.n_clients, config.n_rounds,
+        experiment_id,
+        config.n_clients,
+        config.n_rounds,
     )
 
     # ── 3. Reproducibility ─────────────────────────────────────────────
@@ -510,7 +520,9 @@ def run_simulation_with_guard(
 
     # ── 4. Dataset ─────────────────────────────────────────────────────
     mnist_loader = MNISTDatasetLoader(
-        data_dir=data_dir, dirichlet_alpha=0.5, seed=config.seed,
+        data_dir=data_dir,
+        dirichlet_alpha=0.5,
+        seed=config.seed,
     )
     partitions = mnist_loader.load_client_partitions(config.n_clients, config)
     X_val, y_val = mnist_loader.load_clean_holdout()
@@ -554,8 +566,7 @@ def run_simulation_with_guard(
         )
 
     proxies: list[_InProcessClientProxy] = [
-        _InProcessClientProxy(str(i), _make_client(i))
-        for i in range(config.n_clients)
+        _InProcessClientProxy(str(i), _make_client(i)) for i in range(config.n_clients)
     ]
 
     # ── 9. Strategy ────────────────────────────────────────────────────
@@ -589,8 +600,7 @@ def run_simulation_with_guard(
         # Fit
         fit_ins = FitIns(parameters=current_params, config=round_cfg)
         fit_results: list[tuple[ClientProxy, FitRes]] = [
-            (proxy, proxy.fit(fit_ins, timeout=None, group_id=0))
-            for proxy in proxies
+            (proxy, proxy.fit(fit_ins, timeout=None, group_id=0)) for proxy in proxies
         ]
         new_params, _ = strategy.aggregate_fit(rnd, fit_results, [])
         if new_params is not None:
@@ -601,13 +611,13 @@ def run_simulation_with_guard(
 
         # Evaluate (federated)
         n_eval = max(2, config.n_clients // 2)
-        eval_proxies = [proxies[i] for i in rng.choice(
-            len(proxies), size=min(n_eval, len(proxies)), replace=False
-        )]
+        eval_proxies = [
+            proxies[i]
+            for i in rng.choice(len(proxies), size=min(n_eval, len(proxies)), replace=False)
+        ]
         eval_ins = EvaluateIns(parameters=current_params, config=round_cfg)
         eval_results: list[tuple[ClientProxy, EvaluateRes]] = [
-            (proxy, proxy.evaluate(eval_ins, timeout=None, group_id=0))
-            for proxy in eval_proxies
+            (proxy, proxy.evaluate(eval_ins, timeout=None, group_id=0)) for proxy in eval_proxies
         ]
         strategy.aggregate_evaluate(rnd, eval_results, [])
 
@@ -618,14 +628,17 @@ def run_simulation_with_guard(
             all_centralized_losses.append((rnd, central_loss))
             for k, v in central_metrics.items():
                 all_centralized_metrics.setdefault(k, []).append((rnd, float(v)))
-            rounds_history.append({
-                "round": rnd,
-                "centralized_loss": round(float(central_loss), 6),
-                **{k: round(float(v), 6) for k, v in central_metrics.items()},
-            })
+            rounds_history.append(
+                {
+                    "round": rnd,
+                    "centralized_loss": round(float(central_loss), 6),
+                    **{k: round(float(v), 6) for k, v in central_metrics.items()},
+                }
+            )
             logger.info(
                 "Round %d: loss=%.4f %s",
-                rnd, central_loss,
+                rnd,
+                central_loss,
                 " ".join(f"{k}={v:.4f}" for k, v in central_metrics.items()),
             )
         else:

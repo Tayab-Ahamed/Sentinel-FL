@@ -234,8 +234,11 @@ class DetectionExplainer:
         narrative = reason_string or (
             f"Model auditor flagged label {label} at round {round_num}. "
             + ("Trigger reversal detected. " if evidence.get("trigger_reversed") else "")
-            + (f"Confidence={evidence.get('confidence', ''):.4f}. "
-               if isinstance(evidence.get("confidence"), float) else "")
+            + (
+                f"Confidence={evidence.get('confidence', ''):.4f}. "
+                if isinstance(evidence.get("confidence"), float)
+                else ""
+            )
         )
 
         return DetectionExplanation(

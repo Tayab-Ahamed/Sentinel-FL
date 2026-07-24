@@ -11,6 +11,7 @@ Validates:
   - Path traversal cannot escape experiments directory
   - Large inputs do not cause OOM in core loops
 """
+
 from __future__ import annotations
 
 import json
@@ -123,8 +124,9 @@ class TestPoisonBoundaries:
         X = rng.standard_normal((200, 10)).astype(np.float32)
         y = rng.integers(0, 3, 200)
         X_orig = X.copy()
-        _, _, mask = inject_trigger(X, y, 0, slice(0, 2), trigger_value=5.0,
-                                    poison_fraction=0.0, seed=0)
+        _, _, mask = inject_trigger(
+            X, y, 0, slice(0, 2), trigger_value=5.0, poison_fraction=0.0, seed=0
+        )
         assert not mask.any(), "No samples should be poisoned when fraction=0"
         np.testing.assert_array_equal(X, X_orig)
 
@@ -136,10 +138,13 @@ class TestPoisonBoundaries:
         X = rng.standard_normal((n, 10)).astype(np.float32)
         y = rng.integers(0, 3, n)
         fraction = 0.3
-        _, _, mask = inject_trigger(X, y, 0, slice(0, 2), trigger_value=5.0,
-                                    poison_fraction=fraction, seed=0)
+        _, _, mask = inject_trigger(
+            X, y, 0, slice(0, 2), trigger_value=5.0, poison_fraction=fraction, seed=0
+        )
         # Should not exceed fraction * n + a small rounding tolerance
-        assert mask.sum() <= int(n * fraction) + 2, "Poisoned count must not exceed declared fraction"
+        assert mask.sum() <= int(n * fraction) + 2, (
+            "Poisoned count must not exceed declared fraction"
+        )
 
     def test_trigger_only_modifies_trigger_block(self):
         from ai.training.poison import inject_trigger
@@ -149,8 +154,9 @@ class TestPoisonBoundaries:
         y = rng.integers(0, 3, 100)
         trigger_block = slice(0, 3)
         X_before = X.copy()
-        X_out, _, mask = inject_trigger(X, y, 0, trigger_block, trigger_value=99.0,
-                                        poison_fraction=0.5, seed=0)
+        X_out, _, mask = inject_trigger(
+            X, y, 0, trigger_block, trigger_value=99.0, poison_fraction=0.5, seed=0
+        )
         # Non-trigger columns should be unchanged for all rows
         np.testing.assert_array_equal(X_out[:, 3:], X_before[:, 3:])
 
@@ -161,8 +167,9 @@ class TestPoisonBoundaries:
         X = rng.standard_normal((50, 5)).astype(np.float32)
         y = rng.integers(0, 2, 50)
         trigger_val = 42.0
-        X_out, _, mask = inject_trigger(X, y, 0, slice(0, 2), trigger_value=trigger_val,
-                                        poison_fraction=1.0, seed=0)
+        X_out, _, mask = inject_trigger(
+            X, y, 0, slice(0, 2), trigger_value=trigger_val, poison_fraction=1.0, seed=0
+        )
         np.testing.assert_allclose(X_out[mask, 0], trigger_val, atol=1e-5)
         np.testing.assert_allclose(X_out[mask, 1], trigger_val, atol=1e-5)
 
@@ -173,8 +180,7 @@ class TestPoisonBoundaries:
         X = rng.standard_normal((100, 10)).astype(np.float32)
         y = rng.integers(0, 3, 100)
         X_copy = X.copy()
-        inject_trigger(X.copy(), y, 0, slice(0, 2), trigger_value=5.0,
-                       poison_fraction=0.5, seed=0)
+        inject_trigger(X.copy(), y, 0, slice(0, 2), trigger_value=5.0, poison_fraction=0.5, seed=0)
         # X itself should be unchanged (inject_trigger gets a copy)
         np.testing.assert_array_equal(X, X_copy)
 
@@ -207,7 +213,7 @@ class TestTrustLedgerIntegrity:
         from ai.fl_core.schemas import TrustLedgerQuery
 
         ledger_path = tmp_path / "malformed.jsonl"
-        ledger_path.write_text("NOT_VALID_JSON\n{\"incomplete\":\n")
+        ledger_path.write_text('NOT_VALID_JSON\n{"incomplete":\n')
         ledger = FileTrustLedger(ledger_path, warm_start=False)
         # Should not raise — malformed lines must be skipped
         try:

@@ -14,6 +14,7 @@ so the FL/defense logic — the actual subject of this challenge — is not obsc
 architecture complexity. Swapping in a CNN under PyTorch does not change any of the
 defense-layer code in ai/detection/.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -30,6 +31,7 @@ def softmax(z: np.ndarray) -> np.ndarray:
 @dataclass
 class LinearSoftmaxModel:
     """W: (n_classes, n_features), b: (n_classes,) — flattened for FL transport."""
+
     n_features: int
     n_classes: int
     W: np.ndarray = field(init=False)
@@ -55,9 +57,15 @@ class LinearSoftmaxModel:
         return self.predict_proba(X).argmax(axis=1)
 
 
-def local_train(model_params: np.ndarray, n_features: int, n_classes: int,
-                 X: np.ndarray, y: np.ndarray, epochs: int = 5, lr: float = 0.1
-                 ) -> np.ndarray:
+def local_train(
+    model_params: np.ndarray,
+    n_features: int,
+    n_classes: int,
+    X: np.ndarray,
+    y: np.ndarray,
+    epochs: int = 5,
+    lr: float = 0.1,
+) -> np.ndarray:
     """One client's local SGD training. Returns updated flat params (not the delta;
     caller computes delta = new - old, matching standard FL update semantics)."""
     model = LinearSoftmaxModel(n_features, n_classes)
@@ -82,8 +90,9 @@ def fedavg(client_params: list[np.ndarray], weights: list[float]) -> np.ndarray:
     return (stacked * weights[:, None]).sum(axis=0)
 
 
-def multi_krum(client_updates: list[np.ndarray], num_malicious_assumed: int,
-                num_to_select: int) -> tuple[np.ndarray, list[int]]:
+def multi_krum(
+    client_updates: list[np.ndarray], num_malicious_assumed: int, num_to_select: int
+) -> tuple[np.ndarray, list[int]]:
     """Blanchard et al. 2017 Multi-Krum, applied to raw update vectors (deltas).
     Reference behavior matches Flower's flwr.serverapp.strategy.MultiKrum semantics
     (see RESEARCH.md for why we defer to Flower's implementation in the production
@@ -98,7 +107,7 @@ def multi_krum(client_updates: list[np.ndarray], num_malicious_assumed: int,
     scores = []
     n_closest = max(1, n - f - 2)
     for i in range(n):
-        d = np.sort(dists[i])[1:1 + n_closest]  # exclude self (distance 0)
+        d = np.sort(dists[i])[1 : 1 + n_closest]  # exclude self (distance 0)
         scores.append(d.sum())
     order = np.argsort(scores)
     selected = sorted(order[:num_to_select].tolist())

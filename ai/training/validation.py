@@ -109,17 +109,14 @@ class DatasetValidator:
             )
 
         if y.ndim != 1:
-            errors.append(
-                f"[{dataset_name}] y must be 1-D, got shape {y.shape}"
-            )
+            errors.append(f"[{dataset_name}] y must be 1-D, got shape {y.shape}")
 
         # ── 4. Expected per-sample shape ──────────────────────────────
         if expected_shape is not None:
             actual = tuple(X.shape[1:])
             if actual != expected_shape:
                 errors.append(
-                    f"[{dataset_name}] Expected per-sample shape {expected_shape}, "
-                    f"got {actual}"
+                    f"[{dataset_name}] Expected per-sample shape {expected_shape}, got {actual}"
                 )
 
         # ── 5. NaN / Inf in X ─────────────────────────────────────────
@@ -127,29 +124,19 @@ class DatasetValidator:
             n_nan = int(np.isnan(X).sum())
             n_inf = int(np.isinf(X).sum())
             if n_nan > 0:
-                errors.append(
-                    f"[{dataset_name}] X contains {n_nan} NaN value(s)."
-                )
+                errors.append(f"[{dataset_name}] X contains {n_nan} NaN value(s).")
             if n_inf > 0:
-                errors.append(
-                    f"[{dataset_name}] X contains {n_inf} Inf value(s)."
-                )
+                errors.append(f"[{dataset_name}] X contains {n_inf} Inf value(s).")
 
         # ── 6. Label range ────────────────────────────────────────────
         if n_classes is not None and y.ndim == 1:
             if not np.issubdtype(y.dtype, np.integer):
-                warnings.append(
-                    f"[{dataset_name}] y dtype is {y.dtype}, expected integer."
-                )
+                warnings.append(f"[{dataset_name}] y dtype is {y.dtype}, expected integer.")
             y_min, y_max = int(y.min()), int(y.max())
             if y_min < 0:
-                errors.append(
-                    f"[{dataset_name}] Labels must be >= 0, found min={y_min}."
-                )
+                errors.append(f"[{dataset_name}] Labels must be >= 0, found min={y_min}.")
             if y_max >= n_classes:
-                errors.append(
-                    f"[{dataset_name}] Labels must be < {n_classes}, found max={y_max}."
-                )
+                errors.append(f"[{dataset_name}] Labels must be < {n_classes}, found max={y_max}.")
 
             # ── 7. Per-class sample count ─────────────────────────────
             for cls in range(n_classes):
@@ -174,9 +161,7 @@ class DatasetValidator:
         elif warnings:
             logger.warning("Dataset validation warnings for %s:\n%s", dataset_name, result)
         else:
-            logger.debug(
-                "Dataset validation passed for %s (n=%d)", dataset_name, len(X)
-            )
+            logger.debug("Dataset validation passed for %s (n=%d)", dataset_name, len(X))
         return result
 
     def validate_partition(
@@ -206,7 +191,8 @@ class DatasetValidator:
 
         for i, (X_i, y_i) in enumerate(partitions):
             r = self.validate(
-                X_i, y_i,
+                X_i,
+                y_i,
                 expected_shape=expected_shape,
                 n_classes=n_classes,
                 dataset_name=f"client_{i:02d}",

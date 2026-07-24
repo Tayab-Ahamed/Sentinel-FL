@@ -18,6 +18,7 @@ from ai.training.datasets.mnist import MNISTDatasetLoader
 # Mock raw download
 # ---------------------------------------------------------------------------
 
+
 def _make_fake_mnist() -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Return fake MNIST-shaped arrays (no real download)."""
     rng = np.random.default_rng(0)
@@ -90,8 +91,11 @@ class TestMNISTLoadClientPartitions:
 
     def test_iid_partitioning_when_alpha_is_none(self, tmp_path):
         loader_iid = MNISTDatasetLoader(
-            data_dir=tmp_path, dirichlet_alpha=None, seed=42,
-            validate=True, use_cache=False,
+            data_dir=tmp_path,
+            dirichlet_alpha=None,
+            seed=42,
+            validate=True,
+            use_cache=False,
         )
         loader_iid._download_raw = _make_fake_mnist  # type: ignore[method-assign]
         cfg = MagicMock(seed=42, synthetic=None)
@@ -139,6 +143,7 @@ class TestMNISTCache:
         cfg = MagicMock(seed=42, synthetic=None)
         loader.load_client_partitions(4, cfg)
         from ai.training.cache import DiskCache
+
         c = DiskCache(tmp_path)
         assert c.has("mnist_v1_train")
         assert c.has("mnist_v1_test")
@@ -156,8 +161,11 @@ class TestMNISTCache:
             return _make_fake_mnist()
 
         loader2 = MNISTDatasetLoader(
-            data_dir=tmp_path, dirichlet_alpha=0.5, seed=42,
-            validate=True, use_cache=True,
+            data_dir=tmp_path,
+            dirichlet_alpha=0.5,
+            seed=42,
+            validate=True,
+            use_cache=True,
         )
         loader2._download_raw = _should_not_be_called  # type: ignore[method-assign]
         loader2.load_client_partitions(4, cfg)

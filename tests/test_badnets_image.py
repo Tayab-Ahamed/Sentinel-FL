@@ -282,8 +282,12 @@ class TestFromConfig:
                 malicious_client_fraction=0.3,
             ),
             trigger=MagicMock(
-                shape="square", size=4, location="bottom_right",
-                color=1.0, opacity=1.0, seed=0,
+                shape="square",
+                size=4,
+                location="bottom_right",
+                color=1.0,
+                opacity=1.0,
+                seed=0,
             ),
         )
         attacker = BadNetsImageAttack.from_config(cfg)

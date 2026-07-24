@@ -77,12 +77,16 @@ def _build_parser() -> argparse.ArgumentParser:
     # Attack parameters
     p.add_argument("--target-label", type=int, default=0, help="Backdoor target class.")
     p.add_argument(
-        "--poison-frac", type=float, default=0.15,
+        "--poison-frac",
+        type=float,
+        default=0.15,
         help="Fraction of each malicious client's data to poison.",
     )
     p.add_argument(
         "--malicious",
-        type=int, nargs="+", default=[2, 5],
+        type=int,
+        nargs="+",
+        default=[2, 5],
         help="Malicious client indices (space-separated).",
     )
 
@@ -155,7 +159,12 @@ def _load_fake_data(
 
     logger.info(
         "Loaded %s data: %d clients, %d eval samples (C=%d H=%d W=%d)",
-        dataset, n_clients, n_eval, C, H, W,
+        dataset,
+        n_clients,
+        n_eval,
+        C,
+        H,
+        W,
     )
     return partitions, X_eval, y_eval
 
@@ -194,6 +203,7 @@ def _make_stub_model(dataset: str):
 
     class StubCNN(nn.Module):
         """Minimal CNN stub that returns random-ish logits."""
+
         def __init__(self, in_channels: int, n_classes: int) -> None:
             super().__init__()
             self.conv = nn.Conv2d(in_channels, 8, kernel_size=3, padding=1)
@@ -226,9 +236,14 @@ def run_attack(args: argparse.Namespace) -> None:
     logger.info("  Rounds:   %d", args.rounds)
     logger.info("  Clients:  %d", args.clients)
     logger.info("  Target:   label=%d", args.target_label)
-    logger.info("  Trigger:  %s %dx%d @ %s (opacity=%.1f)",
-                args.trigger_shape, args.trigger_size, args.trigger_size,
-                args.trigger_location, args.trigger_opacity)
+    logger.info(
+        "  Trigger:  %s %dx%d @ %s (opacity=%.1f)",
+        args.trigger_shape,
+        args.trigger_size,
+        args.trigger_size,
+        args.trigger_location,
+        args.trigger_opacity,
+    )
     logger.info("  Malicious clients: %s", args.malicious)
     logger.info("  Output:   %s", run_dir)
     logger.info("=" * 60)
@@ -259,9 +274,7 @@ def run_attack(args: argparse.Namespace) -> None:
         logger.info("Loaded real %s dataset.", args.dataset)
     except Exception as exc:
         logger.warning("Could not load real dataset (%s); using synthetic stub.", exc)
-        client_partitions, X_eval, y_eval = _load_fake_data(
-            args.dataset, args.clients, args.seed
-        )
+        client_partitions, X_eval, y_eval = _load_fake_data(args.dataset, args.clients, args.seed)
 
     # ── Stub global model ─────────────────────────────────────────────────
     model = _make_stub_model(args.dataset)
@@ -282,10 +295,9 @@ def run_attack(args: argparse.Namespace) -> None:
         for client_idx, (X_c, y_c) in enumerate(client_partitions):
             client_id = f"client_{client_idx:02d}"
             from types import SimpleNamespace
+
             cfg_stub = SimpleNamespace(seed=args.seed)
-            X_p, y_p, mask = attacker.poison_client_data(
-                X_c, y_c, client_id, round_num, cfg_stub
-            )
+            X_p, y_p, mask = attacker.poison_client_data(X_c, y_c, client_id, round_num, cfg_stub)
             all_X_clean.append(X_c)
             all_X_poisoned.append(X_p)
             all_mask.append(mask)
@@ -306,9 +318,7 @@ def run_attack(args: argparse.Namespace) -> None:
 
         # Save trigger pattern visualisation (once)
         if round_num == 0:
-            in_shape = (
-                (1, 28, 28) if args.dataset == "mnist" else (3, 32, 32)
-            )
+            in_shape = (1, 28, 28) if args.dataset == "mnist" else (3, 32, 32)
             fig = visualizer.plot_trigger_pattern(pattern, input_shape=in_shape)
             visualizer.save_figure(fig, run_dir / "trigger_pattern.png")
             logger.info("Saved trigger pattern → %s", run_dir / "trigger_pattern.png")

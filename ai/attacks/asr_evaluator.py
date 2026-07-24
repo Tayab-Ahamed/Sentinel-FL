@@ -89,7 +89,9 @@ class AttackSuccessRateEvaluator:
         asr = float((preds == target_label).mean())
         logger.debug(
             "compute_asr: ASR=%.4f (target_label=%d, n=%d)",
-            asr, target_label, len(X_triggered),
+            asr,
+            target_label,
+            len(X_triggered),
         )
         return asr
 
@@ -115,9 +117,7 @@ class AttackSuccessRateEvaluator:
 
         preds = self._predict(model, X_clean)
         acc = float((preds == y_clean).mean())
-        logger.debug(
-            "compute_clean_accuracy: C-Acc=%.4f (n=%d)", acc, len(X_clean)
-        )
+        logger.debug("compute_clean_accuracy: C-Acc=%.4f (n=%d)", acc, len(X_clean))
         return acc
 
     def evaluate_round(
@@ -147,9 +147,7 @@ class AttackSuccessRateEvaluator:
         t0 = time.perf_counter()
 
         # Build triggered eval set (non-target clean samples + trigger)
-        X_triggered, y_target = attacker.build_asr_eval_set(
-            X_clean_eval, y_clean_eval
-        )
+        X_triggered, y_target = attacker.build_asr_eval_set(X_clean_eval, y_clean_eval)
 
         # Compute metrics
         asr = self.compute_asr(model, X_triggered, attacker.target_label)
@@ -159,8 +157,12 @@ class AttackSuccessRateEvaluator:
         logger.info(
             "AttackSuccessRateEvaluator [round %d]: ASR=%.3f C-Acc=%.3f "
             "(n_triggered=%d n_clean=%d, %.1f ms)",
-            round_num, asr, clean_acc,
-            len(X_triggered), len(X_clean_eval), elapsed_ms,
+            round_num,
+            asr,
+            clean_acc,
+            len(X_triggered),
+            len(X_clean_eval),
+            elapsed_ms,
         )
 
         result = AttackEvalResult(
@@ -212,9 +214,7 @@ class AttackSuccessRateEvaluator:
     # Internal
     # ------------------------------------------------------------------
 
-    def _predict(
-        self, model: nn.Module, X: np.ndarray
-    ) -> np.ndarray:
+    def _predict(self, model: nn.Module, X: np.ndarray) -> np.ndarray:
         """Run batched inference and return int64 predicted labels.
 
         Args:
@@ -230,9 +230,7 @@ class AttackSuccessRateEvaluator:
 
         with torch.no_grad():
             for start in range(0, len(X), self._batch_size):
-                batch = torch.from_numpy(
-                    X[start : start + self._batch_size]
-                ).to(self._device)
+                batch = torch.from_numpy(X[start : start + self._batch_size]).to(self._device)
                 logits = model(batch)
                 preds = logits.argmax(dim=1).cpu().numpy()
                 all_preds.append(preds)

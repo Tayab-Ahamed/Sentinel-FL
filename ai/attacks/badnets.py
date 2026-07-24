@@ -103,10 +103,7 @@ class BadNetsImageAttack(AttackSimulator):
         seed = int(getattr(config, "seed", 42))
 
         if attack_cfg is None:
-            logger.warning(
-                "BadNetsImageAttack.from_config: no attack sub-config; "
-                "using defaults."
-            )
+            logger.warning("BadNetsImageAttack.from_config: no attack sub-config; using defaults.")
             return cls(pattern=pattern, seed=seed)
 
         # Resolve malicious_client_indices: explicit list takes priority;
@@ -159,7 +156,8 @@ class BadNetsImageAttack(AttackSimulator):
         if len(X) <= 2:
             logger.debug(
                 "BadNetsImageAttack: client %s has too few samples (%d); skipping.",
-                client_id, len(X),
+                client_id,
+                len(X),
             )
             return X.copy(), y.copy(), np.zeros(len(X), dtype=bool)
 
@@ -169,9 +167,12 @@ class BadNetsImageAttack(AttackSimulator):
 
         n_poisoned = int(mask.sum())
         logger.info(
-            "BadNetsImageAttack: [round %d] client %s → %d/%d poisoned "
-            "(target_label=%d)",
-            round_num, client_id, n_poisoned, len(X), self._target_label,
+            "BadNetsImageAttack: [round %d] client %s → %d/%d poisoned (target_label=%d)",
+            round_num,
+            client_id,
+            n_poisoned,
+            len(X),
+            self._target_label,
         )
 
         # Track per-client counts for round report
@@ -183,9 +184,7 @@ class BadNetsImageAttack(AttackSimulator):
         )
         return X_p, y_p, mask
 
-    def build_trigger_eval_set(
-        self, X_clean: np.ndarray
-    ) -> np.ndarray:
+    def build_trigger_eval_set(self, X_clean: np.ndarray) -> np.ndarray:
         """Stamp the trigger onto every clean sample for ASR evaluation.
 
         Args:
@@ -227,9 +226,7 @@ class BadNetsImageAttack(AttackSimulator):
         """Return all accumulated round reports (one per round)."""
         return list(self._round_reports)
 
-    def attach_eval_result(
-        self, round_num: int, asr: float, clean_acc: float
-    ) -> None:
+    def attach_eval_result(self, round_num: int, asr: float, clean_acc: float) -> None:
         """Attach ASR and clean accuracy to an existing round report.
 
         Args:
@@ -293,9 +290,7 @@ class BadNetsImageAttack(AttackSimulator):
             n_poisoned + 1  # minimal estimate; real total not stored
             for _ in report.malicious_clients
         )
-        report.poison_fraction_actual = (
-            report.total_poisoned_samples / max(total_samples, 1)
-        )
+        report.poison_fraction_actual = report.total_poisoned_samples / max(total_samples, 1)
 
 
 # ---------------------------------------------------------------------------

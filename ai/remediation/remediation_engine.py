@@ -20,6 +20,7 @@ step is exhausted without success, the engine raises
 ``manual_review_required`` flag).  Every attempt — successful or not — is written to
 the Trust Ledger (L4) when one is supplied, so the remediation itself is auditable.
 """
+
 from __future__ import annotations
 
 import logging
@@ -30,8 +31,8 @@ import numpy as np
 
 from ai.fl_core.exceptions import RemediationFailedError
 from ai.fl_core.schemas import RemediationReport, TrustLedgerEntry
-from ai.remediation.adapters import LinearSoftmaxAdapter, ModelAdapter
-from ai.remediation.pruning import FinePruner
+from ai.remediation.adapters import LinearSoftmaxAdapter, ModelAdapter, TorchModelAdapter
+from ai.remediation.pruning import FinePruner, TorchFinePruner
 from ai.remediation.rollback import RollbackFailed, RollbackRemediator
 from ai.remediation.unlearning import TriggerUnlearner
 
@@ -77,9 +78,7 @@ class RemediationEngine:
         self._strategies = tuple(strategies)
 
         self._rollback = RollbackRemediator(registry) if registry is not None else None
-        self._unlearner = TriggerUnlearner(
-            adapter, epochs=unlearning_epochs, lr=unlearning_lr
-        )
+        self._unlearner = TriggerUnlearner(adapter, epochs=unlearning_epochs, lr=unlearning_lr)
         self._pruner = (
             FinePruner(
                 adapter,
@@ -87,6 +86,12 @@ class RemediationEngine:
                 finetune_lr=pruning_finetune_lr,
             )
             if isinstance(adapter, LinearSoftmaxAdapter)
+            else TorchFinePruner(
+                adapter,
+                finetune_epochs=pruning_finetune_epochs,
+                finetune_lr=pruning_finetune_lr,
+            )
+            if isinstance(adapter, TorchModelAdapter)
             else None
         )
 
@@ -108,12 +113,8 @@ class RemediationEngine:
             registry=registry,
             ledger=ledger,
             asr_threshold=getattr(config, "remediation_asr_threshold", 0.2),
-            max_clean_accuracy_drop=getattr(
-                config, "remediation_max_clean_accuracy_drop", 0.1
-            ),
-            strategies=tuple(
-                getattr(config, "remediation_strategies", _DEFAULT_STRATEGIES)
-            ),
+            max_clean_accuracy_drop=getattr(config, "remediation_max_clean_accuracy_drop", 0.1),
+            strategies=tuple(getattr(config, "remediation_strategies", _DEFAULT_STRATEGIES)),
             unlearning_epochs=getattr(config, "unlearning_epochs", 10),
             unlearning_lr=getattr(config, "unlearning_lr", 0.1),
             pruning_finetune_epochs=getattr(config, "pruning_finetune_epochs", 5),
@@ -123,11 +124,27 @@ class RemediationEngine:
     # Metrics
     # ------------------------------------------------------------------
 
-    def _asr(self, params: Any, X_triggered: np.ndarray, target_label: int) -> float:
+    def _asr(
+        self,
+        params: Any,
+        X_triggered: np.ndarray,
+        target_label: int,
+        y_triggered: np.ndarray | None = None,
+    ) -> float:
         if X_triggered is None or len(X_triggered) == 0:
             return 0.0
         preds = self._adapter.predict(params, X_triggered)
-        return float(np.mean(preds == target_label))
+        if y_triggered is None:
+            # Backward-compatible fallback for callers that already pre-filtered
+            # their triggered evaluation set to non-target source classes.
+            return float(np.mean(preds == target_label))
+        y_true = np.asarray(y_triggered).astype(int)
+        if len(y_true) != len(preds):
+            raise ValueError("y_triggered length must match X_triggered")
+        source_mask = y_true != target_label
+        if not np.any(source_mask):
+            return 0.0
+        return float(np.mean(preds[source_mask] == target_label))
 
     def _clean_acc(self, params: Any, X_clean: np.ndarray, y_clean: np.ndarray) -> float:
         if X_clean is None or len(X_clean) == 0:
@@ -150,6 +167,7 @@ class RemediationEngine:
         n_features: int | None = None,
         suspected_infection_round: int | None = None,
         raise_on_failure: bool = True,
+        y_triggered: np.ndarray | None = None,
     ) -> tuple[Any, RemediationReport]:
         """Run the escalating remediation policy.
 
@@ -166,6 +184,9 @@ class RemediationEngine:
                 ``RemediationFailedError`` when no step succeeds. The failing
                 :class:`RemediationReport` is attached to the exception as
                 ``.report``. If False, return ``(best_params, report)``.
+            y_triggered: Optional clean ground-truth labels corresponding to
+                ``X_triggered``. When supplied, ASR follows the standard source-only
+                definition and excludes samples already belonging to ``target_label``.
 
         Returns:
             ``(remediated_params, RemediationReport)`` on success (or on failure
@@ -173,15 +194,17 @@ class RemediationEngine:
         """
         t0 = time.perf_counter()
         if n_features is None:
-            n_features = int(np.asarray(X_clean).shape[1])
+            n_features = int(np.prod(np.asarray(X_clean).shape[1:]))
         reversed_triggers = list(getattr(audit_report, "reversed_triggers", []) or [])
         round_num = int(getattr(audit_report, "round_num", 0) or 0)
 
-        asr_before = self._asr(params, X_triggered, target_label)
+        asr_before = self._asr(params, X_triggered, target_label, y_triggered)
         clean_before = self._clean_acc(params, X_clean, y_clean)
         logger.info(
             "Remediation start: ASR=%.3f C-Acc=%.3f (threshold ASR<=%.3f)",
-            asr_before, clean_before, self._asr_threshold,
+            asr_before,
+            clean_before,
+            self._asr_threshold,
         )
 
         per_strategy: list[dict[str, Any]] = []
@@ -198,13 +221,11 @@ class RemediationEngine:
                 suspected_infection_round=suspected_infection_round,
             )
             if candidate is None:
-                per_strategy.append(
-                    {"strategy": name, "status": "skipped", "detail": note}
-                )
+                per_strategy.append({"strategy": name, "status": "skipped", "detail": note})
                 logger.info("Remediation step '%s' skipped: %s", name, note)
                 continue
 
-            asr_after = self._asr(candidate, X_triggered, target_label)
+            asr_after = self._asr(candidate, X_triggered, target_label, y_triggered)
             clean_after = self._clean_acc(candidate, X_clean, y_clean)
             accepted = (
                 asr_after <= self._asr_threshold
@@ -221,7 +242,11 @@ class RemediationEngine:
             )
             logger.info(
                 "Remediation step '%s': ASR %.3f->%.3f C-Acc %.3f->%.3f (%s)",
-                name, asr_before, asr_after, clean_before, clean_after,
+                name,
+                asr_before,
+                asr_after,
+                clean_before,
+                clean_after,
                 "ACCEPTED" if accepted else "rejected",
             )
 

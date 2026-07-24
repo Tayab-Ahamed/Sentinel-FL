@@ -101,7 +101,10 @@ class IIDPartitioner(BasePartitioner):
         sizes = [len(s) for s in splits]
         logger.info(
             "IIDPartitioner: %d clients, sizes min=%d max=%d (seed=%d)",
-            n_clients, min(sizes), max(sizes), seed,
+            n_clients,
+            min(sizes),
+            max(sizes),
+            seed,
         )
         return splits
 
@@ -172,9 +175,12 @@ class DirichletPartitioner(BasePartitioner):
 
         sizes = [len(r) for r in result]
         logger.info(
-            "DirichletPartitioner: %d clients, alpha=%.3f, "
-            "sizes min=%d max=%d (seed=%d)",
-            n_clients, self._alpha, min(sizes), max(sizes), seed,
+            "DirichletPartitioner: %d clients, alpha=%.3f, sizes min=%d max=%d (seed=%d)",
+            n_clients,
+            self._alpha,
+            min(sizes),
+            max(sizes),
+            seed,
         )
         return result
 
@@ -234,7 +240,9 @@ def _ensure_minimum(
                 logger.warning(
                     "Cannot guarantee min_samples=%d for client %d "
                     "(dataset too small for %d clients).",
-                    min_samples, i, len(partitions),
+                    min_samples,
+                    i,
+                    len(partitions),
                 )
                 continue
             take = min_samples - len(part)
@@ -243,6 +251,8 @@ def _ensure_minimum(
             partitions[i] = np.concatenate([part, transferred])
             logger.debug(
                 "ensure_minimum: transferred %d samples from client %d to client %d",
-                take, donor_idx, i,
+                take,
+                donor_idx,
+                i,
             )
     return partitions

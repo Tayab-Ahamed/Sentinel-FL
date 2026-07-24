@@ -13,6 +13,7 @@ Covers the real API routes:
   GET  /api/v1/experiments/{id}/clients
   GET  /api/v1/experiments/{id}/config
 """
+
 from __future__ import annotations
 
 import json
@@ -30,6 +31,7 @@ from fastapi.testclient import TestClient
 @pytest.fixture(scope="module")
 def client():
     from backend.main import app
+
     return TestClient(app)
 
 

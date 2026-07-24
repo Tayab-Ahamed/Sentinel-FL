@@ -95,7 +95,10 @@ class TestCalibrateAndDetect:
         # Compute the actual FRR on a separate clean set
         clean_test = X[400:]
         scores = np.array(
-            [strip_score(model, clean_test[i], calib_pool, n_perturb=20) for i in range(len(clean_test))]
+            [
+                strip_score(model, clean_test[i], calib_pool, n_perturb=20)
+                for i in range(len(clean_test))
+            ]
         )
         actual_frr = float((scores <= boundary).mean())
 
@@ -129,7 +132,9 @@ class TestCalibrateAndDetect:
         pool = X[200:400]
         rng = np.random.default_rng(1)
 
-        clean_scores = [strip_score(model, clean[i], pool, n_perturb=20, rng=rng) for i in range(30)]
+        clean_scores = [
+            strip_score(model, clean[i], pool, n_perturb=20, rng=rng) for i in range(30)
+        ]
         triggered_scores = [
             strip_score(model, triggered[i], pool, n_perturb=20, rng=rng) for i in range(30)
         ]

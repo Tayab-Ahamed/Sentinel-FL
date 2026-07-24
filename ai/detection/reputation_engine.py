@@ -88,12 +88,14 @@ class ReputationEngine:
         round_groups: dict[int, list[dict]] = defaultdict(list)
         for e in entries:
             rnd = e.round_num if e.round_num is not None else -1
-            round_groups[rnd].append({
-                "entry_id": e.entry_id,
-                "layer_id": e.layer_id,
-                "score": e.score,
-                "reason": e.reason,
-            })
+            round_groups[rnd].append(
+                {
+                    "entry_id": e.entry_id,
+                    "layer_id": e.layer_id,
+                    "score": e.score,
+                    "reason": e.reason,
+                }
+            )
 
         round_history = [
             {
@@ -148,24 +150,30 @@ class ReputationEngine:
         per_client: list[dict] = []
         for i, cid in enumerate(client_ids):
             row = [v for v in matrix[i] if v is not None]
-            per_client.append({
-                "client_id": cid,
-                "max_score": round(max(row), 4) if row else 0.0,
-                "mean_score": round(sum(row) / len(row), 4) if row else 0.0,
-                "n_flagged_rounds": sum(1 for v in row if v is not None and v >= self._threshold),
-                "current_score": base["current_scores"].get(cid, 0.0),
-            })
+            per_client.append(
+                {
+                    "client_id": cid,
+                    "max_score": round(max(row), 4) if row else 0.0,
+                    "mean_score": round(sum(row) / len(row), 4) if row else 0.0,
+                    "n_flagged_rounds": sum(
+                        1 for v in row if v is not None and v >= self._threshold
+                    ),
+                    "current_score": base["current_scores"].get(cid, 0.0),
+                }
+            )
 
         # Per-round summary: mean + max across all clients
         per_round: list[dict] = []
         for j, rnd in enumerate(rounds):
             col = [matrix[i][j] for i in range(len(client_ids)) if matrix[i][j] is not None]
-            per_round.append({
-                "round_num": rnd,
-                "mean_score": round(sum(col) / len(col), 4) if col else 0.0,
-                "max_score": round(max(col), 4) if col else 0.0,
-                "n_flagged_clients": sum(1 for v in col if v >= self._threshold),
-            })
+            per_round.append(
+                {
+                    "round_num": rnd,
+                    "mean_score": round(sum(col) / len(col), 4) if col else 0.0,
+                    "max_score": round(max(col), 4) if col else 0.0,
+                    "n_flagged_clients": sum(1 for v in col if v >= self._threshold),
+                }
+            )
 
         return {
             **base,
@@ -216,9 +224,7 @@ class ReputationEngine:
             entries = self._ledger.query(q)
             score_map: dict[str, float] = {}
             for e in entries:
-                score_map[e.subject_id] = min(
-                    1.0, score_map.get(e.subject_id, 0.0) + e.score * 0.5
-                )
+                score_map[e.subject_id] = min(1.0, score_map.get(e.subject_id, 0.0) + e.score * 0.5)
             scores = list(score_map.values())
         else:
             scores = [ts.score for ts in self._ledger.get_all_scores()]
@@ -280,11 +286,13 @@ class ReputationEngine:
                     running_scores.get(e.subject_id, 0.0) + e.score * 0.5,
                 )
             suspicious = [cid for cid, s in running_scores.items() if s >= thr]
-            timeline.append({
-                "round_num": rnd,
-                "n_suspicious": len(suspicious),
-                "suspicious_client_ids": sorted(suspicious),
-            })
+            timeline.append(
+                {
+                    "round_num": rnd,
+                    "n_suspicious": len(suspicious),
+                    "suspicious_client_ids": sorted(suspicious),
+                }
+            )
         return timeline
 
     # ------------------------------------------------------------------

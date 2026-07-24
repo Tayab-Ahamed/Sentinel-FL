@@ -13,6 +13,7 @@ trigger block holds the stamped value and all other entries are ``0`` (mirroring
 ``ai/training/poison.apply_trigger_to_all``).  ``0`` is treated as "not part of the
 trigger"; use :func:`trigger_from_block` when you have a slice rather than a vector.
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -53,14 +54,20 @@ def trigger_mask(trigger_vector: np.ndarray, eps: float = _TRIGGER_EPS) -> np.nd
 
 
 def stamp_trigger(X: np.ndarray, trigger_vector: np.ndarray) -> np.ndarray:
-    """Stamp ``trigger_vector`` onto every row of ``X`` (returns a copy).
+    """Stamp a flattened trigger onto every sample of ``X`` (returns a copy).
 
-    Only the masked (non-zero) channels are overwritten, mirroring the additive
-    BadNets patch used by ``ai/training/poison``.
+    ``X`` may be a conventional feature matrix ``(N, F)`` *or* an image tensor
+    such as ``(N, C, H, W)``.  The trigger is interpreted over the flattened
+    per-sample feature space, then the original shape is restored.  This one
+    operation therefore serves both the NumPy reference model and PyTorch CNNs.
     """
     X_stamped = np.asarray(X, dtype=float).copy()
-    mask = trigger_mask(trigger_vector)
-    if X_stamped.ndim != 2:
-        raise ValueError(f"stamp_trigger expects a 2-D feature matrix, got shape {X_stamped.shape}")
-    X_stamped[:, mask] = np.asarray(trigger_vector, dtype=float)[mask]
-    return X_stamped
+    if X_stamped.ndim < 2:
+        raise ValueError(
+            f"stamp_trigger expects a batched array with ndim >= 2, got {X_stamped.shape}"
+        )
+    flat = X_stamped.reshape(len(X_stamped), -1)
+    vec = as_trigger_vector(trigger_vector, flat.shape[1])
+    mask = trigger_mask(vec)
+    flat[:, mask] = vec[mask]
+    return flat.reshape(X_stamped.shape)

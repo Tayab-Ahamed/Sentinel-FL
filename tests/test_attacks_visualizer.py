@@ -8,6 +8,7 @@ Covers:
   plot_asr_over_rounds: line chart
   save_figure: file creation, format options
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -52,6 +53,7 @@ class TestPoisonedSampleVisualizer:
     @pytest.fixture
     def viz(self):
         from ai.attacks.visualizer import PoisonedSampleVisualizer
+
         return PoisonedSampleVisualizer(dpi=72)
 
     def test_instantiation(self, viz):
@@ -63,6 +65,7 @@ class TestPoisonedSampleVisualizer:
 
     def test_plot_sample_grid_mnist(self, viz):
         from matplotlib.figure import Figure
+
         X_clean = _make_mnist_batch(8)
         X_poisoned = X_clean.copy()
         X_poisoned[:4, :, 24:, 24:] = 1.0  # add trigger block
@@ -72,6 +75,7 @@ class TestPoisonedSampleVisualizer:
 
     def test_plot_sample_grid_cifar(self, viz):
         from matplotlib.figure import Figure
+
         X_clean = _make_cifar_batch(8)
         X_poisoned = X_clean.copy()
         X_poisoned[:3, :, 28:, 28:] = 1.0
@@ -82,6 +86,7 @@ class TestPoisonedSampleVisualizer:
     def test_plot_sample_grid_no_poisoned(self, viz):
         """When mask is all-False, should still render without error."""
         from matplotlib.figure import Figure
+
         X_clean = _make_mnist_batch(4)
         X_poisoned = X_clean.copy()
         mask = np.zeros(4, dtype=bool)
@@ -91,6 +96,7 @@ class TestPoisonedSampleVisualizer:
     def test_plot_sample_grid_all_poisoned(self, viz):
         """All samples poisoned — must render without error."""
         from matplotlib.figure import Figure
+
         X_clean = _make_mnist_batch(4)
         X_poisoned = X_clean.copy()
         X_poisoned[:, :, 24:, 24:] = 1.0
@@ -101,6 +107,7 @@ class TestPoisonedSampleVisualizer:
     def test_plot_sample_grid_single_sample(self, viz):
         """Single-sample batch must not crash."""
         from matplotlib.figure import Figure
+
         X_clean = _make_mnist_batch(1)
         X_poisoned = X_clean.copy()
         mask = np.array([True])
@@ -115,6 +122,7 @@ class TestPoisonedSampleVisualizer:
         from matplotlib.figure import Figure
 
         from ai.attacks.triggers import TriggerPattern
+
         trigger = TriggerPattern(shape="square", size=5, location="bottom_right", color=1.0)
         fig = viz.plot_trigger_pattern(trigger, input_shape=(1, 28, 28))
         assert isinstance(fig, Figure)
@@ -123,6 +131,7 @@ class TestPoisonedSampleVisualizer:
         from matplotlib.figure import Figure
 
         from ai.attacks.triggers import TriggerPattern
+
         trigger = TriggerPattern(shape="square", size=4, location="bottom_right", color=1.0)
         fig = viz.plot_trigger_pattern(trigger, input_shape=(3, 32, 32))
         assert isinstance(fig, Figure)
@@ -133,6 +142,7 @@ class TestPoisonedSampleVisualizer:
 
     def test_plot_asr_curve(self, viz):
         from matplotlib.figure import Figure
+
         rounds = list(range(10))
         asr = [0.8 - i * 0.05 for i in range(10)]
         clean_acc = [0.7 + i * 0.02 for i in range(10)]
@@ -142,6 +152,7 @@ class TestPoisonedSampleVisualizer:
     def test_plot_asr_curve_single_round(self, viz):
         """Single-round time series must not crash."""
         from matplotlib.figure import Figure
+
         fig = viz.plot_asr_curve([0], [0.9], [0.7])
         assert isinstance(fig, Figure)
 
@@ -179,10 +190,12 @@ class TestRequireMatplotlib:
     def test_missing_matplotlib_raises_import_error(self, monkeypatch):
         """If _MPL_AVAILABLE is False, instantiation should raise ImportError."""
         import ai.attacks.visualizer as viz_module
+
         original = viz_module._MPL_AVAILABLE
         viz_module._MPL_AVAILABLE = False
         try:
             from ai.attacks.visualizer import PoisonedSampleVisualizer
+
             with pytest.raises(ImportError):
                 PoisonedSampleVisualizer()
         finally:

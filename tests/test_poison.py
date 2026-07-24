@@ -97,8 +97,15 @@ class TestInjectTrigger:
     def test_exact_poison_count(self):
         X, y = make_dataset(100, 10, 3, seed=0)
         poison_fraction = 0.20
-        _X_p, _y_p, mask = inject_trigger(X, y, target_class=0, trigger_block=slice(0, 3),
-                                          trigger_value=6.0, poison_fraction=poison_fraction, seed=0)
+        _X_p, _y_p, mask = inject_trigger(
+            X,
+            y,
+            target_class=0,
+            trigger_block=slice(0, 3),
+            trigger_value=6.0,
+            poison_fraction=poison_fraction,
+            seed=0,
+        )
         expected = int(100 * poison_fraction)
         assert int(mask.sum()) == expected, f"Expected {expected} poisoned rows, got {mask.sum()}"
 
@@ -106,8 +113,15 @@ class TestInjectTrigger:
         X, y = make_dataset(50, 10, 2, seed=1)
         trigger_block = slice(1, 4)
         trigger_value = 9.0
-        X_p, _y_p, mask = inject_trigger(X, y, target_class=1, trigger_block=trigger_block,
-                                          trigger_value=trigger_value, poison_fraction=0.3, seed=2)
+        X_p, _y_p, mask = inject_trigger(
+            X,
+            y,
+            target_class=1,
+            trigger_block=trigger_block,
+            trigger_value=trigger_value,
+            poison_fraction=0.3,
+            seed=2,
+        )
         # Every row where mask=True must have trigger_value in the trigger_block
         for i in range(len(X)):
             if mask[i]:
@@ -121,8 +135,9 @@ class TestInjectTrigger:
     def test_label_flip_for_poisoned_rows(self):
         X, y = make_dataset(100, 8, 4, seed=3)
         target_class = 2
-        _X_p, y_p, mask = inject_trigger(X, y, target_class=target_class,
-                                          trigger_block=slice(0, 2), poison_fraction=0.25, seed=4)
+        _X_p, y_p, mask = inject_trigger(
+            X, y, target_class=target_class, trigger_block=slice(0, 2), poison_fraction=0.25, seed=4
+        )
         # All poisoned rows should have y_p == target_class
         assert np.all(y_p[mask] == target_class)
         # Non-poisoned rows should have original labels

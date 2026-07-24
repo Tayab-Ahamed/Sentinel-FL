@@ -471,7 +471,11 @@ class TestDetectionExplainer:
         assert isinstance(result, DetectionExplanation)
         assert result.layer_id == "L1"
         assert result.subject_id == "c01"
-        assert "4.2" in result.reason_string or "L1" in result.reason_string or "c01" in result.reason_string
+        assert (
+            "4.2" in result.reason_string
+            or "L1" in result.reason_string
+            or "c01" in result.reason_string
+        )
 
     def test_explain_l1_with_delta(self):
         from ai.explainability.detection_explainer import DetectionExplainer
@@ -791,9 +795,7 @@ class TestAttackExplainer:
         from ai.explainability.attack_explainer import AttackExplainer
 
         ae = AttackExplainer()
-        result = ae.explain_backdoor(
-            attack_config={"attack_type": "BadNets", "target_label": 2}
-        )
+        result = ae.explain_backdoor(attack_config={"attack_type": "BadNets", "target_label": 2})
         assert len(result.evidence_summary) > 10
 
     def test_suspected_clients_from_entries(self):
@@ -824,8 +826,7 @@ class TestChartGenerator:
             shap_values=[round(v, 3) for v in np.random.default_rng(0).uniform(-1, 1, n).tolist()],
             feature_names=[f"f{i}" for i in range(n)],
             top_k_features=[
-                {"rank": i + 1, "name": f"f{i}", "shap_value": 0.1 * (n - i)}
-                for i in range(n)
+                {"rank": i + 1, "name": f"f{i}", "shap_value": 0.1 * (n - i)} for i in range(n)
             ],
         )
 
@@ -837,7 +838,9 @@ class TestChartGenerator:
             method="permutation",
             feature_names=[f"f{i}" for i in range(n)],
             importance_scores=scores,
-            ranked_features=[{"rank": i + 1, "name": f"f{i}", "score": scores[i]} for i in range(n)],
+            ranked_features=[
+                {"rank": i + 1, "name": f"f{i}", "score": scores[i]} for i in range(n)
+            ],
         )
 
     def _make_trust_exp(self):
@@ -849,8 +852,7 @@ class TestChartGenerator:
             is_suspicious=True,
             narrative="Suspicious client.",
             score_trajectory=[
-                {"round_num": i, "n_flags": i % 3, "layers": ["L1"]}
-                for i in range(1, 6)
+                {"round_num": i, "n_flags": i % 3, "layers": ["L1"]} for i in range(1, 6)
             ],
         )
 
@@ -944,6 +946,7 @@ class TestChartGenerator:
             b"\x00\x00\x00\x00IEND\xaeB`\x82"
         )
         import base64
+
         b64 = base64.b64encode(tiny_png).decode()
         art = ChartArtifact(chart_type="shap_bar", png_b64=b64, title="test")
         paths = cg.save_all([art], output_dir=tmp_path)

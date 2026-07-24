@@ -188,8 +188,9 @@ class TestApplyTriggerMNIST:
 
     def test_opacity_blends_correctly(self):
         X = np.ones((2, 1, 28, 28), dtype=np.float32)  # all 1s
-        pattern = TriggerPattern(shape="square", size=4, location="bottom_right",
-                                  color=0.0, opacity=0.5)  # black, 50% blend
+        pattern = TriggerPattern(
+            shape="square", size=4, location="bottom_right", color=0.0, opacity=0.5
+        )  # black, 50% blend
         X_t = apply_trigger(X, pattern)
         patch = X_t[0, 0, 24:28, 24:28]
         # 0.5 * 0.0 + 0.5 * 1.0 = 0.5
@@ -220,9 +221,7 @@ class TestApplyTriggerCIFAR:
 
     def test_trigger_region_modified_all_channels(self):
         X = np.zeros((2, 3, 32, 32), dtype=np.float32)
-        pattern = TriggerFactory.make_square(
-            size=4, location="bottom_right", color=(1.0, 0.5, 0.0)
-        )
+        pattern = TriggerFactory.make_square(size=4, location="bottom_right", color=(1.0, 0.5, 0.0))
         X_t = apply_trigger(X, pattern)
         # Channel 0 → 1.0, Channel 1 → 0.5, Channel 2 → 0.0
         np.testing.assert_allclose(X_t[0, 0, 28:32, 28:32], 1.0)

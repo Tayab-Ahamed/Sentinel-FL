@@ -128,7 +128,8 @@ class FileTrustLedger:
         except Exception as exc:
             logger.warning(
                 "TrustLedger.add_entry: write failed (buffering entry %s): %s",
-                entry.entry_id, exc,
+                entry.entry_id,
+                exc,
             )
             self._buffer.append(entry)
             # Still ingest into memory even if disk write failed
@@ -151,7 +152,8 @@ class FileTrustLedger:
             except Exception as exc:
                 logger.warning(
                     "TrustLedger.flush_buffer: entry %s still failing: %s",
-                    entry.entry_id, exc,
+                    entry.entry_id,
+                    exc,
                 )
                 still_buffered.append(entry)
         self._buffer = still_buffered
@@ -184,7 +186,8 @@ class FileTrustLedger:
             score.last_updated_round = current_round
         logger.debug(
             "TrustLedger.decay_scores: decayed %d scores at round %d.",
-            len(self._scores), current_round,
+            len(self._scores),
+            current_round,
         )
 
     # ------------------------------------------------------------------
@@ -234,9 +237,7 @@ class FileTrustLedger:
                 candidates.extend(self._subject_index.get(sid, []))
         else:
             # Flatten all subject histories
-            candidates = [
-                e for entries in self._subject_index.values() for e in entries
-            ]
+            candidates = [e for entries in self._subject_index.values() for e in entries]
 
         # Apply all filters
         results: list[TrustLedgerEntry] = []
@@ -287,14 +288,13 @@ class FileTrustLedger:
         """
         entries = list(reversed(self._subject_index.get(client_id, [])))
         if max_rounds is not None and entries:
-            max_round = max(
-                e.round_num for e in entries if e.round_num is not None
-            ) if any(e.round_num is not None for e in entries) else 0
+            max_round = (
+                max(e.round_num for e in entries if e.round_num is not None)
+                if any(e.round_num is not None for e in entries)
+                else 0
+            )
             cutoff = max_round - max_rounds
-            entries = [
-                e for e in entries
-                if e.round_num is None or e.round_num >= cutoff
-            ]
+            entries = [e for e in entries if e.round_num is None or e.round_num >= cutoff]
         return entries
 
     # ------------------------------------------------------------------
@@ -345,19 +345,14 @@ class FileTrustLedger:
                     existing = score_map[cid].get(e.round_num, 0.0)
                     score_map[cid][e.round_num] = max(existing, e.score)
 
-        matrix = [
-            [score_map[cid].get(rnd) for rnd in rounds_sorted]
-            for cid in client_ids
-        ]
+        matrix = [[score_map[cid].get(rnd) for rnd in rounds_sorted] for cid in client_ids]
 
         return {
             "client_ids": client_ids,
             "rounds": rounds_sorted,
             "matrix": matrix,
             "current_scores": {
-                cid: round(self._scores[cid].score, 4)
-                for cid in client_ids
-                if cid in self._scores
+                cid: round(self._scores[cid].score, 4) for cid in client_ids if cid in self._scores
             },
         }
 
@@ -371,9 +366,7 @@ class FileTrustLedger:
             List of ``TrustScore`` objects sorted by score descending
             (highest = most suspicious first).
         """
-        return sorted(
-            self._scores.values(), key=lambda ts: ts.score, reverse=True
-        )[:k]
+        return sorted(self._scores.values(), key=lambda ts: ts.score, reverse=True)[:k]
 
     def suspicious_above(self, threshold: float | None = None) -> list[TrustScore]:
         """Return clients whose trust score >= threshold.
@@ -470,12 +463,8 @@ class FileTrustLedger:
                         )
 
             sorted_rounds = sorted(rounds_seen.keys())
-            anomaly_history = [
-                round(rounds_seen[r].get("anomaly", 0.0), 4) for r in sorted_rounds
-            ]
-            norm_history = [
-                round(rounds_seen[r].get("norm", 0.0), 6) for r in sorted_rounds
-            ]
+            anomaly_history = [round(rounds_seen[r].get("anomaly", 0.0), 4) for r in sorted_rounds]
+            norm_history = [round(rounds_seen[r].get("norm", 0.0), 6) for r in sorted_rounds]
 
             snapshots.append(
                 ReputationSnapshot(
@@ -504,9 +493,7 @@ class FileTrustLedger:
             "n_clients": len(self._scores),
             "n_buffered": len(self._buffer),
             "ledger_path": str(self._path),
-            "suspicious_count": sum(
-                1 for s in scores if s >= self._suspicious_threshold
-            ),
+            "suspicious_count": sum(1 for s in scores if s >= self._suspicious_threshold),
             "mean_score": round(sum(scores) / len(scores), 4) if scores else 0.0,
         }
 
@@ -527,8 +514,7 @@ class FileTrustLedger:
                 if attempt < self._max_retries:
                     time.sleep(self._backoff_s)
         raise OSError(
-            f"TrustLedger: failed to write entry after {self._max_retries} "
-            f"attempts: {last_exc}"
+            f"TrustLedger: failed to write entry after {self._max_retries} attempts: {last_exc}"
         )
 
     def _ingest_entry(self, entry: TrustLedgerEntry) -> None:
@@ -602,7 +588,8 @@ class FileTrustLedger:
             self._ingest_entry(entry)
         logger.info(
             "TrustLedger: warm-start replayed %d entries from %s",
-            len(entries), self._path,
+            len(entries),
+            self._path,
         )
 
     # ------------------------------------------------------------------

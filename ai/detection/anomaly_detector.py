@@ -63,9 +63,7 @@ class UpdateAnomalyDetector:
         threshold_z: float = 3.0,
     ) -> None:
         if anomaly_method not in ("zscore", "mad"):
-            raise ValueError(
-                f"anomaly_method must be 'zscore' or 'mad', got {anomaly_method!r}"
-            )
+            raise ValueError(f"anomaly_method must be 'zscore' or 'mad', got {anomaly_method!r}")
         self._method = anomaly_method
         self._norm_type = norm_type
         self._threshold_z = threshold_z
@@ -90,7 +88,8 @@ class UpdateAnomalyDetector:
         self._reference_norms.extend(norms.tolist())
         logger.debug(
             "UpdateAnomalyDetector.fit: added %d norms (pool size=%d)",
-            len(norms), len(self._reference_norms),
+            len(norms),
+            len(self._reference_norms),
         )
 
     def score_all(self, deltas: list[np.ndarray]) -> np.ndarray:
@@ -129,9 +128,7 @@ class UpdateAnomalyDetector:
                 raw_scores = compute_norm_mad_scores(norms)
 
         # Squash to [0, 1] via sigmoid: s = 1 - exp(-raw/threshold)
-        scores = (1.0 - np.exp(-raw_scores / max(self._threshold_z, _EPSILON))).astype(
-            np.float32
-        )
+        scores = (1.0 - np.exp(-raw_scores / max(self._threshold_z, _EPSILON))).astype(np.float32)
         return np.clip(scores, 0.0, 1.0)
 
     def score(self, delta: np.ndarray) -> float:

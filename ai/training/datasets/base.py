@@ -159,9 +159,10 @@ class BaseDatasetLoader(DatasetLoader):
         partitions = [(X[idx].copy(), y[idx].copy()) for idx in index_lists]
 
         logger.info(
-            "%s.load_client_partitions: %d clients, %s, "
-            "sizes min=%d max=%d",
-            self.__class__.__name__, n_clients, label,
+            "%s.load_client_partitions: %d clients, %s, sizes min=%d max=%d",
+            self.__class__.__name__,
+            n_clients,
+            label,
             min(len(idx) for idx in index_lists),
             max(len(idx) for idx in index_lists),
         )
@@ -232,7 +233,9 @@ class BaseDatasetLoader(DatasetLoader):
                 self._test_X, self._test_y = cached_test
                 logger.info(
                     "%s: loaded from cache (train=%d, test=%d)",
-                    self.__class__.__name__, len(self._train_X), len(self._test_X),
+                    self.__class__.__name__,
+                    len(self._train_X),
+                    len(self._test_X),
                 )
                 return
 
@@ -254,15 +257,16 @@ class BaseDatasetLoader(DatasetLoader):
         self._test_X, self._test_y = X_test, y_test
         logger.info(
             "%s: loaded (train=%d, test=%d)",
-            self.__class__.__name__, len(X_train), len(X_test),
+            self.__class__.__name__,
+            len(X_train),
+            len(X_test),
         )
 
-    def _run_validation(
-        self, X: np.ndarray, y: np.ndarray, split: str
-    ) -> None:
+    def _run_validation(self, X: np.ndarray, y: np.ndarray, split: str) -> None:
         """Validate arrays and log — raises on errors if validation fails."""
         result = self._validator.validate(
-            X, y,
+            X,
+            y,
             expected_shape=self.input_shape,
             n_classes=self.n_classes,
             dataset_name=f"{self.dataset_name}_{split}",

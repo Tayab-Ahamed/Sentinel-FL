@@ -227,12 +227,16 @@ class CollusionGuardStrategy(DefenseStrategy):
         """Generate the human-readable reason string for the Trust Ledger."""
         ids_str = ", ".join(cluster_ids)
         # Format the max off-diagonal similarity for the explanation
-        max_sim = max(
-            sim_matrix[i][j]
-            for i in range(len(sim_matrix))
-            for j in range(len(sim_matrix[i]))
-            if i != j
-        ) if len(sim_matrix) > 1 else 0.0
+        max_sim = (
+            max(
+                sim_matrix[i][j]
+                for i in range(len(sim_matrix))
+                for j in range(len(sim_matrix[i]))
+                if i != j
+            )
+            if len(sim_matrix) > 1
+            else 0.0
+        )
         return (
             f"Clients [{ids_str}] form a residual-update cluster "
             f"(max pairwise cosine similarity = {max_sim:.2f}, "
@@ -275,6 +279,7 @@ class UpdateGuardResult:
     def to_dict(self) -> dict:
         """Return a JSON-serialisable dict of all fields."""
         import dataclasses
+
         return dataclasses.asdict(self)
 
     def summary(self) -> str:
@@ -387,10 +392,10 @@ class UpdateGuard:
             return getattr(config, attr, default)
 
         return cls(
-            sim_threshold=_get("sim_threshold",
-                                getattr(config, "collusion_sim_threshold", 0.85)),
-            min_cluster_size=_get("min_cluster_size",
-                                   getattr(config, "collusion_min_cluster_size", 2)),
+            sim_threshold=_get("sim_threshold", getattr(config, "collusion_sim_threshold", 0.85)),
+            min_cluster_size=_get(
+                "min_cluster_size", getattr(config, "collusion_min_cluster_size", 2)
+            ),
             anomaly_method=_get("anomaly_method", "zscore"),
             norm_outlier_threshold_z=_get("norm_outlier_threshold_z", 3.0),
             norm_type=_get("norm_type", "l2"),
@@ -439,9 +444,7 @@ class UpdateGuard:
         )
 
         n = len(client_ids)
-        logger.info(
-            "UpdateGuard.process_round: round=%d n_clients=%d", round_num, n
-        )
+        logger.info("UpdateGuard.process_round: round=%d n_clients=%d", round_num, n)
 
         if n == 0:
             return self._empty_result(round_num)
@@ -454,9 +457,7 @@ class UpdateGuard:
             threshold_z=self._norm_threshold_z,
             method=self._anomaly_detector.method,
         )
-        flagged_by_norm = {
-            client_ids[i] for i, f in enumerate(norm_flagged) if f
-        }
+        flagged_by_norm = {client_ids[i] for i, f in enumerate(norm_flagged) if f}
 
         # ── 2+3. Cosine similarity + collusion clustering ────────────────
         # Use mean-of-all as aggregate proxy (no Multi-Krum here;
@@ -472,20 +473,14 @@ class UpdateGuard:
         collusion_scores: list[float] = collusion_result["collusion_score"]
         sim_matrix: list[list[float]] = collusion_result["similarity_matrix"]
 
-        flagged_by_collusion = {
-            client_ids[i]
-            for cluster in flagged_clusters
-            for i in cluster
-        }
+        flagged_by_collusion = {client_ids[i] for cluster in flagged_clusters for i in cluster}
 
         # ── 4. Anomaly scores ────────────────────────────────────────────
         anomaly_scores_arr = self._anomaly_detector.score_all(deltas)
         anomaly_scores: list[float] = anomaly_scores_arr.tolist()
 
         # ── 5. Trust scores ──────────────────────────────────────────────
-        reasons = self._build_reasons(
-            client_ids, norm_flagged, flagged_clusters, anomaly_scores
-        )
+        reasons = self._build_reasons(client_ids, norm_flagged, flagged_clusters, anomaly_scores)
         evidences = [
             {
                 "norm": round(float(norms[i]), 6),
@@ -611,19 +606,11 @@ class UpdateGuard:
             "round": round_num,
             "n_clients": len(client_ids),
             "norm_outliers": [cid for cid, f in zip(client_ids, norm_flagged) if f],
-            "flagged_clusters": [
-                [client_ids[i] for i in cluster] for cluster in flagged_clusters
-            ],
+            "flagged_clusters": [[client_ids[i] for i in cluster] for cluster in flagged_clusters],
             "excluded_clients": excluded,
-            "trust_scores": {
-                cid: round(float(s), 4)
-                for cid, s in zip(client_ids, trust_scores)
-            },
+            "trust_scores": {cid: round(float(s), 4) for cid, s in zip(client_ids, trust_scores)},
             "ranked_clients": ranked_clients,
-            "norms": {
-                cid: round(float(n), 6)
-                for cid, n in zip(client_ids, norms)
-            },
+            "norms": {cid: round(float(n), 6) for cid, n in zip(client_ids, norms)},
         }
         if sim_matrix is not None:
             payload["similarity_matrix"] = sim_matrix
@@ -648,4 +635,3 @@ class UpdateGuard:
             ranked_clients=[],
             excluded_clients=[],
         )
-

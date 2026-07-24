@@ -7,6 +7,7 @@ Covers:
   fedavg: weighted average, equal weights
   multi_krum: basic selection, known outlier exclusion
 """
+
 from __future__ import annotations
 
 import numpy as np

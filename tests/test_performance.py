@@ -6,6 +6,7 @@ that memory usage stays bounded under realistic workload sizes.
 
 Marked as 'benchmark' — run with: pytest -m benchmark
 """
+
 from __future__ import annotations
 
 import time
@@ -18,14 +19,14 @@ pytestmark = pytest.mark.benchmark
 # ---------------------------------------------------------------------------
 # Time budget constants (seconds) — generous for CI
 # ---------------------------------------------------------------------------
-_T_FEDAVG_1K = 0.5       # fedavg over 1000-dim vectors, 20 clients
-_T_MULTIKRUM_1K = 2.0    # multi_krum over same
-_T_LOCAL_TRAIN = 1.0     # one client local_train (5 epochs)
-_T_GUARD_ROUND = 2.0     # UpdateGuard.process_round, 12 clients
-_T_LEDGER_WRITE = 1.0    # 100 ledger writes
-_T_LEDGER_QUERY = 0.5    # query 1000-entry ledger
-_T_NORM_CALC = 0.2       # compute norms for 20 clients × 5000 params
-_T_PARTITION = 0.5       # Dirichlet partition of 10k samples
+_T_FEDAVG_1K = 0.5  # fedavg over 1000-dim vectors, 20 clients
+_T_MULTIKRUM_1K = 2.0  # multi_krum over same
+_T_LOCAL_TRAIN = 1.0  # one client local_train (5 epochs)
+_T_GUARD_ROUND = 2.0  # UpdateGuard.process_round, 12 clients
+_T_LEDGER_WRITE = 1.0  # 100 ledger writes
+_T_LEDGER_QUERY = 0.5  # query 1000-entry ledger
+_T_NORM_CALC = 0.2  # compute norms for 20 clients × 5000 params
+_T_PARTITION = 0.5  # Dirichlet partition of 10k samples
 
 
 # ---------------------------------------------------------------------------
@@ -107,9 +108,7 @@ class TestDetectionBenchmarks:
             compute_norms(updates)
         elapsed = time.perf_counter() - t0
 
-        assert elapsed < _T_NORM_CALC * 50, (
-            f"compute_norms x50 took {elapsed:.3f}s"
-        )
+        assert elapsed < _T_NORM_CALC * 50, f"compute_norms x50 took {elapsed:.3f}s"
 
     @pytest.mark.benchmark
     def test_update_guard_round_speed(self, tmp_path):
@@ -199,9 +198,7 @@ class TestTrainingBenchmarks:
             dirichlet_partition(n_train, 20, y[:n_train], 5, alpha=0.5, seed=0)
         elapsed = time.perf_counter() - t0
 
-        assert elapsed < _T_PARTITION, (
-            f"partition x5 took {elapsed:.3f}s (limit {_T_PARTITION}s)"
-        )
+        assert elapsed < _T_PARTITION, f"partition x5 took {elapsed:.3f}s (limit {_T_PARTITION}s)"
 
     @pytest.mark.benchmark
     def test_trigger_injection_speed(self):

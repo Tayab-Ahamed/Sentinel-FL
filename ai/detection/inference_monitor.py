@@ -131,7 +131,8 @@ class InferenceMonitor:
         self._n_classes = n_classes
         logger.info(
             "InferenceMonitor: calibrated. baseline_mean_conf=%.4f, n_classes=%d.",
-            self._baseline_mean_conf, n_classes,
+            self._baseline_mean_conf,
+            n_classes,
         )
 
     # ------------------------------------------------------------------
@@ -150,9 +151,7 @@ class InferenceMonitor:
         predicted = np.argmax(probs_batch, axis=1)
         n_classes = self._n_classes or int(probs_batch.shape[1])
         counts: dict[int, int] = {
-            int(c): int(v) for c, v in enumerate(
-                np.bincount(predicted, minlength=n_classes)
-            )
+            int(c): int(v) for c, v in enumerate(np.bincount(predicted, minlength=n_classes))
         }
         record = _RoundStats(
             round_num=round_num,
@@ -166,7 +165,9 @@ class InferenceMonitor:
         self._round_index[round_num] = record
         logger.debug(
             "InferenceMonitor.update: round=%d mean_conf=%.4f n=%d.",
-            round_num, stats["mean_confidence"], stats["n_samples"],
+            round_num,
+            stats["mean_confidence"],
+            stats["n_samples"],
         )
 
     # ------------------------------------------------------------------
@@ -185,13 +186,14 @@ class InferenceMonitor:
         if self._baseline_mean_conf is None or not self._history:
             return False
         thr = threshold if threshold is not None else self._drop_threshold
-        recent = list(self._history)[-self._window:]
+        recent = list(self._history)[-self._window :]
         recent_mean = sum(r.mean_confidence for r in recent) / len(recent)
         drop = self._baseline_mean_conf - recent_mean
         if drop > thr:
             logger.warning(
                 "InferenceMonitor: confidence drop detected (%.4f below baseline %.4f).",
-                drop, self._baseline_mean_conf,
+                drop,
+                self._baseline_mean_conf,
             )
             self._anomaly_events += 1
             return True
@@ -241,7 +243,8 @@ class InferenceMonitor:
         if js_div > kl_thr:
             logger.warning(
                 "InferenceMonitor: class-distribution shift detected (JS=%.4f > %.4f).",
-                js_div, kl_thr,
+                js_div,
+                kl_thr,
             )
             self._anomaly_events += 1
             return True
@@ -258,7 +261,7 @@ class InferenceMonitor:
         """
         if self._baseline_mean_conf is None or not self._history:
             return 0.0
-        recent = list(self._history)[-self._window:]
+        recent = list(self._history)[-self._window :]
         recent_mean = sum(r.mean_confidence for r in recent) / len(recent)
         drop = self._baseline_mean_conf - recent_mean  # positive when worse
         # Sigmoid: drop of `_drop_threshold` → score ≈ 0.73
@@ -301,9 +304,7 @@ class InferenceMonitor:
             ``current_mean_conf``, ``anomaly_events``, ``current_anomaly_score``,
             ``confidence_drop_detected``, ``class_shift_detected``.
         """
-        current_conf = (
-            self._history[-1].mean_confidence if self._history else None
-        )
+        current_conf = self._history[-1].mean_confidence if self._history else None
         return {
             "n_rounds_monitored": len(self._history),
             "baseline_mean_conf": self._baseline_mean_conf,

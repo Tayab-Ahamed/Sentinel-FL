@@ -53,9 +53,7 @@ def _build_top_k(
     feature_names: list[str], shap_values: list[float], k: int
 ) -> list[dict[str, Any]]:
     """Return the top-k features sorted by |shap_value| descending."""
-    pairs = sorted(
-        enumerate(shap_values), key=lambda iv: abs(iv[1]), reverse=True
-    )
+    pairs = sorted(enumerate(shap_values), key=lambda iv: abs(iv[1]), reverse=True)
     return [
         {"rank": rank + 1, "name": feature_names[i], "shap_value": round(shap_values[i], 6)}
         for rank, (i, _) in enumerate(pairs[:k])
@@ -119,18 +117,15 @@ class SHAPExplainer:
         if _check_shap():
             import shap
 
-            self._explainer = shap.KernelExplainer(
-                model.predict_proba, self._background
-            )
+            self._explainer = shap.KernelExplainer(model.predict_proba, self._background)
             logger.info(
                 "SHAPExplainer: KernelExplainer built (n_background=%d, n_features=%d).",
-                n_bg, n_features,
+                n_bg,
+                n_features,
             )
         else:
             self._explainer = None
-            logger.info(
-                "SHAPExplainer: using permutation fallback (n_background=%d).", n_bg
-            )
+            logger.info("SHAPExplainer: using permutation fallback (n_background=%d).", n_bg)
         self._is_fitted = True
 
     # ------------------------------------------------------------------
@@ -154,9 +149,7 @@ class SHAPExplainer:
             SHAPExplanation with per-feature SHAP values and top-k ranking.
         """
         if not self._is_fitted:
-            raise RuntimeError(
-                "SHAPExplainer.fit() must be called before explain_input()."
-            )
+            raise RuntimeError("SHAPExplainer.fit() must be called before explain_input().")
         x_2d = np.asarray(x, dtype=np.float64).reshape(1, -1)
         n_features = x_2d.shape[1]
         n_feat = len(self._feature_names)

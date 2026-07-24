@@ -24,6 +24,7 @@ from ai.models.mnist_cnn import SimpleCNN
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_toy_mnist_data(n: int = 64, seed: int = 0) -> tuple[np.ndarray, np.ndarray]:
     """Create fake MNIST-shaped data (N, 1, 28, 28) with random labels 0-9."""
     rng = np.random.default_rng(seed)
@@ -57,6 +58,7 @@ def _make_client(
 # get_parameters
 # ---------------------------------------------------------------------------
 
+
 class TestGetParameters:
     def test_returns_list_of_ndarrays(self):
         """get_parameters returns a list of numpy arrays."""
@@ -86,6 +88,7 @@ class TestGetParameters:
 # ---------------------------------------------------------------------------
 # fit
 # ---------------------------------------------------------------------------
+
 
 class TestFit:
     def test_returns_correct_shape(self):
@@ -170,6 +173,7 @@ class TestFit:
 # ---------------------------------------------------------------------------
 # evaluate
 # ---------------------------------------------------------------------------
+
 
 class TestEvaluate:
     def test_returns_correct_tuple(self):

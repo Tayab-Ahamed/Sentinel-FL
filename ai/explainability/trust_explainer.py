@@ -31,9 +31,7 @@ def _flag_count_narrative(n_flags: int, client_id: str) -> str:
     if n_flags == 0:
         return f"Client '{client_id}' has no recorded flags. Trust score is high."
     noun = "flag" if n_flags == 1 else "flags"
-    return (
-        f"Client '{client_id}' has accumulated {n_flags} {noun} across detection layers."
-    )
+    return f"Client '{client_id}' has accumulated {n_flags} {noun} across detection layers."
 
 
 class TrustExplainer:
@@ -141,9 +139,9 @@ class TrustExplainer:
                     "round_num": rnd,
                     "n_flags": data["n_flags"],
                     "layers": sorted(data["layers"]),
-                    "mean_score": round(
-                        sum(data["scores"]) / len(data["scores"]), 4
-                    ) if data["scores"] else None,
+                    "mean_score": round(sum(data["scores"]) / len(data["scores"]), 4)
+                    if data["scores"]
+                    else None,
                 }
                 for rnd, data in round_map.items()
             ],
@@ -257,13 +255,15 @@ class TrustExplainer:
         sorted_entries = sorted(scored, key=lambda e: e.get("score", 0), reverse=True)
         result = []
         for e in sorted_entries[: self._top_k]:
-            result.append({
-                "entry_id": e.get("entry_id", ""),
-                "layer_id": e.get("layer_id", ""),
-                "round_num": e.get("round_num"),
-                "score": e.get("score"),
-                "reason": (e.get("reason") or "")[:120],
-            })
+            result.append(
+                {
+                    "entry_id": e.get("entry_id", ""),
+                    "layer_id": e.get("layer_id", ""),
+                    "round_num": e.get("round_num"),
+                    "score": e.get("score"),
+                    "reason": (e.get("reason") or "")[:120],
+                }
+            )
         return result
 
     def _all_client_ids(self, ledger: Any) -> list[str]:
@@ -271,12 +271,19 @@ class TrustExplainer:
         try:
             snapshot = ledger.export_snapshot()
             if isinstance(snapshot, list):
-                return list({
-                    e.get("subject_id", "") or (e.subject_id if hasattr(e, "subject_id") else "")
-                    for e in snapshot
-                    if (e.get("subject_type") if isinstance(e, dict) else
-                        getattr(e, "subject_type", "")) == "client"
-                })
+                return list(
+                    {
+                        e.get("subject_id", "")
+                        or (e.subject_id if hasattr(e, "subject_id") else "")
+                        for e in snapshot
+                        if (
+                            e.get("subject_type")
+                            if isinstance(e, dict)
+                            else getattr(e, "subject_type", "")
+                        )
+                        == "client"
+                    }
+                )
             # Alternate: try get_all_clients() method
             return list(ledger.get_all_clients())
         except Exception as exc:

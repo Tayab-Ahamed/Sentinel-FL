@@ -60,9 +60,7 @@ def _weighted_average(metrics_list: list[tuple[int, Metrics]]) -> Metrics:
     keys = [k for k in metrics_list[0][1] if isinstance(metrics_list[0][1][k], (int, float))]
     averaged: dict[str, float] = {}
     for key in keys:
-        averaged[key] = sum(
-            n * float(m.get(key, 0.0)) for n, m in metrics_list
-        ) / total_examples
+        averaged[key] = sum(n * float(m.get(key, 0.0)) for n, m in metrics_list) / total_examples
     return averaged
 
 
@@ -138,8 +136,7 @@ class SentinelFedAvg(FedAvg):
                 },
             )
             logger.info(
-                "Round %d fit aggregate: %d clients, %d examples, "
-                "avg_loss=%.4f avg_acc=%.4f",
+                "Round %d fit aggregate: %d clients, %d examples, avg_loss=%.4f avg_acc=%.4f",
                 server_round,
                 len(results),
                 n_total,
@@ -177,8 +174,7 @@ class SentinelFedAvg(FedAvg):
                 },
             )
             logger.info(
-                "Round %d eval aggregate: %d clients, %d examples, "
-                "avg_accuracy=%.4f",
+                "Round %d eval aggregate: %d clients, %d examples, avg_accuracy=%.4f",
                 server_round,
                 len(results),
                 n_total,
@@ -280,7 +276,7 @@ class SentinelFedAvgWithGuard(SentinelFedAvg):
 
     def __init__(
         self,
-        update_guard: Any,          # UpdateGuard (avoid circular import)
+        update_guard: Any,  # UpdateGuard (avoid circular import)
         initial_params: NDArrays,
         **kwargs: Any,
     ) -> None:
@@ -319,7 +315,8 @@ class SentinelFedAvgWithGuard(SentinelFedAvg):
         if failures:
             logger.warning(
                 "SentinelFedAvgWithGuard: %d fit failures in round %d.",
-                len(failures), server_round,
+                len(failures),
+                server_round,
             )
 
         # ── 1. Extract deltas ────────────────────────────────────────────
@@ -330,7 +327,8 @@ class SentinelFedAvgWithGuard(SentinelFedAvg):
             logger.warning(
                 "SentinelFedAvgWithGuard: delta extraction failed: %s. "
                 "Skipping Update Guard for round %d.",
-                exc, server_round,
+                exc,
+                server_round,
             )
             return super().aggregate_fit(server_round, results, failures)
 
@@ -343,7 +341,8 @@ class SentinelFedAvgWithGuard(SentinelFedAvg):
             )
             logger.info(
                 "SentinelFedAvgWithGuard round %d: %s",
-                server_round, guard_result.summary(),
+                server_round,
+                guard_result.summary(),
             )
         except Exception as exc:
             logger.warning(
@@ -358,15 +357,15 @@ class SentinelFedAvgWithGuard(SentinelFedAvg):
         if guard_result is not None and guard_result.excluded_clients:
             excluded_set = set(guard_result.excluded_clients)
             filtered_results = [
-                (proxy, fit_res)
-                for proxy, fit_res in results
-                if proxy.cid not in excluded_set
+                (proxy, fit_res) for proxy, fit_res in results if proxy.cid not in excluded_set
             ]
             n_excluded = len(results) - len(filtered_results)
             logger.info(
-                "SentinelFedAvgWithGuard: excluded %d/%d clients from aggregation "
-                "(round %d): %s",
-                n_excluded, len(results), server_round, guard_result.excluded_clients,
+                "SentinelFedAvgWithGuard: excluded %d/%d clients from aggregation (round %d): %s",
+                n_excluded,
+                len(results),
+                server_round,
+                guard_result.excluded_clients,
             )
             if not filtered_results:
                 logger.warning(
@@ -376,18 +375,13 @@ class SentinelFedAvgWithGuard(SentinelFedAvg):
                 filtered_results = results
 
         # ── 4. Delegate to parent strategy ───────────────────────────────
-        new_params, metrics = super().aggregate_fit(
-            server_round, filtered_results, failures
-        )
+        new_params, metrics = super().aggregate_fit(server_round, filtered_results, failures)
 
         # ── 5. Update stored params for next round ───────────────────────
         if new_params is not None:
             try:
                 self._prev_params = parameters_to_ndarrays(new_params)
             except Exception as exc:
-                logger.warning(
-                    "SentinelFedAvgWithGuard: failed to update prev_params: %s", exc
-                )
+                logger.warning("SentinelFedAvgWithGuard: failed to update prev_params: %s", exc)
 
         return new_params, metrics
-

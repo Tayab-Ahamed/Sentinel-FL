@@ -89,8 +89,10 @@ class AlertManager:
 
         # Aggregate explanation from all detectors
         explanations = [dr.explanation for dr in detection_results if dr.explanation]
-        combined = " | ".join(explanations) if explanations else (
-            f"[sentinel] Input '{input_id}': fused_score={fused_score:.4f} ({severity})"
+        combined = (
+            " | ".join(explanations)
+            if explanations
+            else (f"[sentinel] Input '{input_id}': fused_score={fused_score:.4f} ({severity})")
         )
 
         alert = SentinelAlert(
@@ -130,8 +132,10 @@ class AlertManager:
         )
         logger.info(
             "AlertManager: [%s] Input '%s' flagged (fused=%.4f round=%s).",
-            alert.alert_severity.upper(), alert.input_id,
-            alert.fused_score, alert.round_num,
+            alert.alert_severity.upper(),
+            alert.input_id,
+            alert.fused_score,
+            alert.round_num,
         )
         self._emit_l3_event(alert)
 
@@ -146,7 +150,8 @@ class AlertManager:
         """
         min_rank = _SEVERITY_ORDER.get(min_severity, 0)
         return [
-            a for a in reversed(self._history)
+            a
+            for a in reversed(self._history)
             if _SEVERITY_ORDER.get(a.alert_severity, 0) >= min_rank
         ]
 
@@ -195,10 +200,7 @@ class AlertManager:
         """
         cutoff = current_round - max_age_rounds
         before = len(self._history)
-        filtered = [
-            a for a in self._history
-            if a.round_num is None or a.round_num >= cutoff
-        ]
+        filtered = [a for a in self._history if a.round_num is None or a.round_num >= cutoff]
         self._history = deque(filtered, maxlen=self._history.maxlen)
         removed = before - len(self._history)
         if removed:
@@ -230,9 +232,7 @@ class AlertManager:
                 "alert_severity": alert.alert_severity,
                 "confidence_at_flag": alert.confidence_at_flag,
                 "detector_count": len(alert.detector_verdicts),
-                "flagged_by": [
-                    dr.detector_name for dr in alert.detector_verdicts if dr.flagged
-                ],
+                "flagged_by": [dr.detector_name for dr in alert.detector_verdicts if dr.flagged],
             },
         )
 

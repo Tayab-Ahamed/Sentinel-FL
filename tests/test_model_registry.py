@@ -8,6 +8,7 @@ Covers:
   FileModelRegistry.rollback_to: exact + missing round
   FileModelRegistry._apply_retention: keeps only last k
 """
+
 from __future__ import annotations
 
 import json
@@ -204,8 +205,9 @@ class TestRetentionPolicy:
             mid = registry.save(rnd, np.ones(3) * rnd, meta)
             saved_ids.append(mid)
         # Only last 2 checkpoints should exist on disk
-        existing = [d for d in (tmp_path / "reg_k2").iterdir()
-                    if d.is_dir() and d.name != "index.json"]
+        existing = [
+            d for d in (tmp_path / "reg_k2").iterdir() if d.is_dir() and d.name != "index.json"
+        ]
         assert len(existing) <= 2
 
     def test_retention_zero_keeps_all(self, tmp_path):

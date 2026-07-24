@@ -51,9 +51,7 @@ class ImagePoisoner:
         poison_non_target_only: bool = True,
     ) -> None:
         if not (0.0 < poison_fraction <= 1.0):
-            raise ValueError(
-                f"poison_fraction must be in (0, 1], got {poison_fraction}"
-            )
+            raise ValueError(f"poison_fraction must be in (0, 1], got {poison_fraction}")
         self._pattern = pattern
         self._target_label = target_label
         self._poison_fraction = poison_fraction
@@ -107,9 +105,11 @@ class ImagePoisoner:
         mask[poison_idx] = True
 
         logger.debug(
-            "ImagePoisoner.poison_batch: poisoned %d/%d samples "
-            "(target_label=%d, seed=%d)",
-            n_poison, len(X), self._target_label, seed,
+            "ImagePoisoner.poison_batch: poisoned %d/%d samples (target_label=%d, seed=%d)",
+            n_poison,
+            len(X),
+            self._target_label,
+            seed,
         )
         return X_p, y_p, mask
 
@@ -140,9 +140,12 @@ class ImagePoisoner:
         if len(X_non) == 0:
             logger.warning(
                 "ImagePoisoner.build_asr_eval_set: all samples are already "
-                "target_label=%d; returning empty eval set.", self._target_label
+                "target_label=%d; returning empty eval set.",
+                self._target_label,
             )
-            return np.empty((0, *X_clean.shape[1:]), dtype=X_clean.dtype), np.empty(0, dtype=np.int64)
+            return np.empty((0, *X_clean.shape[1:]), dtype=X_clean.dtype), np.empty(
+                0, dtype=np.int64
+            )
 
         X_triggered = apply_trigger(X_non, self._pattern)
         y_target = np.full(len(X_triggered), self._target_label, dtype=np.int64)
@@ -150,7 +153,8 @@ class ImagePoisoner:
         logger.debug(
             "ImagePoisoner.build_asr_eval_set: built %d triggered samples "
             "(from %d non-target clean samples)",
-            len(X_triggered), len(X_non),
+            len(X_triggered),
+            len(X_non),
         )
         return X_triggered, y_target
 
@@ -215,14 +219,8 @@ class ImagePoisoner:
 def _validate_image_batch(X: np.ndarray, y: np.ndarray) -> None:
     """Raise ValueError for malformed image batch inputs."""
     if X.ndim != 4:
-        raise ValueError(
-            f"ImagePoisoner expects 4-D X (N, C, H, W), got shape {X.shape}"
-        )
+        raise ValueError(f"ImagePoisoner expects 4-D X (N, C, H, W), got shape {X.shape}")
     if y.ndim != 1:
-        raise ValueError(
-            f"ImagePoisoner expects 1-D y, got shape {y.shape}"
-        )
+        raise ValueError(f"ImagePoisoner expects 1-D y, got shape {y.shape}")
     if len(X) != len(y):
-        raise ValueError(
-            f"X and y length mismatch: {len(X)} vs {len(y)}"
-        )
+        raise ValueError(f"X and y length mismatch: {len(X)} vs {len(y)}")

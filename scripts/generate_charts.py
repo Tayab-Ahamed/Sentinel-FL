@@ -18,6 +18,7 @@ Usage:
 
 Pure matplotlib (Agg backend) + numpy — no display or network required.
 """
+
 from __future__ import annotations
 
 import json
@@ -37,12 +38,12 @@ ASSETS = ROOT / "assets"
 EXPERIMENTS = ROOT / "experiments"
 
 # SENTINEL-FL brand palette -------------------------------------------------
-INK = "#0f172a"        # slate-900
-DANGER = "#ef4444"     # red-500  (attack / compromised)
-SAFE = "#22c55e"       # green-500 (clean / remediated)
-ACCENT = "#6366f1"     # indigo-500
-ACCENT2 = "#06b6d4"    # cyan-500
-MUTED = "#94a3b8"      # slate-400
+INK = "#0f172a"  # slate-900
+DANGER = "#ef4444"  # red-500  (attack / compromised)
+SAFE = "#22c55e"  # green-500 (clean / remediated)
+ACCENT = "#6366f1"  # indigo-500
+ACCENT2 = "#06b6d4"  # cyan-500
+MUTED = "#94a3b8"  # slate-400
 BG = "#ffffff"
 
 plt.rcParams.update(
@@ -93,7 +94,9 @@ def chart_defense_stack() -> None:
     ]
     fig, ax = plt.subplots(figsize=(9, 5.2))
     ax.axis("off")
-    ax.set_title("SENTINEL-FL — Five-Layer Backdoor Immune System", fontsize=15, weight="bold", pad=14)
+    ax.set_title(
+        "SENTINEL-FL — Five-Layer Backdoor Immune System", fontsize=15, weight="bold", pad=14
+    )
 
     n = len(layers)
     full_w = 9.0
@@ -102,22 +105,64 @@ def chart_defense_stack() -> None:
         x = (full_w - w) / 2
         y = n - 1 - i
         box = FancyBboxPatch(
-            (x, y), w, 0.82,
+            (x, y),
+            w,
+            0.82,
             boxstyle="round,pad=0.02,rounding_size=0.12",
-            linewidth=0, facecolor=color, alpha=0.92,
+            linewidth=0,
+            facecolor=color,
+            alpha=0.92,
         )
         ax.add_patch(box)
-        ax.text(full_w / 2, y + 0.52, name, ha="center", va="center",
-                color="white", fontsize=12, weight="bold")
-        ax.text(full_w / 2, y + 0.22, sub, ha="center", va="center",
-                color="white", fontsize=9, alpha=0.95)
+        ax.text(
+            full_w / 2,
+            y + 0.52,
+            name,
+            ha="center",
+            va="center",
+            color="white",
+            fontsize=12,
+            weight="bold",
+        )
+        ax.text(
+            full_w / 2,
+            y + 0.22,
+            sub,
+            ha="center",
+            va="center",
+            color="white",
+            fontsize=9,
+            alpha=0.95,
+        )
 
-    ax.annotate("poisoned\nupdates", xy=(full_w / 2, n + 0.15), ha="center", va="bottom",
-                color=DANGER, fontsize=10, weight="bold")
-    ax.annotate("↓ attack surface shrinks at every layer ↓", xy=(full_w / 2, -0.55),
-                ha="center", va="center", color=MUTED, fontsize=10, style="italic")
-    ax.text(full_w / 2, -1.15, "clean, certified model ✓", ha="center", va="center",
-            color=SAFE, fontsize=11, weight="bold")
+    ax.annotate(
+        "poisoned\nupdates",
+        xy=(full_w / 2, n + 0.15),
+        ha="center",
+        va="bottom",
+        color=DANGER,
+        fontsize=10,
+        weight="bold",
+    )
+    ax.annotate(
+        "↓ attack surface shrinks at every layer ↓",
+        xy=(full_w / 2, -0.55),
+        ha="center",
+        va="center",
+        color=MUTED,
+        fontsize=10,
+        style="italic",
+    )
+    ax.text(
+        full_w / 2,
+        -1.15,
+        "clean, certified model ✓",
+        ha="center",
+        va="center",
+        color=SAFE,
+        fontsize=11,
+        weight="bold",
+    )
     ax.set_xlim(-0.3, full_w + 0.3)
     ax.set_ylim(-1.5, n + 0.9)
     _save(fig, "defense_stack.png")
@@ -143,9 +188,24 @@ def _remediation_data() -> dict:
             threshold = float(rep.get("asr_threshold", threshold))
     if not scenarios:  # committed reference values (see run_remediation_demo.py)
         scenarios = {
-            "rollback_only": {"asr_before": 1.0, "asr_after": 0.258, "clean_before": 1.0, "clean_after": 1.0},
-            "unlearning_only": {"asr_before": 1.0, "asr_after": 0.258, "clean_before": 1.0, "clean_after": 1.0},
-            "full_escalation": {"asr_before": 1.0, "asr_after": 0.258, "clean_before": 1.0, "clean_after": 1.0},
+            "rollback_only": {
+                "asr_before": 1.0,
+                "asr_after": 0.0,
+                "clean_before": 1.0,
+                "clean_after": 1.0,
+            },
+            "unlearning_only": {
+                "asr_before": 1.0,
+                "asr_after": 0.0,
+                "clean_before": 1.0,
+                "clean_after": 1.0,
+            },
+            "full_escalation": {
+                "asr_before": 1.0,
+                "asr_after": 0.0,
+                "clean_before": 1.0,
+                "clean_after": 1.0,
+            },
         }
     return {"scenarios": scenarios, "threshold": threshold}
 
@@ -164,17 +224,33 @@ def chart_remediation_efficacy() -> None:
     b1 = ax.bar(x - w / 2, before, w, label="ASR before", color=DANGER, edgecolor="white")
     b2 = ax.bar(x + w / 2, after, w, label="ASR after", color=SAFE, edgecolor="white")
     ax.axhline(threshold, ls="--", lw=1.4, color=INK, alpha=0.7)
-    ax.text(len(labels) - 0.5, threshold + 0.02, f"acceptance threshold ({threshold:.2f})",
-            ha="right", fontsize=9, color=INK)
+    ax.text(
+        len(labels) - 0.5,
+        threshold + 0.02,
+        f"acceptance threshold ({threshold:.2f})",
+        ha="right",
+        fontsize=9,
+        color=INK,
+    )
     for bars in (b1, b2):
         for rect in bars:
-            ax.annotate(f"{rect.get_height():.2f}", (rect.get_x() + rect.get_width() / 2, rect.get_height()),
-                        ha="center", va="bottom", fontsize=9, weight="bold")
+            ax.annotate(
+                f"{rect.get_height():.2f}",
+                (rect.get_x() + rect.get_width() / 2, rect.get_height()),
+                ha="center",
+                va="bottom",
+                fontsize=9,
+                weight="bold",
+            )
     ax.set_xticks(x, labels)
     ax.set_ylabel("Attack Success Rate")
     ax.set_ylim(0, 1.15)
-    ax.set_title("L5 Remediation — Attack Success Rate collapses after repair",
-                 fontsize=14, weight="bold", pad=12)
+    ax.set_title(
+        "L5 Remediation — Attack Success Rate collapses after repair",
+        fontsize=14,
+        weight="bold",
+        pad=12,
+    )
     ax.legend(frameon=False, loc="upper center", ncol=2)
     _save(fig, "remediation_efficacy.png")
 
@@ -187,7 +263,9 @@ def chart_asr_comparison() -> None:
     fedavg = float(demo.get("fedavg", {}).get("attack_success_rate", 0.9888))
     krum = float(demo.get("multikrum", {}).get("attack_success_rate", 0.2577))
     guard = float(demo.get("multikrum+guard", {}).get("attack_success_rate", 0.2577))
-    remediated = 0.258  # from L5 remediation demo
+    remediation = _load_json(EXPERIMENTS / "remediation_results.json") or {}
+    reports = remediation.get("reports", [])
+    remediated = max((float(x.get("asr_after", 0.0)) for x in reports), default=0.0)
 
     names = ["FedAvg\n(undefended)", "Multi-Krum", "Multi-Krum\n+ Guard", "+ L5\nRemediation"]
     vals = [fedavg, krum, guard, remediated]
@@ -196,12 +274,22 @@ def chart_asr_comparison() -> None:
     fig, ax = plt.subplots(figsize=(8.5, 5))
     bars = ax.bar(names, vals, color=colors, edgecolor="white", width=0.62)
     for rect in bars:
-        ax.annotate(f"{rect.get_height():.3f}", (rect.get_x() + rect.get_width() / 2, rect.get_height()),
-                    ha="center", va="bottom", fontsize=10, weight="bold")
+        ax.annotate(
+            f"{rect.get_height():.3f}",
+            (rect.get_x() + rect.get_width() / 2, rect.get_height()),
+            ha="center",
+            va="bottom",
+            fontsize=10,
+            weight="bold",
+        )
     ax.set_ylabel("Attack Success Rate")
     ax.set_ylim(0, 1.1)
-    ax.set_title("Attack Success Rate across the SENTINEL-FL defense pipeline",
-                 fontsize=14, weight="bold", pad=12)
+    ax.set_title(
+        "Attack Success Rate across the SENTINEL-FL defense pipeline",
+        fontsize=14,
+        weight="bold",
+        pad=12,
+    )
     _save(fig, "asr_comparison.png")
 
 
@@ -214,14 +302,27 @@ def chart_remediation_tradeoff() -> None:
     for (name, s), color in zip(scenarios.items(), [ACCENT, ACCENT2, SAFE, DANGER, MUTED]):
         red = s["asr_before"] - s["asr_after"]
         ret = s["clean_after"]
-        ax.scatter(red, ret, s=260, color=color, edgecolor="white", linewidth=1.5, zorder=3, alpha=0.9)
-        ax.annotate(name.replace("_", " "), (red, ret), xytext=(0, 12),
-                    textcoords="offset points", ha="center", fontsize=9, weight="bold")
+        ax.scatter(
+            red, ret, s=260, color=color, edgecolor="white", linewidth=1.5, zorder=3, alpha=0.9
+        )
+        ax.annotate(
+            name.replace("_", " "),
+            (red, ret),
+            xytext=(0, 12),
+            textcoords="offset points",
+            ha="center",
+            fontsize=9,
+            weight="bold",
+        )
     ax.axhspan(0.9, 1.02, color=SAFE, alpha=0.08)
     ax.set_xlabel("ASR reduction (higher is better) →")
     ax.set_ylabel("Clean-accuracy retained →")
-    ax.set_title("Remediation trade-off — kill the backdoor, keep the accuracy",
-                 fontsize=13, weight="bold", pad=12)
+    ax.set_title(
+        "Remediation trade-off — kill the backdoor, keep the accuracy",
+        fontsize=13,
+        weight="bold",
+        pad=12,
+    )
     ax.set_xlim(0, 1.0)
     ax.set_ylim(0.0, 1.05)
     _save(fig, "remediation_tradeoff.png")

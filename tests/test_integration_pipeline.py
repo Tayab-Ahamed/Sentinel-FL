@@ -7,6 +7,7 @@ Tests the full pipeline:
 
 Marked as 'integration' — run with: pytest -m integration
 """
+
 from __future__ import annotations
 
 import json
@@ -97,8 +98,13 @@ def test_full_fl_round_loop(tmp_path, dataset, partitions, holdout):
             yc = y_all[idx].copy()
             if cid in MALICIOUS_IDS and len(Xc) > 5:
                 Xc, yc, _ = inject_trigger(
-                    Xc, yc, TARGET_CLASS, TRIGGER_BLOCK, trigger_value=5.0,
-                    poison_fraction=0.3, seed=rnd * 10 + cid,
+                    Xc,
+                    yc,
+                    TARGET_CLASS,
+                    TRIGGER_BLOCK,
+                    trigger_value=5.0,
+                    poison_fraction=0.3,
+                    seed=rnd * 10 + cid,
                 )
             new_p = local_train(model_params, N_FEATURES, N_CLASSES, Xc, yc, epochs=3, lr=0.2)
             client_updates.append(new_p - model_params)
@@ -120,7 +126,9 @@ def test_full_fl_round_loop(tmp_path, dataset, partitions, holdout):
 
     # Verify ledger was written
     entries = ledger.query(TrustLedgerQuery())
-    assert len(entries) >= 0  # Guard writes to its internal trust manager, not directly to this ledger
+    assert (
+        len(entries) >= 0
+    )  # Guard writes to its internal trust manager, not directly to this ledger
 
     # Clean accuracy should be non-trivial
     assert max(round_accs) > 0.4, "Model should achieve >40% accuracy on synthetic data"
@@ -218,8 +226,13 @@ def test_pipeline_attack_reduces_with_guard(dataset, partitions, holdout):
                 Xc, yc = X_all[idx].copy(), y_all[idx].copy()
                 if cid in MALICIOUS_IDS and len(Xc) > 5:
                     Xc, yc, _ = inject_trigger(
-                        Xc, yc, TARGET_CLASS, TRIGGER_BLOCK, trigger_value=8.0,
-                        poison_fraction=0.5, seed=rnd + cid,
+                        Xc,
+                        yc,
+                        TARGET_CLASS,
+                        TRIGGER_BLOCK,
+                        trigger_value=8.0,
+                        poison_fraction=0.5,
+                        seed=rnd + cid,
                     )
                 new_p = local_train(model_params, N_FEATURES, N_CLASSES, Xc, yc, epochs=5, lr=0.2)
                 updates.append(new_p - model_params)

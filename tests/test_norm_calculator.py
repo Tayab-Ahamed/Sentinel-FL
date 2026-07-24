@@ -54,7 +54,7 @@ class TestComputeL2Norms:
         assert compute_l2_norms(d)[0] == pytest.approx(0.0)
 
     def test_dtype_float32(self):
-        assert compute_l2_norms(_deltas()). dtype == np.float32
+        assert compute_l2_norms(_deltas()).dtype == np.float32
 
     def test_all_norms_nonnegative(self):
         assert np.all(compute_l2_norms(_deltas()) >= 0.0)
@@ -97,15 +97,11 @@ class TestComputeLinfNorms:
 class TestComputeNorms:
     def test_dispatches_l2(self):
         deltas = _deltas(n=3)
-        np.testing.assert_allclose(
-            compute_norms(deltas, "l2"), compute_l2_norms(deltas), rtol=1e-5
-        )
+        np.testing.assert_allclose(compute_norms(deltas, "l2"), compute_l2_norms(deltas), rtol=1e-5)
 
     def test_dispatches_l1(self):
         deltas = _deltas(n=3)
-        np.testing.assert_allclose(
-            compute_norms(deltas, "l1"), compute_l1_norms(deltas), rtol=1e-5
-        )
+        np.testing.assert_allclose(compute_norms(deltas, "l1"), compute_l1_norms(deltas), rtol=1e-5)
 
     def test_dispatches_linf(self):
         deltas = _deltas(n=3)

@@ -36,20 +36,28 @@ logger = logging.getLogger(__name__)
 
 # Metrics where a HIGHER value is BETTER (higher than baseline = improvement).
 _HIGHER_IS_BETTER = {
-    "clean_accuracy", "attack_success_rate", "robust_accuracy",
-    "precision", "recall", "f1_score",
+    "clean_accuracy",
+    "attack_success_rate",
+    "robust_accuracy",
+    "precision",
+    "recall",
+    "f1_score",
 }
 # Metrics where a LOWER value is BETTER (lower than baseline = improvement).
 _LOWER_IS_BETTER = {
-    "false_acceptance_rate", "false_rejection_rate",
-    "false_positive_rate", "detection_latency_ms",
-    "communication_cost_bytes", "runtime_seconds", "peak_memory_mb",
+    "false_acceptance_rate",
+    "false_rejection_rate",
+    "false_positive_rate",
+    "detection_latency_ms",
+    "communication_cost_bytes",
+    "runtime_seconds",
+    "peak_memory_mb",
 }
 
 # Key metrics used to determine overall verdict.
 _VERDICT_METRICS = [
     ("clean_accuracy", "higher"),
-    ("attack_success_rate", "lower"),   # lower ASR = better defence
+    ("attack_success_rate", "lower"),  # lower ASR = better defence
     ("f1_score", "higher"),
 ]
 
@@ -124,7 +132,8 @@ class BenchmarkReporter:
             else:
                 logger.warning(
                     "BenchmarkReporter: baseline '%s' not found in %s.",
-                    baseline_name, self._baselines_yaml,
+                    baseline_name,
+                    self._baselines_yaml,
                 )
 
         return BenchmarkReport(
@@ -296,7 +305,9 @@ class BenchmarkReporter:
             ("Peak Memory (MB)", er.peak_memory_mb),
         ]
         for name, val in metric_rows:
-            val_str = f"{val:.4f}" if isinstance(val, float) else (str(val) if val is not None else "—")
+            val_str = (
+                f"{val:.4f}" if isinstance(val, float) else (str(val) if val is not None else "—")
+            )
             lines.append(f"| {name} | {val_str} |")
 
         # Warnings
@@ -315,7 +326,9 @@ class BenchmarkReporter:
                 vals = []
                 for k in keys:
                     v = row.get(k)
-                    vals.append(f"{v:.4f}" if isinstance(v, float) else str(v) if v is not None else "—")
+                    vals.append(
+                        f"{v:.4f}" if isinstance(v, float) else str(v) if v is not None else "—"
+                    )
                 lines.append("| " + " | ".join(vals) + " |")
 
         # Detection summary
@@ -341,8 +354,16 @@ class BenchmarkReporter:
                 our_val = report.evaluation_result.model_dump().get(metric)
                 d = bc.delta_metrics.get(metric)
                 imp = bc.improvement_percent.get(metric)
-                ours_str = f"{float(our_val):.4f}" if isinstance(our_val, float) else (str(our_val) if our_val is not None else "—")
-                base_str = f"{float(baseline_val):.4f}" if isinstance(baseline_val, float) else (str(baseline_val) if baseline_val is not None else "—")
+                ours_str = (
+                    f"{float(our_val):.4f}"
+                    if isinstance(our_val, float)
+                    else (str(our_val) if our_val is not None else "—")
+                )
+                base_str = (
+                    f"{float(baseline_val):.4f}"
+                    if isinstance(baseline_val, float)
+                    else (str(baseline_val) if baseline_val is not None else "—")
+                )
                 d_str = f"{d:+.4f}" if isinstance(d, float) else "—"
                 imp_str = f"{imp:+.1f}%" if isinstance(imp, float) else "—"
                 lines.append(f"| {metric} | {ours_str} | {base_str} | {d_str} | {imp_str} |")
@@ -406,8 +427,10 @@ class BenchmarkReporter:
             {
                 "round_num": r.get("round_num", 0),
                 "alert_severity": (
-                    "high" if (r.get("n_l1_flags", 0) + r.get("n_l3_flags", 0)) > 2
-                    else "medium" if (r.get("n_l1_flags", 0) + r.get("n_l3_flags", 0)) > 0
+                    "high"
+                    if (r.get("n_l1_flags", 0) + r.get("n_l3_flags", 0)) > 2
+                    else "medium"
+                    if (r.get("n_l1_flags", 0) + r.get("n_l3_flags", 0)) > 0
                     else "low"
                 ),
             }

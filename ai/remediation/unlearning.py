@@ -15,6 +15,7 @@ Key properties (ARCHITECTURE.md §7.4, path 2):
   * Utility-preserving: trains on a mix of clean and trigger-stamped-clean data so
     clean accuracy does not regress while the backdoor is unlearned.
 """
+
 from __future__ import annotations
 
 import logging
@@ -92,7 +93,8 @@ class TriggerUnlearner:
             reversed_triggers: L2 ``ReversedTrigger`` objects (or raw vectors).
             n_features: Feature dimensionality (to right-size trigger vectors).
         """
-        vectors = [self._coerce_vector(t, n_features) for t in reversed_triggers]
+        actual_features = int(np.prod(np.asarray(X_clean).shape[1:]))
+        vectors = [self._coerce_vector(t, actual_features) for t in reversed_triggers]
         vectors = [v for v in vectors if v is not None]
         if not vectors:
             logger.warning("Unlearning: no usable reversed triggers; retraining on clean data only")
@@ -100,7 +102,10 @@ class TriggerUnlearner:
         repaired = self._adapter.fine_tune(params, X, y, epochs=self._epochs, lr=self._lr)
         logger.info(
             "Unlearning: fine-tuned on %d samples (%d triggers x %d replicas) for %d epochs",
-            len(X), len(vectors), self._stamped_replicas, self._epochs,
+            len(X),
+            len(vectors),
+            self._stamped_replicas,
+            self._epochs,
         )
         return repaired
 

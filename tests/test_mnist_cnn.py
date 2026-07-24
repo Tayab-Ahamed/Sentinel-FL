@@ -50,9 +50,7 @@ class TestSimpleCNN:
         # exp(out) must sum to ~1 per row
         probs = out.exp()
         row_sums = probs.sum(dim=1)
-        np.testing.assert_allclose(
-            row_sums.numpy(), np.ones(4), atol=1e-5
-        )
+        np.testing.assert_allclose(row_sums.numpy(), np.ones(4), atol=1e-5)
 
     def test_num_classes_override(self):
         """num_classes kwarg changes last layer width."""

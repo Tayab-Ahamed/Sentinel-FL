@@ -84,9 +84,7 @@ class VisualizerService:
                     if cid not in client_rounds:
                         client_rounds[cid] = {}
                     # Worst score wins if multiple entries per round
-                    client_rounds[cid][rnd] = max(
-                        client_rounds[cid].get(rnd, 0.0), score
-                    )
+                    client_rounds[cid][rnd] = max(client_rounds[cid].get(rnd, 0.0), score)
         except Exception as exc:
             logger.warning("Failed to read trust_ledger for %s: %s", experiment_id, exc)
             return {"client_ids": [], "rounds": [], "scores": []}
@@ -96,19 +94,14 @@ class VisualizerService:
 
         all_rounds = sorted({r for cr in client_rounds.values() for r in cr})
         client_ids = sorted(client_rounds.keys())
-        scores = [
-            [client_rounds[cid].get(r, 0.0) for r in all_rounds]
-            for cid in client_ids
-        ]
+        scores = [[client_rounds[cid].get(r, 0.0) for r in all_rounds] for cid in client_ids]
         return {"client_ids": client_ids, "rounds": all_rounds, "scores": scores}
 
     # ------------------------------------------------------------------
     # Metric timeseries  (API.md §5)
     # ------------------------------------------------------------------
 
-    def metric_timeseries(
-        self, experiment_id: str, metric_names: list[str]
-    ) -> dict[str, Any]:
+    def metric_timeseries(self, experiment_id: str, metric_names: list[str]) -> dict[str, Any]:
         """Return per-round time-series data for the requested metrics."""
         rounds = self._load_rounds(experiment_id)
         series: dict[str, list[dict[str, Any]]] = {name: [] for name in metric_names}
@@ -118,11 +111,13 @@ class VisualizerService:
             for name in metric_names:
                 value = rnd.get(name)
                 if value is not None:
-                    series[name].append({
-                        "metric_name": name,
-                        "round_num": round_num,
-                        "value": float(value),
-                    })
+                    series[name].append(
+                        {
+                            "metric_name": name,
+                            "round_num": round_num,
+                            "value": float(value),
+                        }
+                    )
 
         # Also try to read from log.jsonl round_complete events
         if all(len(v) == 0 for v in series.values()):
@@ -131,9 +126,7 @@ class VisualizerService:
 
         return {
             "series": series,
-            "display_names": {
-                name: _METRIC_DISPLAY.get(name, name) for name in metric_names
-            },
+            "display_names": {name: _METRIC_DISPLAY.get(name, name) for name in metric_names},
         }
 
     # ------------------------------------------------------------------
@@ -233,16 +226,18 @@ class VisualizerService:
                     )
                     message = self._alert_message(event_type, payload, layer)
 
-                    alerts.append({
-                        "id": f"{experiment_id}_{len(alerts)}",
-                        "round_num": event.get("round_num") or payload.get("round_num"),
-                        "layer_id": layer,
-                        "severity": severity,
-                        "event_type": event_type,
-                        "subject_id": str(subject),
-                        "message": message,
-                        "timestamp": event.get("timestamp", ""),
-                    })
+                    alerts.append(
+                        {
+                            "id": f"{experiment_id}_{len(alerts)}",
+                            "round_num": event.get("round_num") or payload.get("round_num"),
+                            "layer_id": layer,
+                            "severity": severity,
+                            "event_type": event_type,
+                            "subject_id": str(subject),
+                            "message": message,
+                            "timestamp": event.get("timestamp", ""),
+                        }
+                    )
 
         except Exception as exc:
             logger.warning("Failed to read alerts for %s: %s", experiment_id, exc)
@@ -324,6 +319,7 @@ class VisualizerService:
         if config_file.exists():
             try:
                 import yaml
+
                 with open(config_file, encoding="utf-8") as fh:
                     return yaml.safe_load(fh)
             except Exception:
@@ -368,11 +364,13 @@ class VisualizerService:
                     for name in metric_names:
                         value = payload.get(name)
                         if value is not None:
-                            series[name].append({
-                                "metric_name": name,
-                                "round_num": round_num,
-                                "value": float(value),
-                            })
+                            series[name].append(
+                                {
+                                    "metric_name": name,
+                                    "round_num": round_num,
+                                    "value": float(value),
+                                }
+                            )
         except Exception as exc:
             logger.warning("Failed to read log for timeseries: %s", exc)
         return series
@@ -442,7 +440,9 @@ class VisualizerService:
             clients = payload.get("client_ids", [])
             return f"[{layer}] Collusion cluster detected: {', '.join(str(c) for c in clients[:4])}"
         if event_type == "input_flagged":
-            return f"[{layer}] Backdoored input detected (confidence={payload.get('confidence', '?')})"
+            return (
+                f"[{layer}] Backdoored input detected (confidence={payload.get('confidence', '?')})"
+            )
         if event_type == "audit_flagged":
             label = payload.get("label", "?")
             return f"[{layer}] L2 audit flagged label {label}"

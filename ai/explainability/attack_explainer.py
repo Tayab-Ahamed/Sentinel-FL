@@ -50,8 +50,7 @@ _TRIGGER_TEMPLATES: dict[str, str] = {
         "Value (amplitude)={value}. Target label: {target}."
     ),
     "unknown": (
-        "Trigger type unknown.  Detection evidence suggests a backdoor directed "
-        "at label {target}."
+        "Trigger type unknown.  Detection evidence suggests a backdoor directed at label {target}."
     ),
 }
 
@@ -115,12 +114,16 @@ class AttackExplainer:
         conf = self._aggregate_confidence(results, entries)
 
         # Suspected clients from ledger
-        suspected = list({
-            e.get("subject_id") if isinstance(e, dict) else getattr(e, "subject_id", "")
-            for e in entries
-            if (e.get("subject_type") if isinstance(e, dict) else
-                getattr(e, "subject_type", "")) == "client"
-        })
+        suspected = list(
+            {
+                e.get("subject_id") if isinstance(e, dict) else getattr(e, "subject_id", "")
+                for e in entries
+                if (
+                    e.get("subject_type") if isinstance(e, dict) else getattr(e, "subject_type", "")
+                )
+                == "client"
+            }
+        )
 
         # Trigger description
         trigger_desc = self.trigger_description(trigger_type, trigger_value, target_label)
@@ -230,9 +233,7 @@ class AttackExplainer:
     # Internal helpers
     # ------------------------------------------------------------------
 
-    def _aggregate_confidence(
-        self, results: list[Any], entries: list[Any]
-    ) -> float:
+    def _aggregate_confidence(self, results: list[Any], entries: list[Any]) -> float:
         """Compute aggregated detection confidence across all results."""
         scores = []
         for r in results:
@@ -256,7 +257,9 @@ class AttackExplainer:
         n_entries: int,
         suspected: list[str],
     ) -> str:
-        conf_label = "HIGH" if confidence >= self._high_conf else "MODERATE" if confidence >= 0.4 else "LOW"
+        conf_label = (
+            "HIGH" if confidence >= self._high_conf else "MODERATE" if confidence >= 0.4 else "LOW"
+        )
         parts = [
             f"Attack type: {attack_type}.",
             f"Target label: {target_label}.",

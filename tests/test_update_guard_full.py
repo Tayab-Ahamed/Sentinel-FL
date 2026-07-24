@@ -64,6 +64,7 @@ def _cids(n):
 class TestUpdateGuardResultStructure:
     def test_to_dict_is_json_serialisable(self):
         import json
+
         guard = _guard()
         deltas = _random_deltas(n=4)
         result = guard.process_round(0, _cids(4), deltas)
@@ -213,8 +214,7 @@ class TestRanking:
 
     def test_most_trusted_is_first(self):
         """Client with lowest trust score should appear first."""
-        guard = _guard(exclude_flagged_clients=False, trust_score_weight=1.0,
-                       trust_score_decay=0.0)
+        guard = _guard(exclude_flagged_clients=False, trust_score_weight=1.0, trust_score_decay=0.0)
         # Drive one client's score high
         cids = _cids(4)
         deltas = _random_deltas(n=4)
@@ -326,6 +326,7 @@ class TestFromConfig:
 
     def test_from_config_with_ledger(self, tmp_path):
         from ai.detection.trust_ledger import FileTrustLedger
+
         ledger = FileTrustLedger(tmp_path / "ledger.jsonl")
         cfg = SimpleNamespace(update_guard=None)
         guard = UpdateGuard.from_config(cfg, ledger=ledger)
@@ -341,9 +342,11 @@ class TestAccessors:
     def test_trust_manager_accessible(self):
         guard = _guard()
         from ai.detection.trust_score_manager import TrustScoreManager
+
         assert isinstance(guard.trust_manager, TrustScoreManager)
 
     def test_anomaly_detector_accessible(self):
         guard = _guard()
         from ai.detection.anomaly_detector import UpdateAnomalyDetector
+
         assert isinstance(guard.anomaly_detector, UpdateAnomalyDetector)

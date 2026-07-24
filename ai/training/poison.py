@@ -17,6 +17,7 @@ The pure functions (``make_dataset``, ``dirichlet_partition``, ``inject_trigger`
 UNCHANGED.  ``BadNetsAttackSimulator`` wraps them in the AttackSimulator interface
 (INTERFACES.md §AttackSimulator) for use with the config-driven evaluation pipeline.
 """
+
 from __future__ import annotations
 
 import logging
@@ -36,8 +37,9 @@ def make_dataset(n_samples: int, n_features: int, n_classes: int, seed: int = 0)
     return X, y
 
 
-def dirichlet_partition(n_samples: int, n_clients: int, y: np.ndarray, n_classes: int,
-                         alpha: float = 0.5, seed: int = 0) -> list[np.ndarray]:
+def dirichlet_partition(
+    n_samples: int, n_clients: int, y: np.ndarray, n_classes: int, alpha: float = 0.5, seed: int = 0
+) -> list[np.ndarray]:
     """Returns a list of index arrays, one per client, non-IID via Dirichlet(alpha)."""
     rng = np.random.default_rng(seed)
     client_indices = [[] for _ in range(n_clients)]
@@ -52,10 +54,15 @@ def dirichlet_partition(n_samples: int, n_clients: int, y: np.ndarray, n_classes
     return [np.array(idx) for idx in client_indices]
 
 
-def inject_trigger(X: np.ndarray, y: np.ndarray, target_class: int,
-                    trigger_block: slice, trigger_value: float = 6.0,
-                    poison_fraction: float = 0.2, seed: int = 0
-                    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def inject_trigger(
+    X: np.ndarray,
+    y: np.ndarray,
+    target_class: int,
+    trigger_block: slice,
+    trigger_value: float = 6.0,
+    poison_fraction: float = 0.2,
+    seed: int = 0,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Poison a fraction of (X, y) in place-style (returns new arrays). Returns
     (X_poisoned, y_poisoned, poisoned_mask)."""
     rng = np.random.default_rng(seed)
@@ -71,8 +78,9 @@ def inject_trigger(X: np.ndarray, y: np.ndarray, target_class: int,
     return X_p, y_p, mask
 
 
-def apply_trigger_to_all(X: np.ndarray, trigger_block: slice,
-                          trigger_value: float = 6.0) -> np.ndarray:
+def apply_trigger_to_all(
+    X: np.ndarray, trigger_block: slice, trigger_value: float = 6.0
+) -> np.ndarray:
     """Stamp every row with the trigger — used to build the ASR evaluation set."""
     X_t = X.copy()
     X_t[:, trigger_block] = trigger_value
@@ -163,7 +171,8 @@ class BadNetsAttackSimulator(AttackSimulator):
 
         seed = 100 + round_num * 10 + cid_int
         X_p, y_p, mask = inject_trigger(
-            X, y,
+            X,
+            y,
             target_class=self._target_class,
             trigger_block=self._trigger_block,
             trigger_value=self._trigger_value,
@@ -172,7 +181,10 @@ class BadNetsAttackSimulator(AttackSimulator):
         )
         logger.debug(
             "BadNetsAttackSimulator: poisoned %d/%d samples for client %s round %d",
-            int(mask.sum()), len(X), client_id, round_num,
+            int(mask.sum()),
+            len(X),
+            client_id,
+            round_num,
         )
         return X_p, y_p, mask
 

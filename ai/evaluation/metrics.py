@@ -85,9 +85,7 @@ class JsonLinesMetricsCollector(MetricsCollector):
         warnings: list[str] = []
 
         if not log_path.exists():
-            logger.warning(
-                "No log file found for experiment '%s' at %s", experiment_id, log_path
-            )
+            logger.warning("No log file found for experiment '%s' at %s", experiment_id, log_path)
             warnings.append(f"Log file not found: {log_path}")
             return EvaluationResult(experiment_id=experiment_id, warnings=warnings)
 
@@ -109,9 +107,7 @@ class JsonLinesMetricsCollector(MetricsCollector):
         l1_flag_events = self._filter(events, "client_excluded") + self._filter(
             events, "cluster_flagged"
         )
-        l3_events = self._filter(events, "input_flagged") + self._filter(
-            events, "inference_scored"
-        )
+        l3_events = self._filter(events, "input_flagged") + self._filter(events, "inference_scored")
         comm_events = self._filter(events, "communication")
 
         # ----------------------------------------------------------------
@@ -256,9 +252,7 @@ class JsonLinesMetricsCollector(MetricsCollector):
                     logger.warning("Skipping malformed log line %d: %s", lineno, exc)
         return events
 
-    def _filter(
-        self, events: list[dict[str, Any]], event_type: str
-    ) -> list[dict[str, Any]]:
+    def _filter(self, events: list[dict[str, Any]], event_type: str) -> list[dict[str, Any]]:
         """Return events matching a given event_type."""
         return [e for e in events if e.get("event_type") == event_type]
 

@@ -136,9 +136,7 @@ def detect(
         (True = trojaned) and ``scores`` contains the per-input entropy values.
     """
     rng = np.random.default_rng(2)
-    scores = np.array(
-        [strip_score(model, X[i], clean_pool, n_perturb, rng) for i in range(len(X))]
-    )
+    scores = np.array([strip_score(model, X[i], clean_pool, n_perturb, rng) for i in range(len(X))])
     return scores <= boundary, scores
 
 
@@ -237,9 +235,7 @@ class StripEntropyDetector(Detector):
             DetectionResult with entropy score and flagged status.
         """
         model, x = input_or_model
-        score_val = strip_score(
-            model, x, calibration_state.clean_pool, calibration_state.n_perturb
-        )
+        score_val = strip_score(model, x, calibration_state.clean_pool, calibration_state.n_perturb)
         flagged = score_val <= calibration_state.boundary
         return DetectionResult(
             detector_name=self.name,
@@ -372,9 +368,7 @@ class RuntimeSentinelStrategy(DefenseStrategy):
         # carried in context.model if the caller sets it.
         model = getattr(context, "model", None)
         if model is None:
-            logger.debug(
-                "RuntimeSentinelStrategy.process(): no model in context — skipping score."
-            )
+            logger.debug("RuntimeSentinelStrategy.process(): no model in context — skipping score.")
             return []
 
         # -----------------------------------------------------------
@@ -401,7 +395,8 @@ class RuntimeSentinelStrategy(DefenseStrategy):
             except Exception as exc:
                 logger.warning(
                     "RuntimeSentinelStrategy: detector '%s' failed: %s",
-                    getattr(detector, "name", str(detector)), exc,
+                    getattr(detector, "name", str(detector)),
+                    exc,
                 )
             finally:
                 d_elapsed = time.perf_counter() - d_start
@@ -447,7 +442,8 @@ class RuntimeSentinelStrategy(DefenseStrategy):
         if t_elapsed > self._latency_budget_s:
             logger.warning(
                 "RuntimeSentinelStrategy: latency %.1fms exceeds budget %.1fms for input '%s'.",
-                t_elapsed * 1000, self._latency_budget_s * 1000,
+                t_elapsed * 1000,
+                self._latency_budget_s * 1000,
                 getattr(context, "input_id", "?"),
             )
         self._emit_inference_event(context, fused_score, bool(entries))
@@ -496,12 +492,14 @@ class RuntimeSentinelStrategy(DefenseStrategy):
             except (UnsupportedModelError, InsufficientCalibrationDataError) as exc:
                 logger.warning(
                     "RuntimeSentinelStrategy: detector '%s' excluded (calibration failed): %s",
-                    getattr(detector, "name", str(detector)), exc,
+                    getattr(detector, "name", str(detector)),
+                    exc,
                 )
             except Exception as exc:
                 logger.warning(
                     "RuntimeSentinelStrategy: calibrate_all: unexpected error for '%s': %s",
-                    getattr(detector, "name", str(detector)), exc,
+                    getattr(detector, "name", str(detector)),
+                    exc,
                 )
         self._detectors = calibrated
 
@@ -528,12 +526,10 @@ class RuntimeSentinelStrategy(DefenseStrategy):
         return {
             "total_inferences": self._total_inferences,
             "flagged_inferences": self._flagged_inferences,
-            "flag_rate": round(
-                self._flagged_inferences / self._total_inferences, 4
-            ) if self._total_inferences > 0 else 0.0,
-            "active_detectors": [
-                getattr(d, "name", str(d)) for d, _ in self._detectors
-            ],
+            "flag_rate": round(self._flagged_inferences / self._total_inferences, 4)
+            if self._total_inferences > 0
+            else 0.0,
+            "active_detectors": [getattr(d, "name", str(d)) for d, _ in self._detectors],
             "per_detector_latency_ms": latency_ms,
             "alert_manager_stats": self._alert_manager.stats(),
             "fusion_is_calibrated": self._fusion.is_calibrated,
@@ -543,9 +539,7 @@ class RuntimeSentinelStrategy(DefenseStrategy):
     # Internal
     # ------------------------------------------------------------------
 
-    def _emit_inference_event(
-        self, context: Any, fused_score: float, flagged: bool
-    ) -> None:
+    def _emit_inference_event(self, context: Any, fused_score: float, flagged: bool) -> None:
         if self._sentinel_logger is None:
             return
         try:
@@ -562,4 +556,3 @@ class RuntimeSentinelStrategy(DefenseStrategy):
             )
         except Exception as exc:
             logger.debug("RuntimeSentinelStrategy: event log failed: %s", exc)
-

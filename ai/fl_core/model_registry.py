@@ -77,6 +77,7 @@ class FileModelRegistry(ModelRegistry):
         elif isinstance(model_state, dict):
             try:
                 import torch
+
                 torch.save(model_state, checkpoint_dir / "weights.pt")
             except Exception:
                 with open(checkpoint_dir / "weights.json", "w", encoding="utf-8") as fh:
@@ -129,6 +130,7 @@ class FileModelRegistry(ModelRegistry):
 
         if pt_path.exists():
             import torch
+
             model_state = torch.load(pt_path, weights_only=True)
         elif npy_path.exists():
             model_state = np.load(str(npy_path), allow_pickle=False)
@@ -200,6 +202,7 @@ class FileModelRegistry(ModelRegistry):
         checkpoint_dir = self._dir / model_id
         if checkpoint_dir.exists():
             import shutil
+
             shutil.rmtree(checkpoint_dir)
             logger.debug("Registry: deleted checkpoint model_id=%s", model_id)
         # Remove from index

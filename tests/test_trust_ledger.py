@@ -116,9 +116,7 @@ class TestAddEntry:
     def test_add_entry_never_raises(self, tmp_path):
         ledger = _ledger(tmp_path)
         # Simulate a persistent I/O failure in _write_entry_with_retry
-        with patch.object(
-            ledger, "_write_entry_with_retry", side_effect=OSError("disk full")
-        ):
+        with patch.object(ledger, "_write_entry_with_retry", side_effect=OSError("disk full")):
             ledger.add_entry(_entry())  # must not raise
 
     def test_score_cache_updated_after_add(self, tmp_path):
@@ -173,15 +171,11 @@ class TestWarmStart:
         ledger1 = _ledger(tmp_path)
         for _ in range(4):
             ledger1.add_entry(_entry())
-        ledger2 = FileTrustLedger(
-            ledger_path=tmp_path / "ledger.jsonl", warm_start=True
-        )
+        ledger2 = FileTrustLedger(ledger_path=tmp_path / "ledger.jsonl", warm_start=True)
         assert ledger2.total_entries == 4
 
     def test_no_file_warm_start_is_empty(self, tmp_path):
-        ledger = FileTrustLedger(
-            ledger_path=tmp_path / "nonexistent.jsonl", warm_start=True
-        )
+        ledger = FileTrustLedger(ledger_path=tmp_path / "nonexistent.jsonl", warm_start=True)
         assert ledger.get_all_scores() == []
         assert ledger.total_entries == 0
 
@@ -263,9 +257,7 @@ class TestLoadEntries:
         assert len(entries) == 5
 
     def test_load_missing_file_returns_empty(self, tmp_path):
-        ledger = FileTrustLedger(
-            ledger_path=tmp_path / "no_file.jsonl", warm_start=False
-        )
+        ledger = FileTrustLedger(ledger_path=tmp_path / "no_file.jsonl", warm_start=False)
         assert ledger.load_entries() == []
 
     def test_entries_are_trust_ledger_entry_objects(self, tmp_path):
@@ -279,7 +271,8 @@ class TestLoadEntries:
         # Write one valid + one malformed line
         path.write_text(
             '{"entry_id": "bad"}\n'  # missing required fields → skip
-            + _entry().model_dump_json() + "\n",
+            + _entry().model_dump_json()
+            + "\n",
             encoding="utf-8",
         )
         ledger = FileTrustLedger(ledger_path=path, warm_start=False)
@@ -382,11 +375,7 @@ class TestGetClientHistory:
         history = ledger.get_client_history("client_00", max_rounds=1)
         if history:
             max_rnd = max(e.round_num for e in history if e.round_num is not None)
-            assert all(
-                e.round_num >= max_rnd - 1
-                for e in history
-                if e.round_num is not None
-            )
+            assert all(e.round_num >= max_rnd - 1 for e in history if e.round_num is not None)
 
     def test_unknown_client_returns_empty(self, tmp_path):
         ledger = _ledger(tmp_path)
@@ -542,10 +531,14 @@ class TestExportSnapshot:
 
     def test_evidence_fields_parsed(self, tmp_path):
         ledger = _ledger(tmp_path)
-        ledger.add_entry(_entry(
-            "c0", score=0.4, round_num=1,
-            evidence={"anomaly_score": 0.7, "norm": 2.5},
-        ))
+        ledger.add_entry(
+            _entry(
+                "c0",
+                score=0.4,
+                round_num=1,
+                evidence={"anomaly_score": 0.7, "norm": 2.5},
+            )
+        )
         snapshots = ledger.export_snapshot(round_num=1)
         c0 = next(s for s in snapshots if s.client_id == "c0")
         assert len(c0.anomaly_score_history) == 1
@@ -565,7 +558,14 @@ class TestGetStats:
     def test_stats_structure(self, tmp_path):
         ledger = _ledger(tmp_path)
         stats = ledger.get_stats()
-        for key in ("total_entries", "n_clients", "n_buffered", "ledger_path", "suspicious_count", "mean_score"):
+        for key in (
+            "total_entries",
+            "n_clients",
+            "n_buffered",
+            "ledger_path",
+            "suspicious_count",
+            "mean_score",
+        ):
             assert key in stats
 
     def test_stats_counts(self, tmp_path):
@@ -691,8 +691,15 @@ class TestClientReputationReport:
         ledger = _populated_ledger(tmp_path)
         engine = ReputationEngine(ledger)
         report = engine.client_reputation_report("client_00")
-        for key in ("client_id", "current_score", "is_suspicious", "total_flag_count",
-                    "layer_breakdown", "round_history", "most_recent_reason"):
+        for key in (
+            "client_id",
+            "current_score",
+            "is_suspicious",
+            "total_flag_count",
+            "layer_breakdown",
+            "round_history",
+            "most_recent_reason",
+        ):
             assert key in report
 
     def test_total_flag_count(self, tmp_path):
@@ -862,9 +869,17 @@ class TestComputeAllMetrics:
         ledger = _populated_ledger(tmp_path)
         engine = ReputationEngine(ledger)
         metrics = engine.compute_all_metrics("exp_001")
-        for key in ("experiment_id", "total_ledger_entries", "n_tracked_clients",
-                    "n_suspicious_clients", "suspicious_fraction", "mean_trust_score",
-                    "top_suspicious", "flag_rate_by_layer", "score_distribution"):
+        for key in (
+            "experiment_id",
+            "total_ledger_entries",
+            "n_tracked_clients",
+            "n_suspicious_clients",
+            "suspicious_fraction",
+            "mean_trust_score",
+            "top_suspicious",
+            "flag_rate_by_layer",
+            "score_distribution",
+        ):
             assert key in metrics
 
     def test_experiment_id_echoed(self, tmp_path):

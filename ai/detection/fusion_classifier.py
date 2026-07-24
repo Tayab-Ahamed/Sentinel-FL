@@ -108,14 +108,13 @@ class FusionClassifier:
         if self._n_examples < self._min_labels:
             logger.debug(
                 "FusionClassifier: %d examples available, need %d to calibrate.",
-                self._n_examples, self._min_labels,
+                self._n_examples,
+                self._min_labels,
             )
             return
 
         if len(set(self._label_history)) < 2:
-            logger.debug(
-                "FusionClassifier: only one class in labels — cannot calibrate logistic."
-            )
+            logger.debug("FusionClassifier: only one class in labels — cannot calibrate logistic.")
             return
 
         self._train_logistic()

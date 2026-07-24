@@ -85,9 +85,9 @@ class TestIIDPartitioner:
         X, y = small_dataset
         p1 = IIDPartitioner().partition(X, y, 4, seed=1)
         p2 = IIDPartitioner().partition(X, y, 4, seed=2)
-        assert not all(
-            np.array_equal(a, b) for a, b in zip(p1, p2)
-        ), "Different seeds should produce different splits"
+        assert not all(np.array_equal(a, b) for a, b in zip(p1, p2)), (
+            "Different seeds should produce different splits"
+        )
 
     def test_raises_on_too_few_samples(self):
         X = np.zeros((3, 4), dtype=np.float32)

@@ -18,9 +18,10 @@ matrix ``W`` are what a BadNets patch exploits.  We therefore:
   2. Zero (prune) those columns of ``W`` — severing the trigger→target pathway.
   3. Fine-tune on the clean holdout to recover clean accuracy.
 
-The ``TorchFinePruner`` (Phase 1) will instead rank hidden channels by clean
-activation and prune the lowest fraction; the orchestration contract is identical.
+The implemented ``TorchFinePruner`` ranks hidden channels by clean activation and
+prunes the lowest fraction; the orchestration contract is identical.
 """
+
 from __future__ import annotations
 
 import logging
@@ -28,7 +29,7 @@ from typing import Any
 
 import numpy as np
 
-from ai.remediation.adapters import LinearSoftmaxAdapter
+from ai.remediation.adapters import LinearSoftmaxAdapter, TorchModelAdapter
 from ai.remediation.triggers import as_trigger_vector, trigger_mask
 
 logger = logging.getLogger(__name__)
@@ -110,6 +111,62 @@ class FinePruner:
         )
         logger.info(
             "Fine-pruning: zeroed %d/%d trigger channels then fine-tuned %d epochs",
-            n_pruned, n_features, self._finetune_epochs,
+            n_pruned,
+            n_features,
+            self._finetune_epochs,
+        )
+        return repaired
+
+
+class TorchFinePruner:
+    """Activation-aware fine-pruning for convolutional PyTorch models.
+
+    Channels with the lowest mean absolute activation on clean calibration data
+    are zeroed in the final convolutional layer, then the model is fine-tuned on
+    clean data to recover utility. This follows the defensive principle of Liu et
+    al. (2018) while keeping all backend details inside ``TorchModelAdapter``.
+    """
+
+    strategy_name: str = "pruning"
+
+    def __init__(
+        self,
+        adapter: TorchModelAdapter,
+        finetune_epochs: int = 5,
+        finetune_lr: float = 0.01,
+        prune_fraction: float = 0.1,
+    ) -> None:
+        self._adapter = adapter
+        self._finetune_epochs = int(finetune_epochs)
+        self._finetune_lr = float(finetune_lr)
+        self._prune_fraction = float(prune_fraction)
+        self.last_evidence: dict[str, Any] = {}
+
+    def remediate(
+        self,
+        params: Any,
+        X_clean: np.ndarray,
+        y_clean: np.ndarray,
+        reversed_triggers: list[Any],
+        n_features: int,
+    ) -> Any:
+        del reversed_triggers, n_features  # activation ranking is trigger-agnostic
+        pruned, evidence = self._adapter.prune_dormant_channels(
+            params, X_clean, prune_fraction=self._prune_fraction
+        )
+        self.last_evidence = evidence
+        repaired = self._adapter.fine_tune(
+            pruned,
+            X_clean,
+            y_clean,
+            epochs=self._finetune_epochs,
+            lr=self._finetune_lr,
+        )
+        logger.info(
+            "Torch fine-pruning: pruned %d/%d channels in %s then fine-tuned %d epochs",
+            evidence["channels_pruned"],
+            evidence["channels_total"],
+            evidence["layer"],
+            self._finetune_epochs,
         )
         return repaired

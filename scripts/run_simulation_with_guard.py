@@ -92,9 +92,10 @@ def main() -> None:
     logger.info("=" * 60)
     logger.info("Simulation complete.")
     logger.info("  Experiment ID:   %s", result.experiment_id)
-    logger.info("  Final C-Acc:     %s",
-                f"{result.final_clean_accuracy * 100:.2f}%"
-                if result.final_clean_accuracy else "N/A")
+    logger.info(
+        "  Final C-Acc:     %s",
+        f"{result.final_clean_accuracy * 100:.2f}%" if result.final_clean_accuracy else "N/A",
+    )
     logger.info("  Wall time:       %.1fs", result.total_wall_time_s)
     logger.info("  Output:          %s", result.experiment_path)
     logger.info("=" * 60)

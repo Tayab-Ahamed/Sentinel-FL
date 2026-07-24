@@ -11,6 +11,7 @@ Exit codes:
     0 — all checks passed
     1 — one or more checks failed (error details printed to stderr)
 """
+
 from __future__ import annotations
 
 import os
@@ -26,15 +27,18 @@ _FAILURES: list[str] = []
 
 def _check(name: str):
     """Decorator that registers a check function."""
+
     def decorator(fn):
         _CHECKS.append((name, fn))
         return fn
+
     return decorator
 
 
 # ---------------------------------------------------------------------------
 # Import checks
 # ---------------------------------------------------------------------------
+
 
 @_check("fl_core.schemas")
 def _():
@@ -94,12 +98,14 @@ def _():
 @_check("backend.main (FastAPI app)")
 def _():
     from backend.main import app
+
     assert hasattr(app, "title"), "FastAPI app has no title"
 
 
 # ---------------------------------------------------------------------------
 # Functional check: one mini FL round
 # ---------------------------------------------------------------------------
+
 
 @_check("mini FL round (fedavg + multi_krum)")
 def _():
@@ -132,6 +138,7 @@ def _():
 # ---------------------------------------------------------------------------
 # Runner
 # ---------------------------------------------------------------------------
+
 
 def main() -> int:
     print("SENTINEL-FL install check")

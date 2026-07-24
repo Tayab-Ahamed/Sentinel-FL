@@ -55,10 +55,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
 
-      - name: Install project + dev deps
+      - name: Install project + dev + Phase 1 deps
         run: |
           pip install --upgrade pip
-          pip install -e ".[dev]"
+          # The collected suite includes PyTorch, Flower, and matplotlib tests.
+          pip install -e ".[dev,phase1]"
 
       - name: Run unit + integration tests
         run: |
@@ -187,3 +188,67 @@ jobs:
           assert body['status'] == 'ok', f'Unexpected status: {body}'
           print('Health check OK:', body)
           "
+
+  # ---------------------------------------------------------------------------
+  # Adaptive security gate — multiple attacker powers, not one cherry-picked run
+  # ---------------------------------------------------------------------------
+  red-team:
+    name: Security — adaptive red-team matrix
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Phase 0 + report dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Run 8-scenario adaptive threat matrix
+        run: python scripts/run_red_team_matrix.py --quick
+
+      - name: Verify all remediations passed
+        run: |
+          python -c "
+          import json, pathlib
+          p = pathlib.Path('experiments/red_team/red_team_results.json')
+          data = json.loads(p.read_text())
+          s = data['summary']
+          assert s['scenario_count'] == 8
+          assert s['remediation_acceptance_rate'] == 1.0
+          assert s['remediation_asr']['worst'] <= 0.10
+          print('Adaptive security gate OK:', s)
+          "
+
+      - name: Upload red-team evidence
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: adaptive-red-team-evidence
+          path: experiments/red_team/
+
+  release-evidence:
+    name: Release evidence verifier
+    runs-on: ubuntu-latest
+    needs: [demo, red-team, api-import]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install project dependencies
+        run: pip install -e ".[dev]"
+      - name: Verify release invariants
+        run: python scripts/verify_release.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-evidence
+          path: experiments/release_evidence.json

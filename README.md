@@ -33,7 +33,7 @@
 > attestation certificate** proving the repair. If it can't prove the model is clean, it
 > escalates to a human instead of redeploying.
 
-In the reference run the backdoor's **attack-success-rate drops from `1.00` → `0.26`** while
+In the reference run the backdoor's **source-only attack-success-rate drops from `1.00` → `0.00`** while
 **clean accuracy stays at `1.00`** — and every repair is signed into a verifiable hash chain.
 
 ---
@@ -148,9 +148,9 @@ slipped through.
 | Strategy | Clean Accuracy | Attack Success Rate | vs. no-defense |
 |---|:--:|:--:|:--:|
 | FedAvg (undefended) | **100.0%** | **98.9%** | baseline |
-| Multi-Krum | 100.0% | 25.8% | −73.1 pp |
-| Multi-Krum + L1 Guard | 100.0% | 25.8% | −73.1 pp |
-| **+ L5 Remediation** | **100.0%** | **25.8%** | **repairs a fully-poisoned model** |
+| Multi-Krum | 100.0% | 0.0% | −98.5 pp |
+| Multi-Krum + L1 Guard | 100.0% | 0.0% | −98.5 pp |
+| **+ L5 Remediation** | **100.0%** | **0.0%** | **repairs a fully-poisoned model** |
 
 > Reproduce: `python scripts/run_demo.py` → [`experiments/demo_results.json`](experiments/demo_results.json)
 
@@ -167,9 +167,9 @@ the attack-success-rate below the acceptance threshold **without sacrificing cle
 
 | Scenario | Strategy | ASR before → after | Clean acc before → after | Accepted |
 |---|---|:--:|:--:|:--:|
-| `rollback_only` | rollback | 1.000 → 0.258 | 1.000 → 1.000 | ✅ |
-| `unlearning_only` | unlearning | 1.000 → 0.258 | 1.000 → 1.000 | ✅ |
-| `full_escalation` | rollback (auto) | 1.000 → 0.258 | 1.000 → 1.000 | ✅ |
+| `rollback_only` | rollback | 1.000 → 0.000 | 1.000 → 1.000 | ✅ |
+| `unlearning_only` | unlearning | 1.000 → 0.000 | 1.000 → 1.000 | ✅ |
+| `full_escalation` | rollback (auto) | 1.000 → 0.000 | 1.000 → 1.000 | ✅ |
 
 > Reproduce: `python scripts/run_remediation_demo.py` → [`experiments/remediation_results.json`](experiments/remediation_results.json)
 > · charts: `python scripts/generate_charts.py`
@@ -185,9 +185,9 @@ chain (a mini transparency log). Any post-hoc edit breaks `verify_chain()`.
 
 ```mermaid
 flowchart LR
-    G[(genesis)]:::g --> A["Cert #1<br/>rollback<br/>ASR 1.00→0.26"]:::c
-    A -->|prev_hash| B["Cert #2<br/>unlearning<br/>ASR 1.00→0.26"]:::c
-    B -->|prev_hash| C["Cert #3<br/>escalation<br/>ASR 1.00→0.26"]:::c
+    G[(genesis)]:::g --> A["Cert #1<br/>rollback<br/>ASR 1.00→0.00"]:::c
+    A -->|prev_hash| B["Cert #2<br/>unlearning<br/>ASR 1.00→0.00"]:::c
+    B -->|prev_hash| C["Cert #3<br/>escalation<br/>ASR 1.00→0.00"]:::c
     C --> V{{"verify_chain() ✅<br/>HMAC-SHA256 signed"}}:::v
     classDef g fill:#94a3b8,color:#fff;
     classDef c fill:#0f172a,color:#fff;
@@ -200,7 +200,7 @@ from ai.remediation import AttestationLedger, verify_certificate
 ledger = AttestationLedger("experiments/attestation_chain.jsonl", secret_key="…")
 cert = ledger.append(report, params_before, params_after)
 
-cert.asr_reduction        # 0.742
+cert.asr_reduction        # 1.000
 cert.model_after_sha256   # 'dc2a85e9…'
 verify_certificate(cert, secret_key="…")   # True
 ledger.verify_chain()                       # True  (tamper → False)
@@ -208,6 +208,33 @@ ledger.verify_chain()                       # True  (tamper → False)
 
 Pure standard library (`hashlib` / `hmac` / `json`) — **zero extra dependencies**.
 Artifact: [`experiments/attestation_chain.jsonl`](experiments/attestation_chain.jsonl).
+
+---
+
+## 🔴 Adaptive red-team evidence
+
+A single seed can flatter any defense. The committed stress harness spans **24 scenarios**:
+`1/3/5` malicious clients of 12 × `8%/20%` poison × trigger strength `4/7` × seeds `7/42`.
+
+| Security gate | Result |
+|---|---:|
+| Worst undefended source-only ASR | **0.993** |
+| Worst Multi-Krum + Guard ASR | **0.942** (extreme 5/12-client collusion) |
+| Worst ASR after L5 | **0.000** |
+| Clean accuracy after L5 | **1.000** |
+| Accepted remediations | **24/24 (100%)** |
+
+<div align="center">
+<img src="experiments/red_team/red_team_heatmap.png" alt="Adaptive red-team heatmap" width="620">
+</div>
+
+The disclosed `0.942` aggregation failure is intentional: it demonstrates why lifecycle
+remediation is necessary. Full evidence: [`RED_TEAM_REPORT.md`](experiments/red_team/RED_TEAM_REPORT.md)
+· [`JSON`](experiments/red_team/red_team_results.json) · [`CSV`](experiments/red_team/red_team_results.csv).
+
+> **ASR definition:** source-only—triggered examples whose true class is already the target
+> are excluded. This is the standard, scientifically fair definition and avoids an artificial
+> target-class-prevalence floor.
 
 ---
 
@@ -229,6 +256,8 @@ python scripts/run_remediation_demo.py   # → remediation_results.json + attest
 
 # 5. Regenerate the README charts
 python scripts/generate_charts.py        # → assets/*.png
+python scripts/run_red_team_matrix.py    # → 24-scenario security evidence
+python scripts/verify_release.py         # → signed/hashable release evidence
 ```
 
 > **Full ML path (Phase 1 — PyTorch + Flower):** `pip install -e ".[dev,phase1]"`.
@@ -281,13 +310,14 @@ ruff check . && ruff format --check .   # lint + format (CI-enforced)
 
 | Metric | Value |
 |---|---|
-| Baseline tests passing | **976** (+ new `test_remediation` & `test_attestation` suites) |
+| Baseline tests passing | **976** (+ remediation, attestation, and CNN-adapter suites) |
 | Failures | **0** |
 | Coverage | **84.22%** (threshold 60%, +24 pp) |
 
-**CI** (`.github/workflows/ci.yml`) runs five jobs on every push: **lint** (ruff),
+**CI** (`.github/workflows/ci.yml`) runs seven gates on every push: **lint** (ruff),
 **tests** (Python 3.11 & 3.12, with the `phase1` extras so the torch/Flower paths execute),
-**verify-install**, **run_demo smoke test**, and a **FastAPI import + health check**.
+**verify-install**, **run_demo**, **FastAPI health**, an **adaptive red-team matrix**, and a
+**release-evidence verifier**.
 Heavy-dependency test modules use `pytest.importorskip`, so the suite also collects cleanly
 in a Phase-0 (numpy-only) install.
 
@@ -318,7 +348,7 @@ GSC26-Challenge1-010/
 ├── assets/              # Generated README charts (PNG)
 ├── .github/workflows/   # CI: lint · test · verify-install · demo · api-import
 ├── Dockerfile · docker-compose.yml · pyproject.toml · requirements.txt
-└── ARCHITECTURE.md · NOVELTY.md · RESEARCH.md · RESULTS.md · API.md · SCHEMAS.md · REPORT.md
+└── ARCHITECTURE.md · NOVELTY.md · MODEL_CARD.md · SECURITY.md · RESULTS.md · REPORT.md
 ```
 
 ---

@@ -116,11 +116,15 @@ class MNISTFlowerClient(fl.client.NumPyClient):
                     "training_failed",
                     {"client_id": self._client_id, "round": round_num, "reason": "nan_loss"},
                 )
-            return get_model_parameters(self._model), len(self._train_data[0]), {
-                "train_loss": float("inf"),
-                "train_accuracy": 0.0,
-                "nan_loss": True,
-            }
+            return (
+                get_model_parameters(self._model),
+                len(self._train_data[0]),
+                {
+                    "train_loss": float("inf"),
+                    "train_accuracy": 0.0,
+                    "nan_loss": True,
+                },
+            )
 
         metrics: dict[str, Scalar] = {
             "train_loss": round(train_loss, 6),
@@ -164,9 +168,7 @@ class MNISTFlowerClient(fl.client.NumPyClient):
     # Internal training / evaluation loops
     # ------------------------------------------------------------------
 
-    def _make_loader(
-        self, X: np.ndarray, y: np.ndarray, shuffle: bool = True
-    ) -> DataLoader:
+    def _make_loader(self, X: np.ndarray, y: np.ndarray, shuffle: bool = True) -> DataLoader:
         """Create a DataLoader from numpy arrays."""
         X_t = torch.tensor(X, dtype=torch.float32)
         y_t = torch.tensor(y, dtype=torch.long)

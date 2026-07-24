@@ -101,7 +101,9 @@ class DetectionResult(BaseModel):
     flagged: bool = Field(..., description="True if score crosses the calibrated boundary.")
     boundary: float = Field(..., description="Calibration threshold used.")
     round_num: int | None = Field(None, description="Null for L3 (per-inference, not per-round).")
-    explanation: str = Field("", description="Human-readable reason populated by Detector.explain().")
+    explanation: str = Field(
+        "", description="Human-readable reason populated by Detector.explain()."
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -212,27 +214,37 @@ class EvaluationResult(BaseModel):
     )
     # --- Milestone 9 additions ---
     precision: float | None = Field(
-        None, ge=0.0, le=1.0,
+        None,
+        ge=0.0,
+        le=1.0,
         description="Detection precision: TP / (TP + FP) across all layers.",
     )
     recall: float | None = Field(
-        None, ge=0.0, le=1.0,
+        None,
+        ge=0.0,
+        le=1.0,
         description="Detection recall: TP / (TP + FN) across all layers.",
     )
     f1_score: float | None = Field(
-        None, ge=0.0, le=1.0,
+        None,
+        ge=0.0,
+        le=1.0,
         description="Harmonic mean of precision and recall.",
     )
     false_positive_rate: float | None = Field(
-        None, ge=0.0, le=1.0,
+        None,
+        ge=0.0,
+        le=1.0,
         description="FP / (FP + TN) — clean clients/inputs incorrectly flagged.",
     )
     runtime_seconds: float | None = Field(
-        None, ge=0.0,
+        None,
+        ge=0.0,
         description="Wall-clock runtime of the full experiment (seconds).",
     )
     peak_memory_mb: float | None = Field(
-        None, ge=0.0,
+        None,
+        ge=0.0,
         description="Peak RSS memory usage during the experiment (MB).",
     )
     warnings: list[str] = Field(
@@ -331,7 +343,9 @@ class Experiment(BaseModel):
         description="Active defense layers. L4 is always on (passive logging).",
     )
     attack_config: AttackReport = Field(...)
-    result: EvaluationResult | None = Field(None, description="Filled once the experiment completes.")
+    result: EvaluationResult | None = Field(
+        None, description="Filled once the experiment completes."
+    )
     seeds: dict[str, int] = Field(
         default_factory=dict,
         description="Seed values used per stochastic component for full reproducibility.",
@@ -393,14 +407,18 @@ class AttackConfig(BaseModel):
         description="Normalised trigger pixel intensity (0.0–1.0).",
     )
     trigger_opacity: float = Field(
-        1.0, ge=0.0, le=1.0,
+        1.0,
+        ge=0.0,
+        le=1.0,
         description="Blend ratio: 1.0 = fully opaque.",
     )
     trigger_seed: int = Field(0, description="Seed for random_noise trigger shape.")
 
     # Malicious client selection
     malicious_client_fraction: float = Field(
-        0.25, ge=0.0, le=1.0,
+        0.25,
+        ge=0.0,
+        le=1.0,
         description="Fraction of n_clients that are malicious (when indices list is empty).",
     )
     poison_non_target_only: bool = Field(
@@ -461,11 +479,15 @@ class Configuration(BaseModel):
     # L5 remediation engine (ARCHITECTURE.md §7.4)
     remediation_enabled: bool = Field(True)
     remediation_asr_threshold: float = Field(
-        0.2, ge=0.0, le=1.0,
+        0.2,
+        ge=0.0,
+        le=1.0,
         description="Attack-success-rate at/under which remediation is considered successful.",
     )
     remediation_max_clean_accuracy_drop: float = Field(
-        0.1, ge=0.0, le=1.0,
+        0.1,
+        ge=0.0,
+        le=1.0,
         description="Max tolerated clean-accuracy regression for a remediation step to be accepted.",
     )
     remediation_strategies: list[str] = Field(
@@ -656,9 +678,7 @@ class TrustLedgerQuery(BaseModel):
     subject_types: list[str] | None = Field(
         None, description="Filter by 'client', 'label', or 'input'."
     )
-    layers: list[str] | None = Field(
-        None, description="Filter by layer ID (e.g. ['L1', 'L2'])."
-    )
+    layers: list[str] | None = Field(None, description="Filter by layer ID (e.g. ['L1', 'L2']).")
     round_min: int | None = Field(None, ge=0, description="Inclusive lower round bound.")
     round_max: int | None = Field(None, ge=0, description="Inclusive upper round bound.")
     min_score: float | None = Field(None, ge=0.0, le=1.0, description="Minimum entry score.")
@@ -745,7 +765,9 @@ class SentinelAlert(BaseModel):
         description="Severity tier: low | medium | high.",
     )
     confidence_at_flag: float | None = Field(
-        None, ge=0.0, le=1.0,
+        None,
+        ge=0.0,
+        le=1.0,
         description="Model's predicted confidence at the time of flagging.",
     )
     explanation: str = Field(
@@ -776,9 +798,7 @@ class SHAPExplanation(BaseModel):
     predicted_class: int = Field(..., ge=0)
     base_value: float = Field(..., description="Expected model output (SHAP base value).")
     shap_values: list[float] = Field(..., description="Per-feature SHAP values.")
-    feature_names: list[str] = Field(
-        ..., description="Feature name for each index in shap_values."
-    )
+    feature_names: list[str] = Field(..., description="Feature name for each index in shap_values.")
     top_k_features: list[dict[str, Any]] = Field(
         default_factory=list,
         description=(
@@ -812,9 +832,7 @@ class FeatureImportanceResult(BaseModel):
 
     method: str = Field(
         ...,
-        description=(
-            "How importance was computed: 'permutation', 'coefficient', or 'gradient'."
-        ),
+        description=("How importance was computed: 'permutation', 'coefficient', or 'gradient'."),
     )
     feature_names: list[str] = Field(...)
     importance_scores: list[float] = Field(
@@ -824,17 +842,13 @@ class FeatureImportanceResult(BaseModel):
         default_factory=list,
         description="Features sorted by importance descending. Each dict: name, score, rank.",
     )
-    context: str = Field(
-        "", description="Optional context string (e.g. 'L1 round 4 client_02')."
-    )
+    context: str = Field("", description="Optional context string (e.g. 'L1 round 4 client_02').")
     created_at: str = Field(default_factory=_now_iso)
 
     @model_validator(mode="after")
     def _lengths_match(self) -> FeatureImportanceResult:
         if len(self.importance_scores) != len(self.feature_names):
-            raise ValueError(
-                "importance_scores and feature_names must have the same length."
-            )
+            raise ValueError("importance_scores and feature_names must have the same length.")
         return self
 
 
@@ -860,8 +874,7 @@ class DetectionExplanation(BaseModel):
     structured_evidence: dict[str, Any] = Field(
         default_factory=dict,
         description=(
-            "Layer-specific evidence: cosine sims (L1), reversed trigger (L2), "
-            "SHAP values (L3)."
+            "Layer-specific evidence: cosine sims (L1), reversed trigger (L2), SHAP values (L3)."
         ),
     )
     shap_explanation: SHAPExplanation | None = Field(
@@ -891,9 +904,7 @@ class TrustExplanation(BaseModel):
     narrative: str = Field(..., description="Human-readable reputation summary.")
     score_trajectory: list[dict[str, Any]] = Field(
         default_factory=list,
-        description=(
-            "Per-round score history. Each dict: round_num, score, n_flags, layers."
-        ),
+        description=("Per-round score history. Each dict: round_num, score, n_flags, layers."),
     )
     top_contributing_entries: list[dict[str, Any]] = Field(
         default_factory=list,
@@ -915,18 +926,16 @@ class TrustExplanation(BaseModel):
 class AttackExplanation(BaseModel):
     """Attack characterisation derived from an AuditReport or AttackReport."""
 
-    attack_type: str = Field(
-        ..., description="E.g. 'BadNets', 'blended_injection', 'unknown'."
-    )
+    attack_type: str = Field(..., description="E.g. 'BadNets', 'blended_injection', 'unknown'.")
     target_label: int | None = Field(None, ge=0)
-    trigger_description: str = Field(
-        "", description="Human-readable trigger description."
-    )
+    trigger_description: str = Field("", description="Human-readable trigger description.")
     poison_fraction: float | None = Field(None, ge=0.0, le=1.0)
     estimated_infection_round: int | None = Field(None, ge=0)
     suspected_clients: list[str] = Field(default_factory=list)
     detection_confidence: float = Field(
-        ..., ge=0.0, le=1.0,
+        ...,
+        ge=0.0,
+        le=1.0,
         description="Aggregated detection confidence across layers.",
     )
     evidence_summary: str = Field("")
@@ -955,15 +964,8 @@ class ChartArtifact(BaseModel):
         ),
     )
     title: str = Field("")
-    png_b64: str = Field(
-        ..., description="Base64-encoded PNG image bytes."
-    )
-    alt_text: str = Field(
-        "", description="Accessibility description of the chart."
-    )
+    png_b64: str = Field(..., description="Base64-encoded PNG image bytes.")
+    alt_text: str = Field("", description="Accessibility description of the chart.")
     width_px: int = Field(800, gt=0)
     height_px: int = Field(500, gt=0)
     created_at: str = Field(default_factory=_now_iso)
-
-
-

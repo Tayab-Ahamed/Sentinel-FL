@@ -23,13 +23,14 @@ The chain is verifiable end-to-end with :func:`verify_certificate` and
 :meth:`AttestationLedger.verify_chain`, so anyone can independently confirm that the
 sequence of remediations is authentic and unbroken.
 """
+
 from __future__ import annotations
 
 import hashlib
 import hmac
 import json
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -129,7 +130,7 @@ def issue_certificate(
     remediation_id = str(getattr(report, "remediation_id", "unknown"))
     cert = RemediationCertificate(
         certificate_id=f"cert-{remediation_id}",
-        issued_at=datetime.now(timezone.utc).isoformat(),
+        issued_at=datetime.now(UTC).isoformat(),
         remediation_id=remediation_id,
         round_num=getattr(report, "round_num", None),
         strategy_succeeded=getattr(report, "strategy_succeeded", None),

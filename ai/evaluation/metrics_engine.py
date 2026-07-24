@@ -178,8 +178,8 @@ def false_positive_rate(
     yp = (np.asarray(y_pred) == neg_label).astype(int)
 
     # Negate: treat positives as the "flagged" class
-    fp = int(np.sum((yt == 1) & (yp == 0)))   # benign but predicted malicious
-    tn = int(np.sum((yt == 1) & (yp == 1)))   # benign and predicted benign
+    fp = int(np.sum((yt == 1) & (yp == 0)))  # benign but predicted malicious
+    tn = int(np.sum((yt == 1) & (yp == 1)))  # benign and predicted benign
 
     if (fp + tn) == 0:
         return 0.0

@@ -92,9 +92,7 @@ class TrustScoreManager:
         prev_events = existing.contributing_events if existing else []
 
         # Update formula
-        new_score = float(
-            min(1.0, prev_score * (1.0 - self._decay) + anomaly_score * self._weight)
-        )
+        new_score = float(min(1.0, prev_score * (1.0 - self._decay) + anomaly_score * self._weight))
 
         trust_score = TrustScore(
             subject_type="client",
@@ -106,9 +104,12 @@ class TrustScoreManager:
         self._scores[client_id] = trust_score
 
         logger.debug(
-            "TrustScoreManager: client=%s round=%d anomaly=%.4f "
-            "prev=%.4f → new=%.4f",
-            client_id, round_num, anomaly_score, prev_score, new_score,
+            "TrustScoreManager: client=%s round=%d anomaly=%.4f prev=%.4f → new=%.4f",
+            client_id,
+            round_num,
+            anomaly_score,
+            prev_score,
+            new_score,
         )
 
         # Persist to ledger if attached
@@ -184,7 +185,8 @@ class TrustScoreManager:
             ts.last_updated_round = round_num
         logger.debug(
             "TrustScoreManager.decay_all: decayed %d client scores (rate=%.2f)",
-            len(self._scores), self._decay,
+            len(self._scores),
+            self._decay,
         )
 
     # ------------------------------------------------------------------
@@ -199,9 +201,7 @@ class TrustScoreManager:
         """Return all current TrustScore objects."""
         return list(self._scores.values())
 
-    def rank_clients(
-        self, client_ids: list[str] | None = None
-    ) -> list[str]:
+    def rank_clients(self, client_ids: list[str] | None = None) -> list[str]:
         """Return client IDs sorted ascending by trust score (most trusted first).
 
         Args:
@@ -223,10 +223,7 @@ class TrustScoreManager:
         Returns:
             List of client IDs with elevated trust scores (suspicious).
         """
-        return [
-            cid for cid, ts in self._scores.items()
-            if ts.score >= threshold
-        ]
+        return [cid for cid, ts in self._scores.items() if ts.score >= threshold]
 
     def score_vector(self, client_ids: list[str]) -> np.ndarray:
         """Return trust scores as a float32 array in the same order as ``client_ids``.

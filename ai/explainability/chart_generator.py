@@ -75,8 +75,7 @@ def _check_mpl() -> bool:
         except ImportError:
             _MPL_AVAILABLE = False
             logger.warning(
-                "ChartGenerator: matplotlib not installed — "
-                "charts will be empty (png_b64='')."
+                "ChartGenerator: matplotlib not installed — charts will be empty (png_b64='')."
             )
     return _MPL_AVAILABLE
 
@@ -150,6 +149,7 @@ class ChartGenerator:
             return _empty_artifact("shap_bar", title, "SHAP bar chart (matplotlib unavailable)")
 
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
@@ -221,6 +221,7 @@ class ChartGenerator:
             return _empty_artifact("feature_importance", title, "Feature importance chart")
 
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
@@ -232,10 +233,14 @@ class ChartGenerator:
         fig.patch.set_facecolor(_PALETTE["bg"])
         ax.set_facecolor(_PALETTE["bg"])
 
-        ax.barh(range(len(names)), scores, color=_PALETTE["blue_light"], edgecolor="none", height=0.65)
+        ax.barh(
+            range(len(names)), scores, color=_PALETTE["blue_light"], edgecolor="none", height=0.65
+        )
         ax.set_yticks(range(len(names)))
         ax.set_yticklabels(names, fontsize=9, color=_PALETTE["text"])
-        ax.set_xlabel(f"Importance ({importance_result.method})", fontsize=10, color=_PALETTE["text"])
+        ax.set_xlabel(
+            f"Importance ({importance_result.method})", fontsize=10, color=_PALETTE["text"]
+        )
         ax.set_title(title, fontsize=12, color=_PALETTE["text"], pad=12, fontweight="bold")
         ax.tick_params(colors=_PALETTE["text"])
         ax.spines[["top", "right"]].set_visible(False)
@@ -278,6 +283,7 @@ class ChartGenerator:
             return _empty_artifact("trust_trajectory", t, "Trust trajectory chart")
 
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
@@ -342,6 +348,7 @@ class ChartGenerator:
             return _empty_artifact("reputation_heatmap", title, "Reputation heatmap")
 
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
         import numpy as np
@@ -353,7 +360,9 @@ class ChartGenerator:
             dtype=float,
         )
 
-        fig, ax = plt.subplots(figsize=(max(self._fw, len(layers) * 1.2), max(self._fh, len(clients) * 0.6)))
+        fig, ax = plt.subplots(
+            figsize=(max(self._fw, len(layers) * 1.2), max(self._fh, len(clients) * 0.6))
+        )
         fig.patch.set_facecolor(_PALETTE["bg"])
         ax.set_facecolor(_PALETTE["bg"])
 
@@ -371,7 +380,9 @@ class ChartGenerator:
             for j in range(len(layers)):
                 v = int(matrix[i, j])
                 if v > 0:
-                    ax.text(j, i, str(v), ha="center", va="center", fontsize=9, color=_PALETTE["text"])
+                    ax.text(
+                        j, i, str(v), ha="center", va="center", fontsize=9, color=_PALETTE["text"]
+                    )
 
         png_b64 = _fig_to_b64(fig, self._dpi)
         plt.close(fig)
@@ -408,6 +419,7 @@ class ChartGenerator:
             return _empty_artifact("alert_timeline", title, "Alert timeline chart")
 
         import matplotlib
+
         matplotlib.use("Agg")
         import matplotlib.pyplot as plt
 
@@ -421,7 +433,11 @@ class ChartGenerator:
         data = []
         for a in alerts:
             rnd = a.get("round_num") if isinstance(a, dict) else getattr(a, "round_num", None)
-            sev = a.get("alert_severity") if isinstance(a, dict) else getattr(a, "alert_severity", "low")
+            sev = (
+                a.get("alert_severity")
+                if isinstance(a, dict)
+                else getattr(a, "alert_severity", "low")
+            )
             data.append((rnd or 0, sev or "low"))
 
         fig, ax = plt.subplots(figsize=(self._fw, self._fh * 0.8))
@@ -434,7 +450,8 @@ class ChartGenerator:
             if pts:
                 xs, ys = zip(*pts)
                 ax.scatter(
-                    xs, ys,
+                    xs,
+                    ys,
                     c=severity_colours[severity],
                     s=severity_sizes[severity],
                     label=severity.capitalize(),

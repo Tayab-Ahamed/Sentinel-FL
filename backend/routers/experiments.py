@@ -93,7 +93,9 @@ async def get_rounds(experiment_id: str) -> dict[str, Any]:
 
 
 @router.post("/experiments/run", status_code=202)
-async def run_experiment(config: dict[str, Any], background_tasks: BackgroundTasks) -> dict[str, Any]:
+async def run_experiment(
+    config: dict[str, Any], background_tasks: BackgroundTasks
+) -> dict[str, Any]:
     """Trigger a new experiment run with the provided configuration.
 
     Single-run-at-a-time (API.md §8 note on concurrency).

@@ -104,7 +104,9 @@ class TestRobustAccuracy:
         from ai.evaluation.metrics_engine import robust_accuracy
 
         # C-Acc=0.9, ASR=0.4 → R-Acc = 0.9 * 0.6 = 0.54
-        result = robust_accuracy([0]*10, [0]*9 + [1], [0]*10, [1]*4 + [0]*6, target_class=1)
+        result = robust_accuracy(
+            [0] * 10, [0] * 9 + [1], [0] * 10, [1] * 4 + [0] * 6, target_class=1
+        )
         assert 0.0 <= result <= 1.0
 
 
@@ -514,8 +516,8 @@ class TestJsonLinesMetricsCollector:
 
         events = [
             _round_event(1, 0.9, 0.1),
-            _l1_flag_event("c1", is_malicious=True),   # TP
-            _l1_flag_event("c2", is_malicious=True),   # TP
+            _l1_flag_event("c1", is_malicious=True),  # TP
+            _l1_flag_event("c2", is_malicious=True),  # TP
             _l1_flag_event("c3", is_malicious=False),  # FP
         ]
         _write_log(tmp_path / "e5" / "log.jsonl", events)
@@ -715,7 +717,9 @@ class TestBaselineComparisonVerdict:
         from ai.fl_core.schemas import EvaluationResult
 
         reporter = self._reporter(tmp_path)
-        er = EvaluationResult(experiment_id="e", clean_accuracy=0.7, attack_success_rate=0.9, f1_score=0.5)
+        er = EvaluationResult(
+            experiment_id="e", clean_accuracy=0.7, attack_success_rate=0.9, f1_score=0.5
+        )
         baseline = {"clean_accuracy": 0.90, "attack_success_rate": 0.10, "f1_score": 0.80}
         result = reporter.compare_baseline(er, "test", baseline)
         assert result.verdict == "worse"
@@ -783,14 +787,22 @@ class TestEndToEndPipeline:
         # Write baselines.yaml
         baselines_yaml = tmp_path / "baselines.yaml"
         baselines_yaml.write_text(
-            yaml.dump({"baselines": {"no_defense": {"clean_accuracy": 0.92, "attack_success_rate": 0.95, "f1_score": None}}})
+            yaml.dump(
+                {
+                    "baselines": {
+                        "no_defense": {
+                            "clean_accuracy": 0.92,
+                            "attack_success_rate": 0.95,
+                            "f1_score": None,
+                        }
+                    }
+                }
+            )
         )
 
         # Generate report
         reporter = BenchmarkReporter(baselines_yaml=baselines_yaml)
-        report = reporter.generate(
-            "pipeline_exp", er, baseline_name="no_defense"
-        )
+        report = reporter.generate("pipeline_exp", er, baseline_name="no_defense")
         assert isinstance(report, BenchmarkReport)
 
         # Save both formats

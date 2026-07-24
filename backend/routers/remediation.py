@@ -6,6 +6,7 @@ backend/routers/remediation.py — L5 Remediation endpoints.
 
 Read-only artefact serving, consistent with the experiments/visualizer routers.
 """
+
 from __future__ import annotations
 
 import logging

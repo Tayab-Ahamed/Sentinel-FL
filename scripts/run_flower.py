@@ -120,11 +120,11 @@ def main(argv: list[str] | None = None) -> int:
 
     # ── Run simulation ────────────────────────────────────────────────────
     print(
-        f"\n{'='*60}\n"
+        f"\n{'=' * 60}\n"
         f"  SENTINEL-FL -- Flower Baseline\n"
         f"  clients={config.n_clients}  rounds={config.n_rounds}  "
         f"local_epochs={config.local_epochs}  lr={config.local_lr}\n"
-        f"{'='*60}\n"
+        f"{'=' * 60}\n"
     )
 
     try:
@@ -140,7 +140,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     # ── Print summary ─────────────────────────────────────────────────────
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f"  Experiment ID : {result.experiment_id}")
     print(f"  Rounds        : {result.n_rounds}")
     print(f"  Clients       : {result.n_clients}")
@@ -150,12 +150,12 @@ def main(argv: list[str] | None = None) -> int:
     if result.final_loss is not None:
         print(f"  Final loss    : {result.final_loss:.4f}")
     print(f"  Results JSON  : {result.experiment_path}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     # Print per-round accuracy table
     if result.rounds_history:
         print(f"  {'Round':>5}  {'C-Acc':>8}  {'Loss':>8}")
-        print(f"  {'-'*5}  {'-'*8}  {'-'*8}")
+        print(f"  {'-' * 5}  {'-' * 8}  {'-' * 8}")
         for row in result.rounds_history:
             acc = row.get("clean_accuracy", row.get("centralized_eval_clean_accuracy"))
             loss = row.get("centralized_loss", "-")

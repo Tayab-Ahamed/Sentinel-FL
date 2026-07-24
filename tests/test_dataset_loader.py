@@ -5,6 +5,7 @@ Covers:
   SyntheticDatasetLoader: load_client_partitions, load_clean_holdout, load_evaluation_set
   OfficialDatasetLoader: missing path raises, dev_mode fallback
 """
+
 from __future__ import annotations
 
 from types import SimpleNamespace
@@ -24,8 +25,12 @@ class TestSyntheticDatasetLoader:
     @pytest.fixture
     def loader(self):
         return SyntheticDatasetLoader(
-            n_samples=300, n_features=8, n_classes=3,
-            dirichlet_alpha=0.5, train_fraction=0.8, seed=0,
+            n_samples=300,
+            n_features=8,
+            n_classes=3,
+            dirichlet_alpha=0.5,
+            train_fraction=0.8,
+            seed=0,
         )
 
     @pytest.fixture

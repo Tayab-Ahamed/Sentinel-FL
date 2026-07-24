@@ -37,9 +37,11 @@ logger = logging.getLogger(__name__)
 
 try:
     import matplotlib
+
     matplotlib.use("Agg")  # non-interactive backend — safe in all environments
     import matplotlib.pyplot as plt
     from matplotlib.figure import Figure
+
     _MPL_AVAILABLE = True
 except ImportError:
     _MPL_AVAILABLE = False
@@ -49,8 +51,7 @@ except ImportError:
 def _require_matplotlib() -> None:
     if not _MPL_AVAILABLE:
         raise ImportError(
-            "matplotlib is required for visualisation. "
-            "Install it with: pip install matplotlib"
+            "matplotlib is required for visualisation. Install it with: pip install matplotlib"
         )
 
 
@@ -109,7 +110,8 @@ class PoisonedSampleVisualizer:
         n_rows = 2 * ((n + n_cols - 1) // n_cols)  # 2 rows per row-pair
 
         fig, axes = plt.subplots(
-            n_rows, n_cols,
+            n_rows,
+            n_cols,
             figsize=(n_cols * 1.5, n_rows * 1.5),
             dpi=self._dpi,
         )
@@ -194,10 +196,22 @@ class PoisonedSampleVisualizer:
         """
         fig, ax = plt.subplots(figsize=(7, 3.5), dpi=self._dpi)
 
-        ax.plot(round_numbers, asr_values, marker="o", color="#e74c3c",
-                linewidth=2, label="ASR (Attack Success Rate)")
-        ax.plot(round_numbers, clean_acc_values, marker="s", color="#2ecc71",
-                linewidth=2, label="C-Acc (Clean Accuracy)")
+        ax.plot(
+            round_numbers,
+            asr_values,
+            marker="o",
+            color="#e74c3c",
+            linewidth=2,
+            label="ASR (Attack Success Rate)",
+        )
+        ax.plot(
+            round_numbers,
+            clean_acc_values,
+            marker="s",
+            color="#2ecc71",
+            linewidth=2,
+            label="C-Acc (Clean Accuracy)",
+        )
 
         ax.set_xlabel("FL Round", fontsize=10)
         ax.set_ylabel("Rate", fontsize=10)
@@ -205,9 +219,7 @@ class PoisonedSampleVisualizer:
         ax.set_title(title, fontsize=11)
         ax.legend(fontsize=9)
         ax.grid(True, alpha=0.3)
-        ax.yaxis.set_major_formatter(
-            matplotlib.ticker.PercentFormatter(xmax=1.0, decimals=0)
-        )
+        ax.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(xmax=1.0, decimals=0))
 
         fig.tight_layout()
         return fig

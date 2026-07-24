@@ -109,9 +109,7 @@ class SyntheticDatasetLoader(DatasetLoader):
             alpha=self._dirichlet_alpha,
             seed=seed,
         )
-        partitions = [
-            (self._X_train[idx].copy(), self._y_train[idx].copy()) for idx in indices
-        ]
+        partitions = [(self._X_train[idx].copy(), self._y_train[idx].copy()) for idx in indices]
         logger.info(
             "SyntheticDatasetLoader: partitioned into %d clients (Dirichlet α=%.2f)",
             n_clients,
@@ -168,9 +166,7 @@ class OfficialDatasetLoader(DatasetLoader):
                 return
             raise DatasetNotFoundError(str(self._path), phase="phase1_official")
 
-    def load_client_partitions(
-        self, n_clients: int, config: Any
-    ) -> list[tuple[Any, Any]]:
+    def load_client_partitions(self, n_clients: int, config: Any) -> list[tuple[Any, Any]]:
         """Load Phase 1 client partitions.
 
         Status: Not yet implemented — will be completed once the dataset is released.

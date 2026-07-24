@@ -31,7 +31,8 @@ logger = logging.getLogger(__name__)
 # MNIST normalisation statistics (from the full training set)
 # ---------------------------------------------------------------------------
 _MNIST_MEAN: tuple[float, ...] = (0.1307,)
-_MNIST_STD: tuple[float, ...]  = (0.3081,)
+_MNIST_STD: tuple[float, ...] = (0.3081,)
+
 
 def _build_transform():
     """Build the torchvision transform (imported lazily; needs PyTorch)."""
@@ -119,7 +120,8 @@ class MNISTDatasetLoader(BaseDatasetLoader):
         X_test, y_test = _dataset_to_numpy(test_ds)
         logger.info(
             "MNISTDatasetLoader: train=%d test=%d",
-            len(X_train), len(X_test),
+            len(X_train),
+            len(X_test),
         )
         return X_train, y_train, X_test, y_test
 

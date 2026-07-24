@@ -41,9 +41,7 @@ class TestValidationResult:
 class TestDatasetValidator:
     def test_clean_batch_passes(self, validator, clean_mnist_batch):
         X, y = clean_mnist_batch
-        result = validator.validate(
-            X, y, expected_shape=(1, 28, 28), n_classes=10
-        )
+        result = validator.validate(X, y, expected_shape=(1, 28, 28), n_classes=10)
         assert result.is_valid
         assert result.errors == []
 
@@ -64,7 +62,9 @@ class TestDatasetValidator:
     def test_shape_mismatch_is_error(self, validator, clean_mnist_batch):
         X, y = clean_mnist_batch
         result = validator.validate(
-            X, y, expected_shape=(3, 32, 32)  # wrong shape for MNIST
+            X,
+            y,
+            expected_shape=(3, 32, 32),  # wrong shape for MNIST
         )
         assert not result.is_valid
         assert any("shape" in e.lower() for e in result.errors)

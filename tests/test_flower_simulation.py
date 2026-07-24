@@ -29,6 +29,7 @@ from ai.fl_engine.simulation import SimulationResult, _extract_rounds, _write_re
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _make_minimal_config(**overrides) -> Configuration:
     """Create a minimal Configuration valid for fast smoke tests."""
     defaults = {
@@ -44,8 +45,6 @@ def _make_minimal_config(**overrides) -> Configuration:
         "model_registry_dir": "experiments/test_checkpoints",
     }
     defaults.update(overrides)
-    if "n_clients" in overrides and "krum_select" not in overrides:
-        defaults["krum_select"] = min(defaults["krum_select"], defaults["n_clients"])
     return Configuration(**defaults)
 
 
@@ -64,6 +63,7 @@ def _make_fake_partitions(n_clients: int, n_per_client: int = 64) -> list:
 # ---------------------------------------------------------------------------
 # SimulationResult helpers (pure unit tests, no Flower needed)
 # ---------------------------------------------------------------------------
+
 
 class TestSimulationResult:
     def test_result_dataclass_defaults(self):
@@ -98,18 +98,22 @@ class TestSimulationResult:
 
     def test_extract_rounds_empty_history(self):
         """_extract_rounds returns empty list for empty History."""
+
         class FakeHistory:
             losses_centralized = []
             metrics_centralized = {}
+
         assert _extract_rounds(FakeHistory()) == []
 
     def test_extract_rounds_with_data(self):
         """_extract_rounds correctly extracts per-round metrics."""
+
         class FakeHistory:
             losses_centralized = [(1, 1.5), (2, 1.2)]
             metrics_centralized = {
                 "clean_accuracy": [(1, 0.45), (2, 0.60)],
             }
+
         rounds = _extract_rounds(FakeHistory())
         assert len(rounds) == 2
         assert rounds[0]["round"] == 1
@@ -120,6 +124,7 @@ class TestSimulationResult:
 # ---------------------------------------------------------------------------
 # Model Registry integration (tmp_path, no Flower)
 # ---------------------------------------------------------------------------
+
 
 class TestFileModelRegistryIntegration:
     """Test that save/load/latest/rollback_to work end-to-end."""
@@ -222,6 +227,7 @@ class TestFileModelRegistryIntegration:
 # ---------------------------------------------------------------------------
 # End-to-end simulation smoke test (uses real Flower, synthetic data)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.slow
 class TestSimulationEndToEnd:

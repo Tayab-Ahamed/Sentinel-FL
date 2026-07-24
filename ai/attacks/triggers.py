@@ -32,9 +32,7 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 TriggerShape = Literal["square", "cross", "checkerboard", "random_noise"]
-TriggerLocation = Literal[
-    "bottom_right", "top_left", "top_right", "bottom_left", "center"
-]
+TriggerLocation = Literal["bottom_right", "top_left", "top_right", "bottom_left", "center"]
 
 
 # ---------------------------------------------------------------------------
@@ -68,9 +66,7 @@ class TriggerPattern:
         if self.size < 1:
             raise ValueError(f"TriggerPattern.size must be >= 1, got {self.size}")
         if not (0.0 <= self.opacity <= 1.0):
-            raise ValueError(
-                f"TriggerPattern.opacity must be in [0, 1], got {self.opacity}"
-            )
+            raise ValueError(f"TriggerPattern.opacity must be in [0, 1], got {self.opacity}")
 
     def stamp(self, n_channels: int, h_img: int, w_img: int) -> np.ndarray:
         """Return a ``(C, H, W)`` binary/valued stamp array and a boolean mask.
@@ -109,19 +105,13 @@ class TriggerPattern:
         else:
             color = tuple(self.color)
             if len(color) != n_channels:
-                raise ValueError(
-                    f"color tuple length {len(color)} != n_channels {n_channels}"
-                )
+                raise ValueError(f"color tuple length {len(color)} != n_channels {n_channels}")
 
         # stamp shape: (C, s, s)
-        stamp = np.stack(
-            [alpha_mask * c for c in color], axis=0
-        ).astype(np.float32)
+        stamp = np.stack([alpha_mask * c for c in color], axis=0).astype(np.float32)
         return stamp  # (C, s, s)
 
-    def get_patch_slice(
-        self, h_img: int, w_img: int
-    ) -> tuple[slice, slice]:
+    def get_patch_slice(self, h_img: int, w_img: int) -> tuple[slice, slice]:
         """Return the ``(row_slice, col_slice)`` covering the trigger region.
 
         Args:
@@ -181,9 +171,7 @@ def apply_trigger(
         for i in range(len(out)):
             out[i] = _apply_single(out[i], pattern)
         return out
-    raise ValueError(
-        f"apply_trigger: expected 3-D (C,H,W) or 4-D (N,C,H,W) array, got {X.shape}"
-    )
+    raise ValueError(f"apply_trigger: expected 3-D (C,H,W) or 4-D (N,C,H,W) array, got {X.shape}")
 
 
 def _apply_single(img: np.ndarray, pattern: TriggerPattern) -> np.ndarray:
@@ -194,9 +182,7 @@ def _apply_single(img: np.ndarray, pattern: TriggerPattern) -> np.ndarray:
     stamp = pattern.stamp(C, H, W)  # (C, s, s)
     # Blend: out = opacity * stamp + (1 - opacity) * original_patch
     original_patch = out[:, row_sl, col_sl]
-    out[:, row_sl, col_sl] = (
-        pattern.opacity * stamp + (1.0 - pattern.opacity) * original_patch
-    )
+    out[:, row_sl, col_sl] = pattern.opacity * stamp + (1.0 - pattern.opacity) * original_patch
     return out
 
 
@@ -217,8 +203,11 @@ class TriggerFactory:
     ) -> TriggerPattern:
         """Create a solid filled square trigger."""
         return TriggerPattern(
-            shape="square", size=size, location=location,
-            color=color, opacity=opacity,
+            shape="square",
+            size=size,
+            location=location,
+            color=color,
+            opacity=opacity,
         )
 
     @staticmethod
@@ -230,8 +219,11 @@ class TriggerFactory:
     ) -> TriggerPattern:
         """Create a plus-sign cross trigger."""
         return TriggerPattern(
-            shape="cross", size=size, location=location,
-            color=color, opacity=opacity,
+            shape="cross",
+            size=size,
+            location=location,
+            color=color,
+            opacity=opacity,
         )
 
     @staticmethod
@@ -243,8 +235,11 @@ class TriggerFactory:
     ) -> TriggerPattern:
         """Create a checkerboard trigger."""
         return TriggerPattern(
-            shape="checkerboard", size=size, location=location,
-            color=color, opacity=opacity,
+            shape="checkerboard",
+            size=size,
+            location=location,
+            color=color,
+            opacity=opacity,
         )
 
     @staticmethod
@@ -255,8 +250,12 @@ class TriggerFactory:
     ) -> TriggerPattern:
         """Create a random-noise trigger (reproducible via seed)."""
         return TriggerPattern(
-            shape="random_noise", size=size, location=location,
-            color=1.0, opacity=1.0, seed=seed,
+            shape="random_noise",
+            size=size,
+            location=location,
+            color=1.0,
+            opacity=1.0,
+            seed=seed,
         )
 
     @staticmethod

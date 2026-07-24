@@ -18,6 +18,7 @@ typically detected some rounds after it began; the audit round itself is therefo
 the first audit round that flagged a label, minus the audit interval) and this
 module selects the newest checkpoint strictly older than it.
 """
+
 from __future__ import annotations
 
 import logging
@@ -113,6 +114,7 @@ class RollbackRemediator:
             raise RollbackFailed(str(exc)) from exc
         logger.info(
             "Rollback: restored round %d (model_id=%s) as pre-infection model",
-            target_round, model_id,
+            target_round,
+            model_id,
         )
         return model_state, target_round, model_id

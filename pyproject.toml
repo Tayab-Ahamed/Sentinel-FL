@@ -95,6 +95,7 @@ ignore = [
     "B905",   # zip without strict — intentional in test helpers
     "C408",   # dict() call — readable default-kwargs pattern
     "E402",   # module level import not at top (scripts use sys.path setup)
+    "N818",   # exception name suffix
 ]
 
 [tool.ruff.lint.isort]

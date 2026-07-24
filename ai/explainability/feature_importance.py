@@ -34,9 +34,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 
-def _build_ranked(
-    feature_names: list[str], scores: list[float]
-) -> list[dict[str, Any]]:
+def _build_ranked(feature_names: list[str], scores: list[float]) -> list[dict[str, Any]]:
     """Return features sorted by score descending with rank."""
     pairs = sorted(enumerate(scores), key=lambda iv: iv[1], reverse=True)
     return [
@@ -205,7 +203,8 @@ def gradient_feature_importance(
             logger.debug(
                 "gradient_feature_importance: %d trailing parameters ignored "
                 "(not divisible by n_params_per_feature=%d).",
-                remainder, n_params_per_feature,
+                remainder,
+                n_params_per_feature,
             )
     else:
         importance = np.abs(arr)
@@ -213,8 +212,10 @@ def gradient_feature_importance(
 
     names = feature_names or [f"p{i}" for i in range(n_feat)]
     # Clip names to match importance length
-    names = names[:n_feat] if len(names) >= n_feat else (
-        names + [f"p{i}" for i in range(len(names), n_feat)]
+    names = (
+        names[:n_feat]
+        if len(names) >= n_feat
+        else (names + [f"p{i}" for i in range(len(names), n_feat)])
     )
     scores = importance.tolist()
     return FeatureImportanceResult(

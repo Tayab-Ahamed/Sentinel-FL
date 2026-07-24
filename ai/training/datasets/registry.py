@@ -105,10 +105,7 @@ class DatasetRegistry:
         """
         if name not in cls._registry:
             available = sorted(cls._registry.keys())
-            raise KeyError(
-                f"DatasetRegistry: unknown dataset '{name}'. "
-                f"Available: {available}"
-            )
+            raise KeyError(f"DatasetRegistry: unknown dataset '{name}'. Available: {available}")
 
         loader_class = cls._registry[name]
         resolved_dir = data_dir or getattr(config, "data_dir", "datasets")
@@ -117,9 +114,7 @@ class DatasetRegistry:
         # Read dirichlet_alpha from config.synthetic (YAML structure)
         synthetic = getattr(config, "synthetic", None)
         alpha: float | None = (
-            float(getattr(synthetic, "dirichlet_alpha", 0.5))
-            if synthetic is not None
-            else 0.5
+            float(getattr(synthetic, "dirichlet_alpha", 0.5)) if synthetic is not None else 0.5
         )
 
         # Build kwargs common to BaseDatasetLoader subclasses
@@ -164,7 +159,8 @@ class DatasetRegistry:
 
         logger.info(
             "DatasetRegistry.get_loader('%s'): constructed %s",
-            name, loader_class.__name__,
+            name,
+            loader_class.__name__,
         )
         return loader
 
@@ -182,6 +178,7 @@ class DatasetRegistry:
 # ---------------------------------------------------------------------------
 # Register all built-in loaders at import time
 # ---------------------------------------------------------------------------
+
 
 def _register_builtins() -> None:
     """Register MNIST, CIFAR-10, Synthetic, and Phase1 loaders."""

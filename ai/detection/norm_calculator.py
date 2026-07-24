@@ -40,9 +40,7 @@ def compute_l2_norms(deltas: list[np.ndarray]) -> np.ndarray:
     Returns:
         1-D float32 array of shape ``(n_clients,)``.
     """
-    return np.array(
-        [float(np.linalg.norm(d)) for d in deltas], dtype=np.float32
-    )
+    return np.array([float(np.linalg.norm(d)) for d in deltas], dtype=np.float32)
 
 
 def compute_l1_norms(deltas: list[np.ndarray]) -> np.ndarray:
@@ -54,9 +52,7 @@ def compute_l1_norms(deltas: list[np.ndarray]) -> np.ndarray:
     Returns:
         1-D float32 array of shape ``(n_clients,)``.
     """
-    return np.array(
-        [float(np.sum(np.abs(d))) for d in deltas], dtype=np.float32
-    )
+    return np.array([float(np.sum(np.abs(d))) for d in deltas], dtype=np.float32)
 
 
 def compute_linf_norms(deltas: list[np.ndarray]) -> np.ndarray:
@@ -177,9 +173,11 @@ def flag_norm_outliers(
     n_flagged = int(flagged.sum())
     if n_flagged > 0:
         logger.info(
-            "NormCalculator: flagged %d/%d clients as norm outliers "
-            "(method=%s, threshold=%.1f)",
-            n_flagged, len(norms), method, threshold_z,
+            "NormCalculator: flagged %d/%d clients as norm outliers (method=%s, threshold=%.1f)",
+            n_flagged,
+            len(norms),
+            method,
+            threshold_z,
         )
     return flagged
 

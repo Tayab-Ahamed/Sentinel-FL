@@ -13,6 +13,7 @@ file runs without PyTorch / scikit-learn.  Covers:
                        RemediationFailedError + attached report
   schema            — RemediationReport + Configuration remediation fields
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -88,7 +89,9 @@ def _train_poisoned_params(seed: int = 0):
 
 def _reversed_trigger() -> ReversedTrigger:
     vec = trigger_from_block(N_FEATURES, TRIGGER_BLOCK, TRIGGER_VALUE)
-    return ReversedTrigger(label=TARGET, trigger_representation=vec.tolist(), l1_norm=float(np.abs(vec).sum()))
+    return ReversedTrigger(
+        label=TARGET, trigger_representation=vec.tolist(), l1_norm=float(np.abs(vec).sum())
+    )
 
 
 def _audit_report(round_num: int = 10) -> AuditReport:
@@ -195,6 +198,31 @@ class TestLinearSoftmaxAdapter:
         W[:, 0] = 0.0
         new_params = adapter.set_weight_matrix(params, W)
         assert np.all(adapter.get_weight_matrix(new_params)[:, 0] == 0.0)
+
+
+class TestSourceOnlyASR:
+    """Scientific regression tests for the standard source-only ASR definition."""
+
+    def test_excludes_examples_already_in_target_class(self, adapter):
+        engine = RemediationEngine(adapter, strategies=())
+        params = LinearSoftmaxModel(N_FEATURES, N_CLASSES).get_params()
+        X = np.zeros((4, N_FEATURES))
+        # Zero parameters predict class 0 (TARGET) for every sample. Two samples
+        # are already target class and must not inflate the attack denominator.
+        y = np.array([TARGET, 1, TARGET, 2])
+        assert engine._asr(params, X, TARGET, y) == pytest.approx(1.0)
+
+    def test_all_target_ground_truth_has_no_attack_surface(self, adapter):
+        engine = RemediationEngine(adapter, strategies=())
+        params = LinearSoftmaxModel(N_FEATURES, N_CLASSES).get_params()
+        X = np.zeros((3, N_FEATURES))
+        assert engine._asr(params, X, TARGET, np.full(3, TARGET)) == 0.0
+
+    def test_label_length_mismatch_rejected(self, adapter):
+        engine = RemediationEngine(adapter, strategies=())
+        params = LinearSoftmaxModel(N_FEATURES, N_CLASSES).get_params()
+        with pytest.raises(ValueError, match="length must match"):
+            engine._asr(params, np.zeros((3, N_FEATURES)), TARGET, np.zeros(2))
 
 
 # ---------------------------------------------------------------------------
@@ -319,6 +347,7 @@ class TestPruning:
     def test_pruning_rejects_non_linear_adapter(self, clean_holdout):
         class Dummy:
             architecture = "cnn"
+
         with pytest.raises(TypeError):
             FinePruner(Dummy()).remediate(  # type: ignore[arg-type]
                 np.ones(5), *clean_holdout, [_reversed_trigger()], N_FEATURES
@@ -349,14 +378,24 @@ class TestRemediationEngine:
         X, y = clean_holdout
         clean_params = local_train(
             LinearSoftmaxModel(N_FEATURES, N_CLASSES).get_params(),
-            N_FEATURES, N_CLASSES, X, y, epochs=40, lr=0.3,
+            N_FEATURES,
+            N_CLASSES,
+            X,
+            y,
+            epochs=40,
+            lr=0.3,
         )
         reg = self._registry_with_clean_checkpoint(tmp_path, clean_params)
         poisoned = _train_poisoned_params()
         ledger = _RecordingLedger()
         engine = RemediationEngine(adapter, registry=reg, ledger=ledger, asr_threshold=0.3)
         remediated, report = engine.remediate(
-            poisoned, _audit_report(round_num=10), X, y, _stamp_block(X), TARGET,
+            poisoned,
+            _audit_report(round_num=10),
+            X,
+            y,
+            _stamp_block(X),
+            TARGET,
             suspected_infection_round=6,
         )
         assert report.success is True
@@ -369,12 +408,20 @@ class TestRemediationEngine:
         X, y = clean_holdout
         poisoned = _train_poisoned_params()
         engine = RemediationEngine(
-            adapter, registry=None, asr_threshold=0.3,
+            adapter,
+            registry=None,
+            asr_threshold=0.3,
             strategies=("rollback", "unlearning", "pruning"),
-            unlearning_epochs=40, unlearning_lr=0.25,
+            unlearning_epochs=40,
+            unlearning_lr=0.25,
         )
         remediated, report = engine.remediate(
-            poisoned, _audit_report(), X, y, _stamp_block(X), TARGET,
+            poisoned,
+            _audit_report(),
+            X,
+            y,
+            _stamp_block(X),
+            TARGET,
         )
         assert report.success is True
         # rollback is skipped (no registry) -> unlearning or pruning succeeds
@@ -386,7 +433,10 @@ class TestRemediationEngine:
         poisoned = _train_poisoned_params()
         # Impossible threshold + only rollback (no registry) => guaranteed failure.
         engine = RemediationEngine(
-            adapter, registry=None, asr_threshold=0.0, strategies=("rollback",),
+            adapter,
+            registry=None,
+            asr_threshold=0.0,
+            strategies=("rollback",),
         )
         with pytest.raises(RemediationFailedError) as excinfo:
             engine.remediate(poisoned, _audit_report(), X, y, _stamp_block(X), TARGET)
@@ -398,10 +448,18 @@ class TestRemediationEngine:
         X, y = clean_holdout
         poisoned = _train_poisoned_params()
         engine = RemediationEngine(
-            adapter, registry=None, asr_threshold=0.0, strategies=("rollback",),
+            adapter,
+            registry=None,
+            asr_threshold=0.0,
+            strategies=("rollback",),
         )
         params, report = engine.remediate(
-            poisoned, _audit_report(), X, y, _stamp_block(X), TARGET,
+            poisoned,
+            _audit_report(),
+            X,
+            y,
+            _stamp_block(X),
+            TARGET,
             raise_on_failure=False,
         )
         assert report.manual_review_required is True
@@ -421,8 +479,12 @@ class TestRemediationEngine:
         X, y = clean_holdout
         poisoned = _train_poisoned_params()
         engine = RemediationEngine(
-            adapter, ledger=BrokenLedger(), asr_threshold=0.3,
-            strategies=("unlearning",), unlearning_epochs=40, unlearning_lr=0.25,
+            adapter,
+            ledger=BrokenLedger(),
+            asr_threshold=0.3,
+            strategies=("unlearning",),
+            unlearning_epochs=40,
+            unlearning_lr=0.25,
         )
         _, report = engine.remediate(poisoned, _audit_report(), X, y, _stamp_block(X), TARGET)
         assert report.success is True  # broken ledger did not break remediation
@@ -436,18 +498,28 @@ class TestRemediationEngine:
 class TestRemediationSchema:
     def test_report_roundtrip(self):
         r = RemediationReport(
-            round_num=10, asr_before=0.9, asr_after=0.05,
-            clean_accuracy_before=0.8, clean_accuracy_after=0.79,
-            asr_threshold=0.2, success=True, manual_review_required=False,
+            round_num=10,
+            asr_before=0.9,
+            asr_after=0.05,
+            clean_accuracy_before=0.8,
+            clean_accuracy_after=0.79,
+            asr_threshold=0.2,
+            success=True,
+            manual_review_required=False,
         )
         assert RemediationReport.model_validate_json(r.model_dump_json()).success is True
 
     def test_report_rejects_out_of_range_asr(self):
         with pytest.raises(Exception):
             RemediationReport(
-                round_num=1, asr_before=1.5, asr_after=0.0,
-                clean_accuracy_before=0.5, clean_accuracy_after=0.5,
-                asr_threshold=0.2, success=False, manual_review_required=True,
+                round_num=1,
+                asr_before=1.5,
+                asr_after=0.0,
+                clean_accuracy_before=0.5,
+                clean_accuracy_after=0.5,
+                asr_threshold=0.2,
+                success=False,
+                manual_review_required=True,
             )
 
     def test_configuration_remediation_defaults(self):

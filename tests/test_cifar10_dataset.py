@@ -88,8 +88,11 @@ class TestCIFAR10LoadClientPartitions:
         cfg = MagicMock(seed=99, synthetic=None)
         p1 = loader.load_client_partitions(4, cfg)
         loader2 = CIFAR10DatasetLoader(
-            data_dir=tmp_path, dirichlet_alpha=0.5, seed=42,
-            validate=True, use_cache=True,
+            data_dir=tmp_path,
+            dirichlet_alpha=0.5,
+            seed=42,
+            validate=True,
+            use_cache=True,
         )
         loader2._download_raw = _make_fake_cifar10  # type: ignore[method-assign]
         p2 = loader2.load_client_partitions(4, cfg)
@@ -98,8 +101,11 @@ class TestCIFAR10LoadClientPartitions:
 
     def test_iid_partitioning_when_alpha_is_none(self, tmp_path):
         loader_iid = CIFAR10DatasetLoader(
-            data_dir=tmp_path, dirichlet_alpha=None, seed=42,
-            validate=True, use_cache=False,
+            data_dir=tmp_path,
+            dirichlet_alpha=None,
+            seed=42,
+            validate=True,
+            use_cache=False,
         )
         loader_iid._download_raw = _make_fake_cifar10  # type: ignore[method-assign]
         cfg = MagicMock(seed=42, synthetic=None)
@@ -143,6 +149,7 @@ class TestCIFAR10Cache:
         cfg = MagicMock(seed=42, synthetic=None)
         loader.load_client_partitions(4, cfg)
         from ai.training.cache import DiskCache
+
         c = DiskCache(tmp_path)
         assert c.has("cifar10_v1_train")
         assert c.has("cifar10_v1_test")
@@ -159,8 +166,11 @@ class TestCIFAR10Cache:
             return _make_fake_cifar10()
 
         loader2 = CIFAR10DatasetLoader(
-            data_dir=tmp_path, dirichlet_alpha=0.5, seed=42,
-            validate=True, use_cache=True,
+            data_dir=tmp_path,
+            dirichlet_alpha=0.5,
+            seed=42,
+            validate=True,
+            use_cache=True,
         )
         loader2._download_raw = _noop  # type: ignore[method-assign]
         loader2.load_client_partitions(4, cfg)

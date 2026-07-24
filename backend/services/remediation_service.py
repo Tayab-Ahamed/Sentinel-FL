@@ -10,6 +10,7 @@ dashboard's remediation panel and manual-review queue.
 Read-only and defensive: a missing or malformed artefact yields ``None`` / ``[]``
 rather than raising, matching ``ExperimentService`` conventions.
 """
+
 from __future__ import annotations
 
 import json

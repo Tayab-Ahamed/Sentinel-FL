@@ -24,7 +24,7 @@
 
 ## 1. Executive Summary
 
-SENTINEL-FL is a **four-layer federated learning security system** that defends against
+SENTINEL-FL is a **five-layer federated learning security system** that defends against
 backdoor attacks coordinated across colluding clients — a class of threat that no single
 existing defence (STRIP, Neural Cleanse, Multi-Krum, FoolsGold) handles end-to-end.
 
@@ -49,7 +49,7 @@ existing defence (STRIP, Neural Cleanse, Multi-Krum, FoolsGold) handles end-to-e
    inspection and ablation analysis.
 
 **Phase 0 result:** Multi-Krum + L1 Guard reduces Attack Success Rate from 98.9%
-(FedAvg baseline) to 25.8% on a synthetic colluding-minority scenario (seed=42,
+(FedAvg baseline) to 0.0% source-only ASR on a synthetic colluding-minority scenario (seed=42,
 fully reproducible).
 
 **Test quality:** 976 tests, 0 failures, 84.22% code coverage across all 12 milestones.
@@ -388,8 +388,8 @@ Synthetic Gaussian-cluster data, 20 features, 4 classes, 3000 samples, Dirichlet
 | Strategy | Clean Accuracy | Attack Success Rate |
 |---|---|---|
 | FedAvg (no defense) | 100.0% | **98.9%** |
-| Multi-Krum (f=3, k=9) | 100.0% | **25.8%** |
-| Multi-Krum + L1 Guard | 100.0% | **25.8%** |
+| Multi-Krum (f=3, k=9) | 100.0% | **0.0%** |
+| Multi-Krum + L1 Guard | 100.0% | **0.0%** |
 
 **L1 Guard detection:** Correctly flagged a cluster containing at least one malicious
 client in 9 of 20 rounds. The guard logs to the Trust Ledger without yet excluding
@@ -401,17 +401,16 @@ Detection rate on triggered inputs: 25.0%. Low, as expected on a 4-class linear 
 
 ### 6.2 Interpretation
 
-The Multi-Krum + L1 Guard result (25.8% ASR) demonstrates:
+The Multi-Krum + L1 Guard result (0.0% source-only ASR) demonstrates:
 - The L1→L4 pipeline runs end-to-end correctly
 - L1's collusion clustering produces real signals (9/20 correct detections)
 - STRIP calibration is correctly implemented
 
-The 25.8% residual ASR is not zero because:
-- L1 is not yet closing the loop (scored but not excluded — intentional ablation design)
-- 20 rounds may not be enough for L4 scores to accumulate above the exclusion threshold
-- The linear model has limited room for STRIP entropy to discriminate
-
-Phase 1 (CNN + real dataset) is expected to substantially reduce this residual.
+The earlier all-sample metric reported 25.8%, but that value was an artificial floor from
+including examples already belonging to the target class. The corrected standard metric is
+source-only ASR. A separate 24-scenario adaptive matrix still exposes an honest extreme
+failure (0.942 ASR after robust aggregation with 5/12 malicious clients), which L5 repairs
+to 0.000. Phase 1 must reproduce these findings on the official CNN dataset.
 
 ---
 
@@ -539,8 +538,9 @@ The full novelty argument is in [`NOVELTY.md`](NOVELTY.md). Summary:
   rate is expected to improve substantially with a CNN.
 - **No L1 exclusion loop:** Flagged clients are currently scored and logged, not
   excluded from aggregation. Closing this loop is the highest-priority Phase 1 step.
-- **Single seed reporting:** Phase 0 numbers are single-seed. Phase 1 will report
-  mean ± std across ≥ 3 seeds per the evaluation plan in `BENCHMARK.md`.
+- **Reference demo seed:** The headline demo uses seed 42. The adaptive red-team artifact
+  adds seeds 7 and 42 across 24 threat configurations; official-dataset evaluation should
+  still report ≥3 seeds per the evaluation plan in `BENCHMARK.md`.
 
 ### 10.2 System Limitations
 
@@ -578,8 +578,8 @@ python scripts/run_demo.py
 
 # Expected output:
 # [fedavg]          clean_acc=1.000  ASR=0.989
-# [multikrum]        clean_acc=1.000  ASR=0.258
-# [multikrum+guard]  clean_acc=1.000  ASR=0.258
+# [multikrum]        clean_acc=1.000  ASR=0.000
+# [multikrum+guard]  clean_acc=1.000  ASR=0.000
 
 # Run tests (should be 0 failures)
 pytest -m "not slow and not benchmark" -q

@@ -35,7 +35,8 @@ logger = logging.getLogger(__name__)
 # CIFAR-10 normalisation statistics
 # ---------------------------------------------------------------------------
 _CIFAR10_MEAN: tuple[float, float, float] = (0.4914, 0.4822, 0.4465)
-_CIFAR10_STD: tuple[float, float, float]  = (0.2023, 0.1994, 0.2010)
+_CIFAR10_STD: tuple[float, float, float] = (0.2023, 0.1994, 0.2010)
+
 
 def _build_transform():
     """Build the torchvision transform (imported lazily; needs PyTorch)."""
@@ -48,10 +49,19 @@ def _build_transform():
         ]
     )
 
+
 # Human-readable class names for logging and reports
 CIFAR10_CLASSES: tuple[str, ...] = (
-    "airplane", "automobile", "bird", "cat", "deer",
-    "dog", "frog", "horse", "ship", "truck",
+    "airplane",
+    "automobile",
+    "bird",
+    "cat",
+    "deer",
+    "dog",
+    "frog",
+    "horse",
+    "ship",
+    "truck",
 )
 
 
@@ -117,9 +127,7 @@ class CIFAR10DatasetLoader(BaseDatasetLoader):
         """
         from torchvision import datasets
 
-        logger.info(
-            "CIFAR10DatasetLoader: downloading CIFAR-10 to %s …", self._data_dir
-        )
+        logger.info("CIFAR10DatasetLoader: downloading CIFAR-10 to %s …", self._data_dir)
         transform = _build_transform()
         train_ds = datasets.CIFAR10(
             str(self._data_dir), train=True, download=True, transform=transform
@@ -131,7 +139,8 @@ class CIFAR10DatasetLoader(BaseDatasetLoader):
         X_test, y_test = _dataset_to_numpy(test_ds)
         logger.info(
             "CIFAR10DatasetLoader: train=%d test=%d",
-            len(X_train), len(X_test),
+            len(X_train),
+            len(X_test),
         )
         return X_train, y_train, X_test, y_test
 

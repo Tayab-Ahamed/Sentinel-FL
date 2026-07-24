@@ -3,6 +3,7 @@ tests/test_attestation.py — Tests for the Remediation Attestation Certificate 
 
 Pure numpy + stdlib (no torch/flwr), so this module runs in a Phase-0 install.
 """
+
 from __future__ import annotations
 
 from types import SimpleNamespace
