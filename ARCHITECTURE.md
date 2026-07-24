@@ -296,31 +296,47 @@ single canonical location.
   the expensive one (§2.2 notes the mitigation: audit every N rounds, low-cost
   early-termination heuristic for high label counts).
 
-### 7.4 Remediation Engine (new — not detailed in §2)
+### 7.4 Remediation Engine (L5 — implemented)
 - **Purpose**: act once L2 confirms a backdoor, closing the loop that L1/L2/L3
   detection alone doesn't (detection ≠ mitigation).
-- **Responsibilities**: two mitigation paths, both keyed off an `AuditReport`
-  (`SCHEMAS.md`) with `flagged_labels` non-empty:
-  1. **Rollback** — use `ModelRegistry.rollback_to(round_num)` (`INTERFACES.md`) to
-     the last checkpoint before the audit's suspected infection round, when L1's
-     `TrainingRound.excluded_clients`/`flagged_clusters` history pinpoints a
-     likely round. Cheapest, used first.
-  2. **Targeted unlearning** — fine-tune on the reversed trigger from `AuditReport`
-     stamped on clean data with correct labels (same mechanism as Neural Cleanse's own
-     mitigation, `RESEARCH.md` §1.2, and directly reusable from
-     `BackdoorBench/defense/fp.py` / the paper's unlearning procedure) when no clean
-     rollback point exists or rollback would discard too many good rounds.
-- **Inputs**: `AuditReport`, `ModelRegistry` checkpoints, clean calibration data.
-- **Outputs**: new `ModelMetadata` (patched model), logged as a `remediation_applied`
-  event.
-- **Dependencies**: Model Registry, L2's reversed triggers.
-- **Failure/Recovery**: no valid rollback point AND unlearning fails to reduce ASR
-  below a configured threshold → escalate to a `manual_review_required` flag surfaced
-  on the dashboard rather than silently deploying a still-backdoored model.
-- **Scalability**: unlearning cost is one fine-tuning pass — cheap relative to full
-  retraining, per Neural Cleanse's own reported cost comparison.
-- **Status**: designed, not yet implemented in this repository (`IMPLEMENTATION_PLAN.md`
-  Phase 2). No code stub exists yet for `ai/remediation/` beyond the folder.
+- **Responsibilities**: an ordered, self-verifying **escalation policy**, keyed off an
+  `AuditReport` (`SCHEMAS.md`) with `flagged_labels` non-empty. Each step is applied,
+  then its effect is *measured* on a clean holdout and a trigger-stamped holdout; the
+  first step whose attack-success-rate (ASR) falls to/under `remediation_asr_threshold`
+  **without** dropping clean accuracy by more than `remediation_max_clean_accuracy_drop`
+  wins, and later steps are skipped:
+  1. **Rollback** (`rollback.py`) — restore, via `ModelRegistry.rollback_to(round_num)`
+     (`INTERFACES.md`), the last checkpoint strictly before the audit's suspected
+     infection round. Cheapest and lossless, tried first; skipped automatically when no
+     registry / no older clean checkpoint exists.
+  2. **Targeted unlearning** (`unlearning.py`) — fine-tune on L2's reversed trigger
+     stamped on clean data with *correct* labels (same mechanism as Neural Cleanse's own
+     mitigation, `RESEARCH.md` §1.2), reinforcing the true label against the trigger.
+  3. **Fine-pruning** (`pruning.py`) — zero the weight channels the reversed trigger
+     activates (capped by `max_prune_fraction`), then recover clean accuracy with a short
+     fine-tune. Directly inspired by `BackdoorBench/defense/fp.py`.
+- **Model abstraction**: strategies operate through a `ModelAdapter` protocol
+  (`adapters.py`); the Phase 0 `LinearSoftmaxAdapter` wraps `LinearSoftmaxModel`, and a
+  future torch adapter drops in without touching the engine.
+- **Inputs**: `AuditReport`, `ModelRegistry` checkpoints, clean calibration data, a
+  trigger-stamped evaluation set, the target label.
+- **Outputs**: a repaired parameter vector plus a `RemediationReport` (`SCHEMAS.md`) with
+  per-strategy ASR/clean-accuracy before & after, the winning strategy, and timing —
+  and a durable L5 audit-trail entry written to the L4 Trust Ledger.
+- **Dependencies**: Model Registry, L2's reversed triggers, L4 Trust Ledger.
+- **Failure/Recovery**: every strategy exhausted without meeting the acceptance criteria
+  → the engine raises `RemediationFailedError` (with the `RemediationReport` attached)
+  or, when `raise_on_failure=False`, returns the least-bad candidate with
+  `manual_review_required=True` surfaced on the dashboard — it never silently deploys a
+  still-backdoored model. Trust-ledger writes are best-effort and never gate control
+  flow.
+- **Scalability**: unlearning/pruning cost is one fine-tuning pass — cheap relative to
+  full retraining, per Neural Cleanse's own reported cost comparison.
+- **Status**: **implemented** in `ai/remediation/` (`remediation_engine.py`,
+  `rollback.py`, `unlearning.py`, `pruning.py`, `adapters.py`, `triggers.py`), exposed at
+  `GET /api/v1/experiments/{id}/remediation` and
+  `GET /api/v1/remediation/manual-review`, configured via `configs/remediation.yaml`,
+  demoed by `scripts/run_remediation_demo.py`, and tested in `tests/test_remediation.py`.
 
 ### 7.5 Trust Ledger (L4)
 - See §2.4. **Inputs**: `DetectionResult[]` from L1/L2/L3. **Outputs**:

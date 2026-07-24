@@ -22,11 +22,12 @@ import logging
 from pathlib import Path
 
 import numpy as np
-import torch
-import torch.utils.data
-from torchvision import datasets, transforms
 
 from ai.training.datasets.base import BaseDatasetLoader
+
+# NOTE: torch / torchvision are imported lazily inside the download helpers so that
+# pure-NumPy Phase 0 code (e.g. ai/training/poison, scripts/run_demo.py) can import
+# this package in environments without PyTorch installed.
 
 logger = logging.getLogger(__name__)
 
@@ -36,12 +37,16 @@ logger = logging.getLogger(__name__)
 _CIFAR10_MEAN: tuple[float, float, float] = (0.4914, 0.4822, 0.4465)
 _CIFAR10_STD: tuple[float, float, float]  = (0.2023, 0.1994, 0.2010)
 
-_TRANSFORM = transforms.Compose(
-    [
-        transforms.ToTensor(),
-        transforms.Normalize(_CIFAR10_MEAN, _CIFAR10_STD),
-    ]
-)
+def _build_transform():
+    """Build the torchvision transform (imported lazily; needs PyTorch)."""
+    from torchvision import transforms
+
+    return transforms.Compose(
+        [
+            transforms.ToTensor(),
+            transforms.Normalize(_CIFAR10_MEAN, _CIFAR10_STD),
+        ]
+    )
 
 # Human-readable class names for logging and reports
 CIFAR10_CLASSES: tuple[str, ...] = (
@@ -110,14 +115,17 @@ class CIFAR10DatasetLoader(BaseDatasetLoader):
             X shape: ``(N, 3, 32, 32)`` float32 in normalised range.
             y shape: ``(N,)`` int64 in ``[0, 9]``.
         """
+        from torchvision import datasets
+
         logger.info(
             "CIFAR10DatasetLoader: downloading CIFAR-10 to %s …", self._data_dir
         )
+        transform = _build_transform()
         train_ds = datasets.CIFAR10(
-            str(self._data_dir), train=True, download=True, transform=_TRANSFORM
+            str(self._data_dir), train=True, download=True, transform=transform
         )
         test_ds = datasets.CIFAR10(
-            str(self._data_dir), train=False, download=True, transform=_TRANSFORM
+            str(self._data_dir), train=False, download=True, transform=transform
         )
         X_train, y_train = _dataset_to_numpy(train_ds)
         X_test, y_test = _dataset_to_numpy(test_ds)
@@ -147,9 +155,11 @@ class CIFAR10DatasetLoader(BaseDatasetLoader):
 
 
 def _dataset_to_numpy(
-    dataset: datasets.CIFAR10,
+    dataset: object,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Convert a torchvision CIFAR-10 Dataset to ``(X_float32, y_int64)``."""
+    import torch.utils.data
+
     loader = torch.utils.data.DataLoader(
         dataset, batch_size=len(dataset), shuffle=False, num_workers=0
     )

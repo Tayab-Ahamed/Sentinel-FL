@@ -18,11 +18,12 @@ import logging
 from pathlib import Path
 
 import numpy as np
-import torch
-import torch.utils.data
-from torchvision import datasets, transforms
 
 from ai.training.datasets.base import BaseDatasetLoader
+
+# NOTE: torch / torchvision are imported lazily inside the download helpers so that
+# pure-NumPy Phase 0 code (e.g. ai/training/poison, scripts/run_demo.py) can import
+# this package in environments without PyTorch installed.
 
 logger = logging.getLogger(__name__)
 
@@ -32,12 +33,16 @@ logger = logging.getLogger(__name__)
 _MNIST_MEAN: tuple[float, ...] = (0.1307,)
 _MNIST_STD: tuple[float, ...]  = (0.3081,)
 
-_TRANSFORM = transforms.Compose(
-    [
-        transforms.ToTensor(),
-        transforms.Normalize(_MNIST_MEAN, _MNIST_STD),
-    ]
-)
+def _build_transform():
+    """Build the torchvision transform (imported lazily; needs PyTorch)."""
+    from torchvision import transforms
+
+    return transforms.Compose(
+        [
+            transforms.ToTensor(),
+            transforms.Normalize(_MNIST_MEAN, _MNIST_STD),
+        ]
+    )
 
 
 class MNISTDatasetLoader(BaseDatasetLoader):
@@ -100,12 +105,15 @@ class MNISTDatasetLoader(BaseDatasetLoader):
             X shape: ``(N, 1, 28, 28)`` float32 in normalised range.
             y shape: ``(N,)`` int64 in ``[0, 9]``.
         """
+        from torchvision import datasets
+
         logger.info("MNISTDatasetLoader: downloading MNIST to %s …", self._data_dir)
+        transform = _build_transform()
         train_ds = datasets.MNIST(
-            str(self._data_dir), train=True, download=True, transform=_TRANSFORM
+            str(self._data_dir), train=True, download=True, transform=transform
         )
         test_ds = datasets.MNIST(
-            str(self._data_dir), train=False, download=True, transform=_TRANSFORM
+            str(self._data_dir), train=False, download=True, transform=transform
         )
         X_train, y_train = _dataset_to_numpy(train_ds)
         X_test, y_test = _dataset_to_numpy(test_ds)
@@ -122,12 +130,14 @@ class MNISTDatasetLoader(BaseDatasetLoader):
 
 
 def _dataset_to_numpy(
-    dataset: datasets.MNIST,
+    dataset: object,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Convert a torchvision Dataset to ``(X_float32, y_int64)`` numpy arrays.
 
     Loads the entire dataset in a single batch to avoid Python-loop overhead.
     """
+    import torch.utils.data
+
     loader = torch.utils.data.DataLoader(
         dataset, batch_size=len(dataset), shuffle=False, num_workers=0
     )

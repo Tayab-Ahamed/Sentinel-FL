@@ -1,20 +1,22 @@
-# assets/README.md — Static Assets Directory
+# assets/
 
-This directory contains static assets for the SENTINEL-FL project.
-
-## Current Contents
-
-_(empty — screenshots and diagrams are in `docs/screenshots/`)_
-
-## Planned Contents
+Generated, publication-quality figures embedded in the root [`README.md`](../README.md).
 
 | File | Description |
 |---|---|
-| `logo.png` | Project logo (for README badge and dashboard header) |
-| `architecture_diagram.svg` | Full system architecture diagram (SVG, generated from ARCHITECTURE.md) |
-| `demo_recording.gif` | Animated demo GIF showing dashboard in action |
+| `defense_stack.png` | The five-layer (L1–L5) backdoor "immune system" funnel |
+| `asr_comparison.png` | Attack-success-rate across the defense pipeline (FedAvg → Multi-Krum → +Guard → +L5) |
+| `remediation_efficacy.png` | ASR before/after remediation, per strategy, vs. acceptance threshold |
+| `remediation_tradeoff.png` | ASR reduction vs. clean-accuracy retention scatter |
 
-## Screenshots
+## Regenerate
 
-Dashboard screenshots are in [`docs/screenshots/`](../docs/screenshots/).
-See [`docs/SCREENSHOTS.md`](../docs/SCREENSHOTS.md) for capture instructions.
+All charts are **data-driven** — they read the real experiment artifacts in
+`experiments/` when present and fall back to committed reference values otherwise:
+
+```bash
+python scripts/run_remediation_demo.py   # refresh experiments/*.json
+python scripts/generate_charts.py        # rewrite assets/*.png
+```
+
+Pure matplotlib (Agg backend) + numpy — no display or network required.

@@ -1,0 +1,33 @@
+# configs/remediation.yaml — L5 Remediation Engine configuration
+#
+# Overlay this on configs/default.yaml for experiments that exercise the
+# remediation pipeline. Fields map 1:1 to the Configuration schema
+# (ai/fl_core/schemas.py) and ARCHITECTURE.md §7.4.
+
+# Master switch. When false, a confirmed backdoor only raises an alert.
+remediation_enabled: true
+
+# Attack-success-rate at or under which a remediation step is accepted.
+# 0.20 ≈ random-guess ASR for the 4-class Phase 0 problem (1/n_classes).
+remediation_asr_threshold: 0.2
+
+# A remediation step is rejected if it drops clean accuracy by more than this,
+# even if it kills the backdoor — we never trade away utility for safety blindly.
+remediation_max_clean_accuracy_drop: 0.1
+
+# Ordered escalation policy. The first step that meets BOTH the ASR threshold and
+# the clean-accuracy floor wins; remaining steps are not run.
+#   rollback   — restore the last pre-infection checkpoint (fastest, lossless)
+#   unlearning — fine-tune away L2's reversed trigger on clean data
+#   pruning    — fine-prune the trigger-carrying weights, then recover
+remediation_strategies:
+  - rollback
+  - unlearning
+  - pruning
+
+# Targeted-unlearning fine-tuning budget.
+unlearning_epochs: 10
+unlearning_lr: 0.1
+
+# Post-pruning clean-data recovery budget.
+pruning_finetune_epochs: 5

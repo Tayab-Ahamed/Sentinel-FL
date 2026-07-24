@@ -458,6 +458,24 @@ class Configuration(BaseModel):
     model_registry_dir: str = Field("experiments/checkpoints")
     registry_retention_k: int = Field(10, ge=0)
 
+    # L5 remediation engine (ARCHITECTURE.md §7.4)
+    remediation_enabled: bool = Field(True)
+    remediation_asr_threshold: float = Field(
+        0.2, ge=0.0, le=1.0,
+        description="Attack-success-rate at/under which remediation is considered successful.",
+    )
+    remediation_max_clean_accuracy_drop: float = Field(
+        0.1, ge=0.0, le=1.0,
+        description="Max tolerated clean-accuracy regression for a remediation step to be accepted.",
+    )
+    remediation_strategies: list[str] = Field(
+        default_factory=lambda: ["rollback", "unlearning", "pruning"],
+        description="Ordered remediation escalation policy.",
+    )
+    unlearning_epochs: int = Field(10, gt=0)
+    unlearning_lr: float = Field(0.1, gt=0.0)
+    pruning_finetune_epochs: int = Field(5, gt=0)
+
     # Reproducibility
     seed: int = Field(42)
 
@@ -480,6 +498,44 @@ class Configuration(BaseModel):
         if v > n:
             raise ValueError(f"min_clients ({v}) cannot exceed n_clients ({n})")
         return v
+
+
+# ---------------------------------------------------------------------------
+# RemediationReport  (SCHEMAS.md §RemediationReport / ARCHITECTURE.md §7.4)
+# ---------------------------------------------------------------------------
+
+
+class RemediationReport(BaseModel):
+    """Produced by the L5 Remediation Engine after responding to a confirmed backdoor.
+
+    Captures the full audit trail: what was attempted, which step succeeded, and
+    the ASR / clean-accuracy before and after, so a judge (or the dashboard's
+    manual-review queue) can verify the recovery.
+    """
+
+    remediation_id: str = Field(default_factory=_new_id)
+    round_num: int = Field(..., ge=0, description="Round whose global model was remediated.")
+    suspected_infection_round: int | None = Field(
+        None, ge=0, description="Earliest round believed to be poisoned (rollback target hint)."
+    )
+    strategies_attempted: list[str] = Field(
+        default_factory=list, description="Remediation steps tried, in order."
+    )
+    strategy_succeeded: str | None = Field(
+        None, description="The step that met the acceptance criteria, or None."
+    )
+    asr_before: float = Field(..., ge=0.0, le=1.0)
+    asr_after: float = Field(..., ge=0.0, le=1.0)
+    clean_accuracy_before: float = Field(..., ge=0.0, le=1.0)
+    clean_accuracy_after: float = Field(..., ge=0.0, le=1.0)
+    asr_threshold: float = Field(..., ge=0.0, le=1.0)
+    success: bool = Field(...)
+    manual_review_required: bool = Field(...)
+    reason: str = Field("")
+    rolled_back_model_id: str | None = Field(None)
+    per_strategy: list[dict[str, Any]] = Field(default_factory=list)
+    elapsed_ms: float | None = Field(None, ge=0.0)
+    created_at: str = Field(default_factory=_now_iso)
 
 
 # ---------------------------------------------------------------------------
@@ -523,7 +579,7 @@ class TrustLedgerEntry(BaseModel):
 
     entry_id: str = Field(default_factory=_new_id)
     layer_id: str = Field(..., description="Which layer produced this entry.")
-    subject_type: Literal["client", "label", "input"] = Field(...)
+    subject_type: Literal["client", "label", "input", "model"] = Field(...)
     subject_id: str = Field(...)
     round_num: int | None = Field(None)
     score: float = Field(..., ge=0.0, le=1.0)

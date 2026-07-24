@@ -65,7 +65,11 @@ from the backlog below)
 ### Week 3 (~24–30 July, spans the 28 July baseline-activity deadline)
 - **Deliverables**: T9, T10 (Neural-Cleanse-style L2 audit + within-cohort relative
   outlier test), T11 (Trust Ledger), Remediation Engine v1
-  (`ARCHITECTURE.md` §7.4 — rollback path only, unlearning path stretch goal).
+  (`ARCHITECTURE.md` §7.4). **Delivered beyond scope**: all three mitigation paths
+  shipped — rollback **and** targeted unlearning **and** fine-pruning — behind a
+  self-verifying escalation policy with `manual_review_required` fallback, a REST API,
+  a runnable demo, and a dedicated test suite (`ai/remediation/`,
+  `tests/test_remediation.py`).
 - **Dependencies**: T11 depends on T5+T8+T10 all emitting `DetectionResult`s.
 - **Testing**: L2 audit unit tests against a known-infected vs. known-clean toy model;
   Remediation Engine integration test (rollback reduces ASR back to pre-attack

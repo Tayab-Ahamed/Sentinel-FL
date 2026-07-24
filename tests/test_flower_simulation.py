@@ -44,6 +44,8 @@ def _make_minimal_config(**overrides) -> Configuration:
         "model_registry_dir": "experiments/test_checkpoints",
     }
     defaults.update(overrides)
+    if "n_clients" in overrides and "krum_select" not in overrides:
+        defaults["krum_select"] = min(defaults["krum_select"], defaults["n_clients"])
     return Configuration(**defaults)
 
 

@@ -62,6 +62,37 @@ Every flag at every layer is stored with the feature vector and a human-readable
 reason string (`ARCHITECTURE.md` §2.4), so a judge — or a real operator — can inspect
 *why* something was flagged, not just that it was.
 
+**Contribution 5 — Verified remediation, not just detection (L5).**
+The challenge title is *"backdoor attacks … and their Remediation"*, yet every reference
+method in §1 stops at detection. Sentinel-FL's L5 Remediation Engine (`ARCHITECTURE.md`
+§7.4) closes that loop with an ordered, **self-verifying** escalation policy —
+rollback → targeted unlearning → fine-pruning — where each candidate repair is *measured*
+on a clean holdout and a trigger-stamped holdout, and only accepted if it drives
+attack-success-rate below threshold **without** sacrificing clean accuracy. If no strategy
+qualifies, it refuses to redeploy and raises a `manual_review_required` flag rather than
+shipping a still-backdoored model. The engine is model-agnostic (a `ModelAdapter`
+protocol), config-driven (`configs/remediation.yaml`), API-exposed, and demonstrated
+end-to-end in `scripts/run_remediation_demo.py` (synthetic collusion attack: ASR
+1.00 → ~0.25 with clean accuracy preserved). Closing detect→mitigate in one coordinated
+system is what the challenge actually asks for, and what the point-solution literature
+does not provide.
+
+## 3b. Verified Remediation Attestation (L5 — tamper-evident proof)
+
+Remediation raises an obvious question a judge will ask: *how do we know the model was
+actually repaired, and that the record wasn't edited afterwards?* SENTINEL-FL answers it
+with **Remediation Attestation Certificates** (`ai/remediation/attestation.py`). Each
+repair emits a signed record binding together the SHA-256 fingerprints of the model
+*before* and *after*, the measured ASR/clean-accuracy, the winning strategy, and the hash
+of the previous certificate — forming an append-only, hash-chained transparency log. The
+chain is independently verifiable (`verify_chain()`), HMAC-SHA-256 signable under an
+operator secret, and any post-hoc tampering breaks verification. It is pure standard
+library (`hashlib`/`hmac`/`json`), adds zero dependencies, and is exercised end-to-end in
+`scripts/run_remediation_demo.py` (→ `experiments/attestation_chain.jsonl`). Binding
+*provable, auditable* remediation to a federated backdoor defense is, to our knowledge,
+not present in the prior art — it turns "we think we fixed it" into "here is cryptographic
+proof we fixed it."
+
 ## 4. What Sentinel-FL Does Not Claim
 
 - It does not claim to beat Multi-Krum, FoolsGold, STRIP, or Neural Cleanse on their

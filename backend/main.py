@@ -17,7 +17,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.routers import experiments, visualizer
+from backend.routers import experiments, remediation, visualizer
 
 # ---------------------------------------------------------------------------
 # Logging setup
@@ -66,6 +66,7 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 app.include_router(experiments.router, prefix="/api/v1")
 app.include_router(visualizer.router, prefix="/api/v1")
+app.include_router(remediation.router, prefix="/api/v1")
 
 
 # ---------------------------------------------------------------------------

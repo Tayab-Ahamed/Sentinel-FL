@@ -1,0 +1,99 @@
+{
+  "experiment_id": "demo",
+  "undefended": {
+    "clean_accuracy": 1.0,
+    "attack_success_rate": 1.0
+  },
+  "reports": [
+    {
+      "scenario": "rollback_only",
+      "remediation_id": "29f0ab79-60ed-4779-86b5-45b502cc98e5",
+      "round_num": 13,
+      "suspected_infection_round": 8,
+      "strategies_attempted": [
+        "rollback"
+      ],
+      "strategy_succeeded": "rollback",
+      "asr_before": 1.0,
+      "asr_after": 0.2577777777777778,
+      "clean_accuracy_before": 1.0,
+      "clean_accuracy_after": 1.0,
+      "asr_threshold": 0.3,
+      "success": true,
+      "manual_review_required": false,
+      "reason": "Backdoor remediated via rollback: restored round 7 (model_id=0fceac1c-4893-4ec0-8726-20a80165ffa6)",
+      "rolled_back_model_id": "restored round 7 (model_id=0fceac1c-4893-4ec0-8726-20a80165ffa6)",
+      "per_strategy": [
+        {
+          "strategy": "rollback",
+          "status": "accepted",
+          "asr_after": 0.2578,
+          "clean_acc_after": 1.0,
+          "detail": "restored round 7 (model_id=0fceac1c-4893-4ec0-8726-20a80165ffa6)"
+        }
+      ],
+      "elapsed_ms": 1.643281000042407,
+      "created_at": "2026-07-24T11:47:52.887247+00:00"
+    },
+    {
+      "scenario": "unlearning_only",
+      "remediation_id": "e672c383-1a0a-4804-9be2-55e19a9a6bf4",
+      "round_num": 13,
+      "suspected_infection_round": null,
+      "strategies_attempted": [
+        "unlearning"
+      ],
+      "strategy_succeeded": "unlearning",
+      "asr_before": 1.0,
+      "asr_after": 0.2577777777777778,
+      "clean_accuracy_before": 1.0,
+      "clean_accuracy_after": 1.0,
+      "asr_threshold": 0.3,
+      "success": true,
+      "manual_review_required": false,
+      "reason": "Backdoor remediated via unlearning: fine-tuned reversed trigger with correct labels",
+      "rolled_back_model_id": null,
+      "per_strategy": [
+        {
+          "strategy": "unlearning",
+          "status": "accepted",
+          "asr_after": 0.2578,
+          "clean_acc_after": 1.0,
+          "detail": "fine-tuned reversed trigger with correct labels"
+        }
+      ],
+      "elapsed_ms": 13.722040999994078,
+      "created_at": "2026-07-24T11:47:52.901091+00:00"
+    },
+    {
+      "scenario": "full_escalation",
+      "remediation_id": "4b66b5d9-3ec0-4bb8-b009-a02ab0d02df2",
+      "round_num": 13,
+      "suspected_infection_round": 8,
+      "strategies_attempted": [
+        "rollback"
+      ],
+      "strategy_succeeded": "rollback",
+      "asr_before": 1.0,
+      "asr_after": 0.2577777777777778,
+      "clean_accuracy_before": 1.0,
+      "clean_accuracy_after": 1.0,
+      "asr_threshold": 0.3,
+      "success": true,
+      "manual_review_required": false,
+      "reason": "Backdoor remediated via rollback: restored round 7 (model_id=0fceac1c-4893-4ec0-8726-20a80165ffa6)",
+      "rolled_back_model_id": "restored round 7 (model_id=0fceac1c-4893-4ec0-8726-20a80165ffa6)",
+      "per_strategy": [
+        {
+          "strategy": "rollback",
+          "status": "accepted",
+          "asr_after": 0.2578,
+          "clean_acc_after": 1.0,
+          "detail": "restored round 7 (model_id=0fceac1c-4893-4ec0-8726-20a80165ffa6)"
+        }
+      ],
+      "elapsed_ms": 1.679267999975309,
+      "created_at": "2026-07-24T11:47:52.902879+00:00"
+    }
+  ]
+}
