@@ -1,8 +1,0 @@
-{
-  "model_id": "08699ca9-33ca-492f-afda-59693f262011",
-  "round_num": 3,
-  "architecture": "mnist_simplecnn_v1",
-  "parent_model_id": null,
-  "clean_accuracy": null,
-  "created_at": "2026-07-11T06:43:50.409744+00:00"
-}

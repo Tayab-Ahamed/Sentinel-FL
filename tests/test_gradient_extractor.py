@@ -167,7 +167,8 @@ class TestGradientExtractor:
         """extract_round_deltas returns one delta per result."""
         from unittest.mock import MagicMock
 
-        from flwr.common import ndarrays_to_parameters
+        flwr_common = pytest.importorskip("flwr.common")
+        ndarrays_to_parameters = flwr_common.ndarrays_to_parameters
 
         p = _params()
         ge = GradientExtractor(p)
@@ -185,7 +186,8 @@ class TestGradientExtractor:
     def test_extract_round_deltas_shape(self):
         from unittest.mock import MagicMock
 
-        from flwr.common import ndarrays_to_parameters
+        flwr_common = pytest.importorskip("flwr.common")
+        ndarrays_to_parameters = flwr_common.ndarrays_to_parameters
 
         shapes = ((8,), (4, 3))
         p = _params(shapes)

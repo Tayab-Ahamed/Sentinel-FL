@@ -11,6 +11,9 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+
+pytest.importorskip("torch")
+
 import torch
 
 from ai.models.mnist_cnn import SimpleCNN, get_model_parameters, set_model_parameters

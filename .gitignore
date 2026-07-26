@@ -53,10 +53,13 @@ experiments/milestone*/
 experiments/*.tmp
 experiments/*.tmp.npz
 experiments/tmpcn3i4xxj*
+experiments/attestation_chain.jsonl
+experiments/release_evidence.json
 
 # Checkpoints are large — exclude from git (stored as CI artifacts)
 experiments/checkpoints/*.npz
 experiments/checkpoints/*.npy
+experiments/checkpoints/
 experiments/checkpoints/*/*.pt
 experiments/checkpoints/*.pt
 *.pt

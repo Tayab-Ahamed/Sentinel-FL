@@ -20,6 +20,10 @@ from unittest.mock import patch
 
 import numpy as np
 import pytest
+
+pytest.importorskip("torch")
+pytest.importorskip("flwr")
+
 import torch
 
 from ai.fl_core.schemas import Configuration

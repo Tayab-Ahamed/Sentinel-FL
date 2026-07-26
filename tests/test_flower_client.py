@@ -15,6 +15,11 @@ from __future__ import annotations
 import math
 
 import numpy as np
+import pytest
+
+pytest.importorskip("torch")
+pytest.importorskip("flwr")
+
 import torch
 
 from ai.fl_engine.client import MNISTFlowerClient
