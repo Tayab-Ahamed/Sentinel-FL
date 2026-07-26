@@ -262,7 +262,7 @@ python scripts/verify_release.py         # → signed/hashable release evidence
 
 > **Full ML path (Phase 1 — PyTorch + Flower):** `pip install -e ".[dev,phase1]"`.
 > The torch/Flower unit tests run under this profile (and are auto-skipped in a
-> Phase-0 install). GPU recommended but not required. See [`TECH_STACK.md`](TECH_STACK.md).
+> Phase-0 install). GPU recommended but not required.
 
 ### Docker
 
@@ -293,7 +293,7 @@ GET  /api/v1/remediation/manual-review             # reports awaiting human sign
 POST /api/v1/experiments/run                       # launch a new experiment
 ```
 
-Full spec: [`API.md`](API.md) · Dashboard screenshots: [`docs/SCREENSHOTS.md`](docs/SCREENSHOTS.md)
+
 
 ---
 
@@ -375,11 +375,9 @@ print('FedAvg', r['fedavg']['attack_success_rate']); print('Krum', r['multikrum'
 | Gao et al. 2019 — STRIP | L4 Runtime Sentinel (`ai/detection/runtime_sentinel.py`) |
 | Wang et al. 2019 — Neural Cleanse | L2 Model Auditor (`ai/detection/model_auditor.py`) |
 | Blanchard et al. 2017 — Multi-Krum | Aggregation backbone (`ai/fl_core/fl_engine.py`) |
-| Fung et al. 2020 — FoolsGold | L1 prior art (`BENCHMARK.md`) |
+| Fung et al. 2020 — FoolsGold | L1 prior art reference |
 | Liu et al. 2018 — Fine-Pruning | L5 pruning strategy (`ai/remediation/pruning.py`) |
 | BackdoorBench · Flower | Cross-validation reference · Phase 1 FL framework |
-
-Full analysis: [`RESEARCH.md`](RESEARCH.md).
 
 ---
 
