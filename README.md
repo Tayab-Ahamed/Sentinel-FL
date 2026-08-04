@@ -6,7 +6,7 @@
 
 *Detect → Explain → **Repair** → **Attest** — the first federated learning defense that never ships a backdoored model, and can cryptographically prove it.*
 
-[![CI](assets/ci-badge.svg)](.github/workflows/ci.yml)
+[![CI](https://github.com/Tayab-Ahamed/GSC26-Challenge1-010/actions/workflows/ci.yml/badge.svg)](https://github.com/Tayab-Ahamed/GSC26-Challenge1-010/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-passing-brightgreen)](#-test-suite)
 [![Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen)](#-test-suite)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)](https://www.python.org/)
