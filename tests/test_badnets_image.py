@@ -74,13 +74,13 @@ class TestHonestClientUnchanged:
     def test_honest_client_returns_original_X(self):
         X, y = _batch()
         attacker = _default_attacker(malicious=[2, 5])
-        X_p, y_p, mask = attacker.poison_client_data(X, y, "client_00", 0, _cfg())
+        X_p, _y_p, _mask = attacker.poison_client_data(X, y, "client_00", 0, _cfg())
         np.testing.assert_array_equal(X_p, X)
 
     def test_honest_client_returns_original_y(self):
         X, y = _batch()
         attacker = _default_attacker(malicious=[2, 5])
-        X_p, y_p, mask = attacker.poison_client_data(X, y, "client_00", 0, _cfg())
+        _X_p, y_p, _mask = attacker.poison_client_data(X, y, "client_00", 0, _cfg())
         np.testing.assert_array_equal(y_p, y)
 
     def test_honest_client_mask_all_false(self):
@@ -168,7 +168,7 @@ class TestMaliciousClientPoisoned:
         X, y = _batch(n=40, channels=3)
         X = np.zeros((40, 3, 32, 32), dtype=np.float32)
         attacker = _default_attacker(malicious=[2])
-        X_p, y_p, mask = attacker.poison_client_data(X, y, "client_02", 0, _cfg())
+        X_p, _y_p, _mask = attacker.poison_client_data(X, y, "client_02", 0, _cfg())
         assert X_p.shape == X.shape
 
 

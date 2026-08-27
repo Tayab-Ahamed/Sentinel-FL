@@ -256,7 +256,7 @@ class TestBasicOperations:
     def test_dirichlet_partition(self):
         from ai.training.poison import dirichlet_partition, make_dataset
 
-        X, y = make_dataset(300, 5, 3, seed=0)
+        _X, y = make_dataset(300, 5, 3, seed=0)
         parts = dirichlet_partition(300, 4, y, 3, alpha=0.5, seed=0)
         assert len(parts) == 4
         total = sum(len(p) for p in parts)
@@ -269,7 +269,7 @@ class TestBasicOperations:
 
         X = np.zeros((50, 5), dtype=np.float32)
         y = np.zeros(50, dtype=int)
-        X_out, y_out, mask = inject_trigger(X, y, 0, slice(0, 2), 5.0, 0.5, seed=0)
+        X_out, _y_out, mask = inject_trigger(X, y, 0, slice(0, 2), 5.0, 0.5, seed=0)
         assert X_out.shape == X.shape
         assert mask.shape == (50,)
 

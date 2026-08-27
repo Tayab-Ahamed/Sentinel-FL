@@ -147,7 +147,7 @@ class AttackSuccessRateEvaluator:
         t0 = time.perf_counter()
 
         # Build triggered eval set (non-target clean samples + trigger)
-        X_triggered, y_target = attacker.build_asr_eval_set(X_clean_eval, y_clean_eval)
+        X_triggered, _y_target = attacker.build_asr_eval_set(X_clean_eval, y_clean_eval)
 
         # Compute metrics
         asr = self.compute_asr(model, X_triggered, attacker.target_label)

@@ -103,9 +103,9 @@ class TestCalibrateAndDetect:
         actual_frr = float((scores <= boundary).mean())
 
         # Allow ±0.1 tolerance around target_frr
-        assert abs(actual_frr - target_frr) < 0.1, (
-            f"FRR {actual_frr:.3f} too far from target {target_frr}"
-        )
+        assert (
+            abs(actual_frr - target_frr) < 0.1
+        ), f"FRR {actual_frr:.3f} too far from target {target_frr}"
 
     def test_detect_returns_boolean_array(self):
         from ai.training.poison import make_dataset

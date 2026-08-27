@@ -297,7 +297,7 @@ def run_attack(args: argparse.Namespace) -> None:
             from types import SimpleNamespace
 
             cfg_stub = SimpleNamespace(seed=args.seed)
-            X_p, y_p, mask = attacker.poison_client_data(X_c, y_c, client_id, round_num, cfg_stub)
+            X_p, _y_p, mask = attacker.poison_client_data(X_c, y_c, client_id, round_num, cfg_stub)
             all_X_clean.append(X_c)
             all_X_poisoned.append(X_p)
             all_mask.append(mask)

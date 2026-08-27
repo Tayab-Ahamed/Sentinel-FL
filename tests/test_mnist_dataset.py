@@ -118,8 +118,8 @@ class TestMNISTHoldout:
 
     def test_holdout_and_eval_are_disjoint(self, loader):
         """The two test-set splits must not overlap."""
-        X_h, y_h = loader.load_clean_holdout()
-        X_e, y_e = loader.load_evaluation_set()
+        X_h, _y_h = loader.load_clean_holdout()
+        X_e, _y_e = loader.load_evaluation_set()
         # Check by length: holdout + eval = full test set (100 samples in mock)
         assert len(X_h) + len(X_e) == 100
 

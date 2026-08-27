@@ -114,7 +114,7 @@ def main():
                         seed=100 + rnd * 10 + cid,
                     )
                 client_data.append((Xc, yc))
-            model_params, selected = run_round(strategy, model_params, client_data, guard_log)
+            model_params, _selected = run_round(strategy, model_params, client_data, guard_log)
 
         clean_acc, asr, final_model = evaluate(model_params, X_test, y_test, X_test_triggered)
         entry = {"clean_accuracy": clean_acc, "attack_success_rate": asr}

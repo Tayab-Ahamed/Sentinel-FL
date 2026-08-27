@@ -7,7 +7,7 @@
   "reports": [
     {
       "scenario": "rollback_only",
-      "remediation_id": "66653e2b-dec0-457f-8679-9d9f3df76f7f",
+      "remediation_id": "87b38b01-f53f-4713-82f3-f388dddbceb2",
       "round_num": 13,
       "suspected_infection_round": 8,
       "strategies_attempted": [
@@ -21,23 +21,23 @@
       "asr_threshold": 0.3,
       "success": true,
       "manual_review_required": false,
-      "reason": "Backdoor remediated via rollback: restored round 7 (model_id=0f806777-d1b9-4083-b948-190339ae95a7)",
-      "rolled_back_model_id": "restored round 7 (model_id=0f806777-d1b9-4083-b948-190339ae95a7)",
+      "reason": "Backdoor remediated via rollback: restored round 7 (model_id=4d0d0260-fa4f-4ace-a7f1-75a34d8638fe)",
+      "rolled_back_model_id": "restored round 7 (model_id=4d0d0260-fa4f-4ace-a7f1-75a34d8638fe)",
       "per_strategy": [
         {
           "strategy": "rollback",
           "status": "accepted",
           "asr_after": 0.0,
           "clean_acc_after": 1.0,
-          "detail": "restored round 7 (model_id=0f806777-d1b9-4083-b948-190339ae95a7)"
+          "detail": "restored round 7 (model_id=4d0d0260-fa4f-4ace-a7f1-75a34d8638fe)"
         }
       ],
-      "elapsed_ms": 47.37120002391748,
-      "created_at": "2026-08-27T06:09:45.903460+00:00"
+      "elapsed_ms": 44.81069999746978,
+      "created_at": "2026-08-27T09:21:26.849613+00:00"
     },
     {
       "scenario": "unlearning_only",
-      "remediation_id": "916124dd-24bf-4607-9890-1d1f705f86d5",
+      "remediation_id": "625ef5df-f13f-4591-8a9a-61a09f823efe",
       "round_num": 13,
       "suspected_infection_round": null,
       "strategies_attempted": [
@@ -62,12 +62,12 @@
           "detail": "fine-tuned reversed trigger with correct labels"
         }
       ],
-      "elapsed_ms": 6.967299996176735,
-      "created_at": "2026-08-27T06:09:45.910499+00:00"
+      "elapsed_ms": 7.077699992805719,
+      "created_at": "2026-08-27T09:21:26.856776+00:00"
     },
     {
       "scenario": "full_escalation",
-      "remediation_id": "5cef77d9-2313-45a1-a062-cbeb65a6a693",
+      "remediation_id": "4fb9ee00-7272-4f2b-bd4e-b802f06f084f",
       "round_num": 13,
       "suspected_infection_round": 8,
       "strategies_attempted": [
@@ -81,19 +81,19 @@
       "asr_threshold": 0.3,
       "success": true,
       "manual_review_required": false,
-      "reason": "Backdoor remediated via rollback: restored round 7 (model_id=0f806777-d1b9-4083-b948-190339ae95a7)",
-      "rolled_back_model_id": "restored round 7 (model_id=0f806777-d1b9-4083-b948-190339ae95a7)",
+      "reason": "Backdoor remediated via rollback: restored round 7 (model_id=4d0d0260-fa4f-4ace-a7f1-75a34d8638fe)",
+      "rolled_back_model_id": "restored round 7 (model_id=4d0d0260-fa4f-4ace-a7f1-75a34d8638fe)",
       "per_strategy": [
         {
           "strategy": "rollback",
           "status": "accepted",
           "asr_after": 0.0,
           "clean_acc_after": 1.0,
-          "detail": "restored round 7 (model_id=0f806777-d1b9-4083-b948-190339ae95a7)"
+          "detail": "restored round 7 (model_id=4d0d0260-fa4f-4ace-a7f1-75a34d8638fe)"
         }
       ],
-      "elapsed_ms": 1.3321999867912382,
-      "created_at": "2026-08-27T06:09:45.911888+00:00"
+      "elapsed_ms": 1.8992999976035208,
+      "created_at": "2026-08-27T09:21:26.858736+00:00"
     }
   ]
 }

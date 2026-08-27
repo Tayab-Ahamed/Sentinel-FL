@@ -80,18 +80,18 @@ class TestPoisonBatch:
 
     def test_mask_is_bool(self):
         X, y = _batch()
-        X_p, y_p, mask = _default_poisoner().poison_batch(X, y, seed=0)
+        _X_p, _y_p, mask = _default_poisoner().poison_batch(X, y, seed=0)
         assert mask.dtype == bool
 
     def test_poisoned_labels_set_to_target(self):
         X, y = _batch()
         target = 0
-        X_p, y_p, mask = _default_poisoner(target=target).poison_batch(X, y, seed=0)
+        _X_p, y_p, mask = _default_poisoner(target=target).poison_batch(X, y, seed=0)
         assert np.all(y_p[mask] == target)
 
     def test_honest_labels_unchanged(self):
         X, y = _batch()
-        X_p, y_p, mask = _default_poisoner().poison_batch(X, y, seed=0)
+        _X_p, y_p, mask = _default_poisoner().poison_batch(X, y, seed=0)
         np.testing.assert_array_equal(y_p[~mask], y[~mask])
 
     def test_poison_fraction_respected(self):
@@ -159,7 +159,7 @@ class TestPoisonBatch:
 
     def test_cifar10_shape_works(self):
         X, y = _batch(shape=(3, 32, 32))
-        X_p, y_p, mask = _default_poisoner().poison_batch(X, y, seed=0)
+        X_p, _y_p, _mask = _default_poisoner().poison_batch(X, y, seed=0)
         assert X_p.shape == X.shape
 
 
@@ -212,20 +212,20 @@ class TestBuildASREvalSet:
 
 class TestSelectPoisonIndices:
     def test_returns_correct_count(self):
-        X, y = _batch(n=100)
+        _X, y = _batch(n=100)
         poisoner = _default_poisoner(target=0, frac=0.5)
         idx = poisoner.select_poison_indices(y, seed=0)
         # 80 non-target samples * 0.5 = 40
         assert len(idx) == 40
 
     def test_all_indices_are_non_target(self):
-        X, y = _batch(n=50)
+        _X, y = _batch(n=50)
         poisoner = _default_poisoner(target=0)
         idx = poisoner.select_poison_indices(y, seed=0)
         assert np.all(y[idx] != 0)
 
     def test_reproducible(self):
-        X, y = _batch(n=50)
+        _X, y = _batch(n=50)
         poisoner = _default_poisoner()
         idx1 = poisoner.select_poison_indices(y, seed=5)
         idx2 = poisoner.select_poison_indices(y, seed=5)

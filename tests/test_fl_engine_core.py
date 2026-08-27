@@ -201,5 +201,5 @@ class TestMultiKrum:
 
     def test_select_all_minus_one(self):
         updates = [np.zeros(5)] * 6
-        agg, selected = multi_krum(updates, num_malicious_assumed=1, num_to_select=5)
+        _agg, selected = multi_krum(updates, num_malicious_assumed=1, num_to_select=5)
         assert len(selected) == 5

@@ -141,7 +141,7 @@ class TestFileModelRegistryIntegration:
         meta = ModelMetadata(round_num=1, architecture="test_v0")
         model_state = {"weights": [1.0, 2.0], "architecture": "test_v0"}
         model_id = reg.save(1, model_state, meta)
-        loaded_state, loaded_meta = reg.load(model_id)
+        _loaded_state, loaded_meta = reg.load(model_id)
         assert loaded_meta.round_num == 1
         assert loaded_meta.architecture == "test_v0"
 
@@ -153,7 +153,7 @@ class TestFileModelRegistryIntegration:
         arr = np.array([1.0, 2.0, 3.0], dtype=np.float32)
         meta = ModelMetadata(round_num=2, architecture="numpy_v0")
         model_id = reg.save(2, arr, meta)
-        loaded_state, loaded_meta = reg.load(model_id)
+        loaded_state, _loaded_meta = reg.load(model_id)
         np.testing.assert_array_equal(loaded_state, arr)
 
     def test_latest_returns_most_recent(self, tmp_path):
@@ -219,7 +219,7 @@ class TestFileModelRegistryIntegration:
         state_dict = {k: v.clone() for k, v in model.state_dict().items()}
         meta = ModelMetadata(round_num=1, architecture="mnist_simplecnn_v1")
         model_id = reg.save(1, state_dict, meta)
-        loaded_state, loaded_meta = reg.load(model_id)
+        loaded_state, _loaded_meta = reg.load(model_id)
         assert set(loaded_state.keys()) == set(state_dict.keys())
         for key in state_dict:
             np.testing.assert_array_almost_equal(

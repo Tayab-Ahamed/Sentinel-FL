@@ -131,9 +131,9 @@ class TestFit:
         client = _make_client(local_epochs=1, lr=0.01)
         init_params = client.get_parameters(config={})
         _, _, metrics = client.fit(init_params, config={"round": 1})
-        assert math.isfinite(metrics["train_loss"]), (
-            f"Expected finite train_loss, got {metrics['train_loss']}"
-        )
+        assert math.isfinite(
+            metrics["train_loss"]
+        ), f"Expected finite train_loss, got {metrics['train_loss']}"
 
     def test_train_accuracy_in_range(self):
         """train_accuracy must be in [0, 1]."""
@@ -168,7 +168,7 @@ class TestFit:
         # Force NaN by injecting Inf parameters
         init_params = client.get_parameters(config={})
         inf_params = [np.full_like(p, np.inf) for p in init_params]
-        updated_params, _, metrics = client.fit(inf_params, config={"round": 0})
+        updated_params, _, _metrics = client.fit(inf_params, config={"round": 0})
         # The nan guard should catch this and return original (or zeroed) params
         # Key check: no exception raised, metrics indicate nan
         assert isinstance(updated_params, list)

@@ -57,7 +57,7 @@ def dataset():
 
 @pytest.fixture(scope="module")
 def partitions(dataset):
-    X, y = dataset
+    _X, y = dataset
     split = int(N_SAMPLES * 0.8)
     return dirichlet_partition(split, N_CLIENTS, y[:split], N_CLASSES, alpha=0.5, seed=7)
 
@@ -110,7 +110,7 @@ def test_full_fl_round_loop(tmp_path, dataset, partitions, holdout):
             client_updates.append(new_p - model_params)
             weights.append(len(Xc))
 
-        agg, selected = multi_krum(client_updates, num_malicious_assumed=2, num_to_select=4)
+        agg, _selected = multi_krum(client_updates, num_malicious_assumed=2, num_to_select=4)
         model_params = model_params + agg
 
         # UpdateGuard
@@ -213,7 +213,7 @@ def test_structured_logger_pipeline(tmp_path):
 def test_pipeline_attack_reduces_with_guard(dataset, partitions, holdout):
     """With UpdateGuard + Multi-Krum, ASR should be lower than FedAvg baseline."""
     X_all, y_all = dataset
-    X_test, y_test = holdout
+    X_test, _y_test = holdout
     X_triggered = apply_trigger_to_all(X_test, TRIGGER_BLOCK)
 
     def run(strategy: str, n_rounds: int = 5) -> float:

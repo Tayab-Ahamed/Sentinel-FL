@@ -142,9 +142,9 @@ class TestPoisonBoundaries:
             X, y, 0, slice(0, 2), trigger_value=5.0, poison_fraction=fraction, seed=0
         )
         # Should not exceed fraction * n + a small rounding tolerance
-        assert mask.sum() <= int(n * fraction) + 2, (
-            "Poisoned count must not exceed declared fraction"
-        )
+        assert (
+            mask.sum() <= int(n * fraction) + 2
+        ), "Poisoned count must not exceed declared fraction"
 
     def test_trigger_only_modifies_trigger_block(self):
         from ai.training.poison import inject_trigger
@@ -154,7 +154,7 @@ class TestPoisonBoundaries:
         y = rng.integers(0, 3, 100)
         trigger_block = slice(0, 3)
         X_before = X.copy()
-        X_out, _, mask = inject_trigger(
+        X_out, _, _mask = inject_trigger(
             X, y, 0, trigger_block, trigger_value=99.0, poison_fraction=0.5, seed=0
         )
         # Non-trigger columns should be unchanged for all rows

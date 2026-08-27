@@ -778,7 +778,7 @@ class TestRuntimeSentinelStrategyProcess:
         assert isinstance(result, list)
 
     def test_process_no_model_returns_empty(self):
-        strategy, model, X = _build_strategy()
+        strategy, _model, X = _build_strategy()
         ctx = MagicMock()
         ctx.input_id = "x"
         ctx.input_data = X[0].tolist()
@@ -787,7 +787,7 @@ class TestRuntimeSentinelStrategyProcess:
         assert result == []
 
     def test_process_no_input_data_returns_empty(self):
-        strategy, model, X = _build_strategy()
+        strategy, model, _X = _build_strategy()
         ctx = MagicMock()
         ctx.input_id = "x"
         ctx.input_data = None

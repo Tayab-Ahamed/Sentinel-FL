@@ -125,9 +125,9 @@ class TestInjectTrigger:
         # Every row where mask=True must have trigger_value in the trigger_block
         for i in range(len(X)):
             if mask[i]:
-                assert np.all(X_p[i, trigger_block] == trigger_value), (
-                    f"Row {i} flagged in mask but trigger not set"
-                )
+                assert np.all(
+                    X_p[i, trigger_block] == trigger_value
+                ), f"Row {i} flagged in mask but trigger not set"
             else:
                 # Non-poisoned rows should be unchanged
                 np.testing.assert_array_equal(X_p[i], X[i])

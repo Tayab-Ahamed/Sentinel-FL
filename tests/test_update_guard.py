@@ -91,9 +91,9 @@ class TestDetectCollusionClusters:
         result = detect_collusion_clusters(
             updates, aggregate, sim_threshold=0.85, min_cluster_size=2
         )
-        assert result["flagged_clusters"] == [], (
-            f"Unexpected clusters: {result['flagged_clusters']}"
-        )
+        assert (
+            result["flagged_clusters"] == []
+        ), f"Unexpected clusters: {result['flagged_clusters']}"
 
     def test_collusion_score_is_nonzero_for_flagged_clients(self):
         updates, aggregate = self._make_colluding_setup()

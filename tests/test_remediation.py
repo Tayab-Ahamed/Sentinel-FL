@@ -172,7 +172,7 @@ class TestLinearSoftmaxAdapter:
         assert p[0] == 1.0
 
     def test_predict_shape_and_dtype(self, adapter, clean_holdout):
-        X, y = clean_holdout
+        X, _y = clean_holdout
         params = LinearSoftmaxModel(N_FEATURES, N_CLASSES).get_params()
         preds = adapter.predict(params, X)
         assert preds.shape == (len(X),)
@@ -389,7 +389,7 @@ class TestRemediationEngine:
         poisoned = _train_poisoned_params()
         ledger = _RecordingLedger()
         engine = RemediationEngine(adapter, registry=reg, ledger=ledger, asr_threshold=0.3)
-        remediated, report = engine.remediate(
+        _remediated, report = engine.remediate(
             poisoned,
             _audit_report(round_num=10),
             X,
@@ -415,7 +415,7 @@ class TestRemediationEngine:
             unlearning_epochs=40,
             unlearning_lr=0.25,
         )
-        remediated, report = engine.remediate(
+        _remediated, report = engine.remediate(
             poisoned,
             _audit_report(),
             X,

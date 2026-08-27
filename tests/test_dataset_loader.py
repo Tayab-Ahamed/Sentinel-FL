@@ -63,7 +63,7 @@ class TestSyntheticDatasetLoader:
     def test_load_client_partitions_are_copies(self, loader, config):
         parts = loader.load_client_partitions(n_clients=3, config=config)
         # Modifying returned data must not affect internal cache
-        X0, y0 = parts[0]
+        X0, _y0 = parts[0]
         X0[:] = 999.0
         parts2 = loader.load_client_partitions(n_clients=3, config=config)
         assert not np.all(parts2[0][0] == 999.0)

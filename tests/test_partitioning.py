@@ -85,9 +85,9 @@ class TestIIDPartitioner:
         X, y = small_dataset
         p1 = IIDPartitioner().partition(X, y, 4, seed=1)
         p2 = IIDPartitioner().partition(X, y, 4, seed=2)
-        assert not all(np.array_equal(a, b) for a, b in zip(p1, p2)), (
-            "Different seeds should produce different splits"
-        )
+        assert not all(
+            np.array_equal(a, b) for a, b in zip(p1, p2)
+        ), "Different seeds should produce different splits"
 
     def test_raises_on_too_few_samples(self):
         X = np.zeros((3, 4), dtype=np.float32)
@@ -170,9 +170,9 @@ class TestDirichletPartitioner:
             counts = np.bincount(labels, minlength=10)
             fractions = counts / len(labels)
             # Each class should be within ±15% of 10% expected fraction
-            assert np.all(np.abs(fractions - 0.1) < 0.15), (
-                f"High alpha should approximate IID. Got fractions: {fractions}"
-            )
+            assert np.all(
+                np.abs(fractions - 0.1) < 0.15
+            ), f"High alpha should approximate IID. Got fractions: {fractions}"
 
     def test_raises_on_invalid_alpha(self):
         with pytest.raises(ValueError, match="alpha must be"):

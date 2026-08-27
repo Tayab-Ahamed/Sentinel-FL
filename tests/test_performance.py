@@ -64,9 +64,9 @@ class TestFLEngineBenchmarks:
             multi_krum(updates, num_malicious_assumed=3, num_to_select=9)
         elapsed = time.perf_counter() - t0
 
-        assert elapsed < _T_MULTIKRUM_1K, (
-            f"multi_krum x10 took {elapsed:.3f}s (limit {_T_MULTIKRUM_1K}s)"
-        )
+        assert (
+            elapsed < _T_MULTIKRUM_1K
+        ), f"multi_krum x10 took {elapsed:.3f}s (limit {_T_MULTIKRUM_1K}s)"
 
     @pytest.mark.benchmark
     def test_local_train_speed(self):
@@ -84,9 +84,9 @@ class TestFLEngineBenchmarks:
             local_train(p, nf, nc, X, y, epochs=5, lr=0.1)
         elapsed = time.perf_counter() - t0
 
-        assert elapsed < _T_LOCAL_TRAIN, (
-            f"local_train x5 took {elapsed:.3f}s (limit {_T_LOCAL_TRAIN}s)"
-        )
+        assert (
+            elapsed < _T_LOCAL_TRAIN
+        ), f"local_train x5 took {elapsed:.3f}s (limit {_T_LOCAL_TRAIN}s)"
 
 
 # ---------------------------------------------------------------------------
@@ -125,9 +125,9 @@ class TestDetectionBenchmarks:
             guard.process_round(rnd, client_ids, updates)
         elapsed = time.perf_counter() - t0
 
-        assert elapsed < _T_GUARD_ROUND, (
-            f"20 guard rounds took {elapsed:.3f}s (limit {_T_GUARD_ROUND}s)"
-        )
+        assert (
+            elapsed < _T_GUARD_ROUND
+        ), f"20 guard rounds took {elapsed:.3f}s (limit {_T_GUARD_ROUND}s)"
 
     @pytest.mark.benchmark
     def test_ledger_write_throughput(self, tmp_path):
@@ -149,9 +149,9 @@ class TestDetectionBenchmarks:
             ledger.add_entry(entry)
         elapsed = time.perf_counter() - t0
 
-        assert elapsed < _T_LEDGER_WRITE, (
-            f"100 ledger writes took {elapsed:.3f}s (limit {_T_LEDGER_WRITE}s)"
-        )
+        assert (
+            elapsed < _T_LEDGER_WRITE
+        ), f"100 ledger writes took {elapsed:.3f}s (limit {_T_LEDGER_WRITE}s)"
 
     @pytest.mark.benchmark
     def test_ledger_query_speed(self, tmp_path):
@@ -175,9 +175,9 @@ class TestDetectionBenchmarks:
         _ = ledger.query(TrustLedgerQuery())
         elapsed = time.perf_counter() - t0
 
-        assert elapsed < _T_LEDGER_QUERY, (
-            f"Query of 500-entry ledger took {elapsed:.3f}s (limit {_T_LEDGER_QUERY}s)"
-        )
+        assert (
+            elapsed < _T_LEDGER_QUERY
+        ), f"Query of 500-entry ledger took {elapsed:.3f}s (limit {_T_LEDGER_QUERY}s)"
 
 
 # ---------------------------------------------------------------------------
@@ -190,7 +190,7 @@ class TestTrainingBenchmarks:
     def test_dirichlet_partition_speed(self):
         from ai.training.poison import dirichlet_partition, make_dataset
 
-        X, y = make_dataset(10_000, 10, 5, seed=0)
+        _X, y = make_dataset(10_000, 10, 5, seed=0)
         n_train = 8000
 
         t0 = time.perf_counter()
