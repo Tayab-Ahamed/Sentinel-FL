@@ -100,7 +100,7 @@ jobs:
           python-version: "3.11"
           cache: pip
       - name: Install ruff
-        run: pip install "ruff>=0.4"
+        run: pip install "ruff==0.8.6"
       - name: Report lint and formatting differences
         run: |
           ruff check ai backend scripts tests --output-format=github
