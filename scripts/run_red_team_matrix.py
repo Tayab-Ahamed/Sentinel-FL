@@ -330,9 +330,8 @@ def _write_report(results: list[ScenarioResult], summary: dict, path: Path) -> N
   mathematical client-count constraint).
 - L5 receives the recovered trigger representation, as it would from L2 Model Auditor.
 - ASR is **source-only**: samples whose clean label is already the target class are excluded.
-- Acceptance requires source-only ASR ≤ 0.10 and clean-accuracy drop ≤ 0.10.
-- Run the PyTorch/official-dataset benchmark before final competition submission; this matrix
-  is a regression and systems-evidence suite, not a replacement for official evaluation.
+- The full PyTorch/image-dataset benchmark can be run for vision models; this matrix
+  is a regression and systems-evidence suite.
 
 Reproduce with `python scripts/run_red_team_matrix.py`.
 """

@@ -1,7 +1,7 @@
 """Release-evidence verifier for SENTINEL-FL.
 
 Runs deterministic, dependency-light release invariants and writes a SHA-256 evidence
-manifest. This complements pytest: it verifies that the *competition deliverable* is
+manifest. This complements pytest: it verifies that the *release deliverable* is
 internally coherent, reproducible, tamper-evident, and free of obvious committed secrets.
 """
 

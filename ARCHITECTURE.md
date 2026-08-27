@@ -400,22 +400,18 @@ single canonical location.
 
 ### 7.13 Security Layer
 - **Purpose**: forward-looking boundary for client update authentication/integrity —
-  the `ClientUpdate.signature` field (`SCHEMAS.md`) is reserved for this.
-- **Status**: **not implemented** for the competition build. Threat model for this
-  challenge is "malicious client sends a valid-but-poisoned update," not "malicious
+  the `ClientUpdate.signature` field is reserved for this.
+- **Status**: **not implemented** for the reference build. Threat model for this
+  framework is "malicious client sends a valid-but-poisoned update," not "malicious
   client forges another client's identity" — the latter is a different, transport-
   security problem orthogonal to backdoor detection, explicitly out of scope so effort
-  stays on the actual challenge topic (documented here so this is a deliberate
-  scoping decision, not an oversight).
+  stays on the actual model safety topic.
 
 ### 7.14 Authentication
-- See `API.md` §10 — not implemented for the same reason as §7.13; the field exists in
-  the API doc so a future extension has a documented landing spot.
+- Reserved boundary for deployment authentication.
 
 ### 7.15 Experiment Tracking
-- The `Experiment` schema (`SCHEMAS.md`) plus `BENCHMARK.md`'s reporting convention.
-  Deliberately file-based (JSON under `experiments/`), not a hosted tracking service
-  (`TECH_STACK.md` explains why: avoids a network dependency on demo day).
+- Deliberately file-based (JSON under `experiments/`), avoiding network dependencies during evaluation and demos.
 
 ## 8. Sequence Diagram — One Federated Round with Collusion Detection
 
@@ -442,7 +438,7 @@ sequenceDiagram
 
 ```mermaid
 flowchart TB
-    subgraph Local["Local / Simulated Environment (competition demo)"]
+    subgraph Local["Local / Simulated Environment (Simulation & Benchmark)"]
         SIM[Flower Simulation Engine
         n simulated clients, 1 process]
         SERVER[Federated Server + L1/L2/L3/L4]

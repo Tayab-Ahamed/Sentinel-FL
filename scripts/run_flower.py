@@ -160,7 +160,7 @@ def main(argv: list[str] | None = None) -> int:
             acc = row.get("clean_accuracy", row.get("centralized_eval_clean_accuracy"))
             loss = row.get("centralized_loss", "-")
             acc_str = f"{float(acc) * 100:.2f}%" if acc is not None else "    -"
-            loss_str = f"{float(loss):.4f}" if isinstance(loss, (int, float)) else "      -"
+            loss_str = f"{float(loss):.4f}" if isinstance(loss, int | float) else "      -"
             print(f"  {row['round']:>5}  {acc_str:>8}  {loss_str:>8}")
         print()
 

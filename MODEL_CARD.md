@@ -5,15 +5,14 @@
 | Field | Value |
 |---|---|
 | Name | SENTINEL-FL — Federated Backdoor Immune System |
-| Competition | IEEE Computer Society Global Student Challenge 2026 · Challenge 1 |
-| Version | 0.2.0 competition prototype |
+| Release | 0.2.0 Open-Source Research & Benchmark Release |
 | Primary task | Detect, explain, remediate, and attest backdoor attacks in distributed/federated ML |
 | Supported backends | NumPy linear-softmax reference; PyTorch CNN via `TorchModelAdapter` |
 | License | MIT |
 
 ## Intended use
 
-SENTINEL-FL is a research and competition prototype for studying **targeted backdoor
+SENTINEL-FL is a research and engineering framework for studying **targeted backdoor
 attacks in federated learning**, especially attacks coordinated across multiple clients.
 It provides five defensive layers, an escalating remediation engine, and tamper-evident
 repair attestations.
@@ -23,7 +22,7 @@ It is intended for:
 - reproducible security research and defensive benchmarking;
 - offline analysis of federated client updates and global models;
 - demonstrating detect → explain → repair → verify workflows;
-- extension to the official challenge dataset after its schema is available.
+- extension to custom and benchmark datasets.
 
 It is **not** a drop-in safety guarantee for clinical, financial, critical-infrastructure,
 or other high-impact production decisions without independent validation.
@@ -76,8 +75,8 @@ Otherwise, the engine sets `manual_review_required` and does not silently approv
 
 ## Limitations and failure modes
 
-- Current competition evidence uses synthetic Gaussian features and a linear model; the
-  PyTorch path has unit coverage but must be benchmarked on the official dataset/GPU stack.
+- Current baseline evidence uses synthetic Gaussian features and a linear model; the
+  PyTorch path has unit coverage and is ready for benchmark image datasets (e.g. CIFAR-10, MNIST).
 - Multi-Krum degrades at high Byzantine fractions; the red-team matrix intentionally shows
   a `0.942` worst defended ASR before L5 rather than hiding it.
 - The L1 collusion detector requires at least two coordinated clients; a lone attacker is

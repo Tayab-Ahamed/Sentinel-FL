@@ -100,7 +100,7 @@ class TriggerPattern:
 
         # ── Build per-channel color ──────────────────────────────────────────
         color: tuple[float, ...]
-        if isinstance(self.color, (int, float)):
+        if isinstance(self.color, int | float):
             color = tuple(float(self.color) for _ in range(n_channels))
         else:
             color = tuple(self.color)

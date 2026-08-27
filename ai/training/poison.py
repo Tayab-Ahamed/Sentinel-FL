@@ -3,8 +3,8 @@ poison.py — synthetic federated dataset + BadNets-style trigger injection.
 
 Phase 0 development data (see DATASETS.md): Gaussian-blob multi-class data, partitioned
 across simulated clients via a Dirichlet distribution for non-IID skew, matching the
-partitioning strategy documented in DATASETS.md. This is swapped for the official
-GSC26 dataset in Phase 1 without touching ai/fl_core or ai/detection (both operate on
+partitioning strategy documented in DATASETS.md. This can be swapped for
+custom or benchmark datasets in Phase 1 without touching ai/fl_core or ai/detection (both operate on
 generic (X, y) arrays).
 
 Trigger: a fixed additive pattern added to a feature sub-block (the feature-vector
@@ -111,13 +111,13 @@ class BadNetsAttackSimulator(AttackSimulator):
     def __init__(
         self,
         target_class: int = 0,
-        trigger_block: slice = slice(0, 3),
+        trigger_block: slice | None = None,
         trigger_value: float = 6.0,
         poison_fraction: float = 0.15,
         malicious_client_indices: list[int] | None = None,
     ) -> None:
         self._target_class = target_class
-        self._trigger_block = trigger_block
+        self._trigger_block = slice(0, 3) if trigger_block is None else trigger_block
         self._trigger_value = trigger_value
         self._poison_fraction = poison_fraction
         self._malicious = set(malicious_client_indices or [2, 5, 9])

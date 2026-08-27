@@ -57,7 +57,7 @@ def _weighted_average(metrics_list: list[tuple[int, Metrics]]) -> Metrics:
     total_examples = sum(n for n, _ in metrics_list)
     if total_examples == 0:
         return {}
-    keys = [k for k in metrics_list[0][1] if isinstance(metrics_list[0][1][k], (int, float))]
+    keys = [k for k in metrics_list[0][1] if isinstance(metrics_list[0][1][k], int | float)]
     averaged: dict[str, float] = {}
     for key in keys:
         averaged[key] = sum(n * float(m.get(key, 0.0)) for n, m in metrics_list) / total_examples

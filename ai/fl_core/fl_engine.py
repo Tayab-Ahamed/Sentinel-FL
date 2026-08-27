@@ -2,17 +2,14 @@
 fl_engine.py — minimal, dependency-light federated learning engine.
 
 This is a pure NumPy reference implementation used to (a) validate the SENTINEL-FL
-algorithm design end-to-end and (b) serve as the runnable proof-of-concept for the
-competition submission's Phase 0 (see IMPLEMENTATION_PLAN.md). The production path
-targets PyTorch + Flower (see ai/fl_core/flower_app.py stub) once the official
-challenge dataset is available and a GPU-equipped environment is used; the algorithms
-here (Multi-Krum selection, residual-collusion clustering) are the same either way,
-only the tensor backend differs.
+algorithm design end-to-end and (b) serve as the runnable proof-of-concept for Phase 0.
+The full ML path targets PyTorch + Flower (see ai/models/ and ai/fl_engine/) for deep learning
+models and benchmark image datasets; the core algorithms (Multi-Krum selection,
+residual-collusion clustering, unlearning) operate across both backends.
 
 Model: multinomial logistic regression (softmax classifier). Kept simple deliberately
-so the FL/defense logic — the actual subject of this challenge — is not obscured by
-architecture complexity. Swapping in a CNN under PyTorch does not change any of the
-defense-layer code in ai/detection/.
+so the FL/defense logic is clean, fast, and transparent. Swapping in a CNN under PyTorch
+does not change any of the defense-layer architecture.
 """
 
 from __future__ import annotations

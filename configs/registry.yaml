@@ -91,4 +91,4 @@ dataset_loaders:
   phase1_official:
     module: ai.training.dataset_loader
     class: OfficialDatasetLoader
-    description: "Phase 1 official GSC26 Challenge 1 dataset (available from 13 July)"
+    description: "Benchmark image dataset loader (Phase 1 extension)"

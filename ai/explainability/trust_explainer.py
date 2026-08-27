@@ -229,7 +229,7 @@ class TrustExplainer:
         try:
             # Try TrustScoreManager-style reputation
             rep = ledger.get_reputation(client_id)
-            if isinstance(rep, (int, float)):
+            if isinstance(rep, int | float):
                 return float(rep)
             if hasattr(rep, "score"):
                 return float(rep.score)

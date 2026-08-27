@@ -35,7 +35,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
 FROM python:3.11-slim AS runtime
 
 LABEL org.opencontainers.image.title="SENTINEL-FL"
-LABEL org.opencontainers.image.description="Federated Backdoor Immune System — IEEE GSC26 Challenge 1"
+LABEL org.opencontainers.image.description="SENTINEL-FL — Federated Backdoor Immune System"
 LABEL org.opencontainers.image.version="0.1.0"
 
 ENV PYTHONDONTWRITEBYTECODE=1 \

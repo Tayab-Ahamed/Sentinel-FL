@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-Please report security issues privately to the Team 010 repository maintainers rather than
+Please report security issues privately to the repository maintainer rather than
 opening a public issue containing exploit details. Include the affected component, minimal
 reproduction, impact, and any proposed mitigation. Do not include real user/client data.
 
@@ -48,7 +48,7 @@ reproduction, impact, and any proposed mitigation. Do not include real user/clie
 | HMAC hash-chain attestation | Detect altered remediation evidence |
 | Model fingerprints | Bind certificates to before/after parameters |
 | Adaptive red-team CI gate | Prevent regressions across attacker powers |
-| Release evidence manifest | Hash and verify competition artifacts |
+| Release evidence manifest | Hash and verify release artifacts |
 
 ## Secure deployment guidance
 

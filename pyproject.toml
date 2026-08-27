@@ -5,11 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sentinel-fl"
 version = "0.1.0"
-description = "Federated Backdoor Immune System — IEEE GSC26 Challenge 1, Team 010"
+description = "Federated Backdoor Immune System — Detect, Explain, Remediate, and Attest Backdoors in Federated Learning"
 requires-python = ">=3.11"
 readme = "README.md"
 license = { text = "MIT" }
-authors = [{ name = "Team 010" }]
+authors = [{ name = "Tayab Ahamed" }]
 
 # Phase 0 core deps (no torch/flwr — keeps install fast for proof-of-concept)
 dependencies = [
@@ -90,7 +90,6 @@ ignore = [
     "RUF012", # mutable class default — intentional for name/layer class-level str attrs
     "RUF022", # unsorted __all__ — grouped by category intentionally
     "RUF043", # regex metacharacters in pytest.raises match= — intentional patterns
-    "RUF059", # unused unpacked variable — standard pattern in test tuple unpack
     "B017",   # blind Exception in pytest.raises — intentional for schema validator tests
     "B905",   # zip without strict — intentional in test helpers
     "C408",   # dict() call — readable default-kwargs pattern

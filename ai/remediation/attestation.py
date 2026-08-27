@@ -2,7 +2,7 @@
 ai/remediation/attestation.py — Tamper-evident Remediation Attestation Certificates.
 
 Detection and even repair are not enough for a *trustworthy* federated system: an
-operator (or a competition judge, or an auditor) needs cryptographic proof that a model
+operator (or a security auditor) needs cryptographic proof that a model
 that was found to be backdoored was actually remediated, by which strategy, and with what
 measured effect — and that the record has not been tampered with after the fact.
 

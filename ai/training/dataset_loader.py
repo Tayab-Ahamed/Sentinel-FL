@@ -4,7 +4,7 @@ ai/training/dataset_loader.py — DatasetLoader implementations.
 Implements the DatasetLoader interface (INTERFACES.md §DatasetLoader) for:
   - Phase 0: Synthetic Gaussian-blob data with Dirichlet non-IID partitioning
     (backed by ai.training.poison.make_dataset + dirichlet_partition).
-  - Phase 1: Official GSC26 Challenge 1 dataset (stub — available from 13 July).
+  - Phase 1: Benchmark / Challenge dataset (extensible loader).
 
 Both loaders expose the same interface so ai/fl_core and ai/detection never
 special-case which phase is active (ARCHITECTURE.md §7.11).
@@ -135,13 +135,13 @@ class SyntheticDatasetLoader(DatasetLoader):
 
 
 class OfficialDatasetLoader(DatasetLoader):
-    """Phase 1: Official GSC26 Challenge 1 dataset loader.
+    """Phase 1: Benchmark and challenge dataset loader.
 
     Reads from the dataset root pointed to by ``dataset_path``.
     Raises ``DatasetNotFoundError`` if the path is missing or malformed,
     unless ``dev_mode=True`` is passed (then falls back to SyntheticDatasetLoader).
 
-    Status: Skeleton — implementation blocked on dataset release (13 July).
+    Status: Skeleton for external dataset integration.
 
     Args:
         dataset_path: Path to the official dataset root directory.
@@ -167,16 +167,12 @@ class OfficialDatasetLoader(DatasetLoader):
             raise DatasetNotFoundError(str(self._path), phase="phase1_official")
 
     def load_client_partitions(self, n_clients: int, config: Any) -> list[tuple[Any, Any]]:
-        """Load Phase 1 client partitions.
-
-        Status: Not yet implemented — will be completed once the dataset is released.
-        """
+        """Load Phase 1 client partitions."""
         self._check_path()
         if self._dev_mode and self._fallback is not None and not self._path.exists():
             return self._fallback.load_client_partitions(n_clients, config)
         raise NotImplementedError(
-            "OfficialDatasetLoader will be implemented in Phase 1 "
-            "once the official GSC26 dataset is released (13 July)."
+            "OfficialDatasetLoader is designed for external dataset integration."
         )
 
     def load_clean_holdout(self) -> tuple[Any, Any]:

@@ -1,9 +1,6 @@
 # NOVELTY.md — Why Sentinel-FL
 
-This document exists to answer one question directly: **why should judges select this
-project over a straightforward "run STRIP + Neural Cleanse on the challenge dataset"
-submission?** It cross-references `RESEARCH.md` (literature grounding) and
-`ARCHITECTURE.md` (system design) rather than repeating them.
+This document addresses the core design rationale of SENTINEL-FL: **why a multi-layer, closed-loop immune system architecture is needed over single point solutions (like standalone STRIP or Neural Cleanse).** It cross-references literature grounding and system design.
 
 ## 1. State of the Art, and Where It Stops
 
@@ -114,11 +111,6 @@ alone?" — with an ablation matrix (`BENCHMARK.md`) as the evidence either way.
 the kind of question a `Computer` magazine-style short paper or workshop note could be
 built from — not a claim of a fundamentally new defense paradigm.
 
-## 6. Expected Competition Impact
+## 6. Demonstration & Experimentation Platform
 
-Judging criteria emphasize quantitative performance, novelty, and presentation
-(`RESEARCH.md` intro context). This project's presentation angle is a live ablation
-demo: toggle L1/L2/L3 on and off against the fragmented-collusion attack and watch ASR
-change in real time via the dashboard (`ARCHITECTURE.md` §5) — a clearer story for a
-judge than a single accuracy table, and one that visibly demonstrates the composed-
-system contribution rather than just re-running a published detector.
+The platform enables interactive experimentation and validation: researchers and engineers can toggle L1/L2/L3/L4/L5 layers against colluding backdoor attacks and inspect ASR changes, trigger reconstructions, and signed attestation records in real time via the FastAPI backend and React dashboard (`ARCHITECTURE.md` §5).

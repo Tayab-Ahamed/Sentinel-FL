@@ -2,11 +2,11 @@
 
 <div align="center">
 
-**IEEE Computer Society · Global Student Challenge 2026 · Challenge 1 · Team 010**
+**A defense-in-depth framework for backdoor mitigation, automated unlearning, and cryptographic attestation in Federated Learning.**
 
 *Detect → Explain → **Repair** → **Attest** — the first federated learning defense that never ships a backdoored model, and can cryptographically prove it.*
 
-[![CI](https://github.com/Tayab-Ahamed/GSC26-Challenge1-010/actions/workflows/ci.yml/badge.svg)](https://github.com/Tayab-Ahamed/GSC26-Challenge1-010/actions/workflows/ci.yml)
+[![CI](https://github.com/Tayab-Ahamed/sentinel-fl/actions/workflows/ci.yml/badge.svg)](https://github.com/Tayab-Ahamed/sentinel-fl/actions/workflows/ci.yml)
 [![Tests](https://img.shields.io/badge/tests-passing-brightgreen)](#-test-suite)
 [![Coverage](https://img.shields.io/badge/coverage-84%25-brightgreen)](#-test-suite)
 [![Python](https://img.shields.io/badge/python-3.11%20%7C%203.12-blue)](https://www.python.org/)
@@ -40,7 +40,7 @@ In the reference run the backdoor's **source-only attack-success-rate drops from
 
 ## 📑 Table of Contents
 
-- [Why this wins](#-why-this-wins)
+- [Why SENTINEL-FL](#-why-sentinel-fl)
 - [Architecture](#-architecture)
 - [The five layers](#-the-five-layers)
 - [Results](#-results)
@@ -51,11 +51,12 @@ In the reference run the backdoor's **source-only attack-success-rate drops from
 - [Project structure](#-project-structure)
 - [Reproducibility](#-reproducibility)
 - [Literature](#-literature-referenced)
+- [Origins & Background](#-origins--background)
 - [License](#-license)
 
 ---
 
-## 🏆 Why this wins
+## 🏆 Why SENTINEL-FL
 
 No single existing defense (STRIP, Neural Cleanse, Multi-Krum, FoolsGold) handles a
 colluding-client backdoor **end-to-end**. SENTINEL-FL is differentiated on five fronts:
@@ -69,7 +70,7 @@ colluding-client backdoor **end-to-end**. SENTINEL-FL is differentiated on five 
 3. **Verified, not hopeful.** Remediation is accepted only if `ASR ≤ threshold` **and**
    clean accuracy is retained; otherwise it escalates to `manual_review`.
 4. **Tamper-evident attestation.** Every repair is bound to before/after model fingerprints
-   and **signed into a hash-chained ledger** — auditors (and judges) can verify the whole
+   and **signed into a hash-chained ledger** — auditors and operators can verify the whole
    history in one call. *We have not found this in any prior FL-backdoor system.*
 5. **Production-grade engineering.** Typed schemas, dependency-injected FastAPI backend,
    React dashboard, reproducible seeds, ruff-linted, and a large automated test suite.
@@ -242,7 +243,7 @@ remediation is necessary. Full evidence: [`RED_TEAM_REPORT.md`](experiments/red_
 
 ```bash
 # 1. Clone & install (Python 3.11+, no GPU needed for Phase 0)
-git clone <repo-url> && cd GSC26-Challenge1-010
+git clone https://github.com/Tayab-Ahamed/sentinel-fl.git && cd sentinel-fl
 pip install -e ".[dev]"
 
 # 2. Verify the install (exits 0 on success)
@@ -328,7 +329,7 @@ Coverage by area: `ai/fl_core/` 95–100% · `ai/attacks/` 82–100% · `ai/dete
 ## 🗂️ Project structure
 
 ```text
-GSC26-Challenge1-010/
+sentinel-fl/
 ├── ai/
 │   ├── fl_core/         # Schemas, FL engine (FedAvg/Multi-Krum), config, logger, model registry
 │   ├── fl_engine/       # Flower-compatible simulation harness & client
@@ -381,6 +382,13 @@ print('FedAvg', r['fedavg']['attack_success_rate']); print('Krum', r['multikrum'
 
 ---
 
+## 🏛️ Origins & Background
+
+SENTINEL-FL was originally developed as a competitive research prototype for the IEEE Computer Society Global Student Challenge 2026 (Challenge 1). It has since been expanded into a fully modular, production-ready open-source framework for robust federated learning security, automated unlearning, and cryptographic attestation.
+
+---
+
 ## 📄 License
 
 MIT — see [`LICENSE`](LICENSE).
+
