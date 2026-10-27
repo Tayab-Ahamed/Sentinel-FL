@@ -1,4 +1,5 @@
 """Experiment APIs must not read artifacts selected outside their configured root."""
+
 from __future__ import annotations
 
 import json
@@ -39,9 +40,13 @@ def artifact_tree(tmp_path):
     return root
 
 
-@pytest.mark.parametrize("escape", ["../outside", r"..\outside", ".", "..", "", "nested/child", r"nested\child", "absolute"])
 @pytest.mark.parametrize(
-    ("method", "missing"), [("get_experiment", None), ("experiment_exists", False), ("get_rounds", [])]
+    "escape",
+    ["../outside", r"..\outside", ".", "..", "", "nested/child", r"nested\child", "absolute"],
+)
+@pytest.mark.parametrize(
+    ("method", "missing"),
+    [("get_experiment", None), ("experiment_exists", False), ("get_rounds", [])],
 )
 def test_unsafe_ids_cannot_read_real_artifacts(artifact_tree, escape, method, missing):
     experiment_id = (
@@ -52,7 +57,10 @@ def test_unsafe_ids_cannot_read_real_artifacts(artifact_tree, escape, method, mi
     assert getattr(service, method)(experiment_id) == missing
 
 
-@pytest.mark.parametrize("escape", ["../outside", r"..\outside", ".", "..", "", "nested/child", r"nested\child", "absolute"])
+@pytest.mark.parametrize(
+    "escape",
+    ["../outside", r"..\outside", ".", "..", "", "nested/child", r"nested\child", "absolute"],
+)
 def test_unsafe_remediation_ids_cannot_read_real_reports(artifact_tree, escape):
     experiment_id = (
         str((artifact_tree.parent / "outside").resolve()) if escape == "absolute" else escape
@@ -101,9 +109,7 @@ def test_linked_experiment_cannot_escape_root(artifact_tree):
     assert service.get_experiment("linked") is None
     assert not service.experiment_exists("linked")
     assert service.get_rounds("linked") == []
-    assert "OUTSIDE_DOCUMENT" not in {
-        item["experiment_id"] for item in service.list_experiments()
-    }
+    assert "OUTSIDE_DOCUMENT" not in {item["experiment_id"] for item in service.list_experiments()}
     remediation = RemediationService(artifact_tree)
     assert remediation.get_report("linked") is None
     assert "OUTSIDE_DOCUMENT" not in {
@@ -116,15 +122,9 @@ def test_encoded_backslash_traversal_is_not_exposed_by_api(artifact_tree, monkey
 
     from backend.main import app
 
-    monkeypatch.setattr(
-        "backend.routers.experiments.get_experiments_dir", lambda: artifact_tree
-    )
-    monkeypatch.setattr(
-        "backend.routers.visualizer.get_experiments_dir", lambda: artifact_tree
-    )
-    monkeypatch.setattr(
-        "backend.routers.remediation.get_experiments_dir", lambda: artifact_tree
-    )
+    monkeypatch.setattr("backend.routers.experiments.get_experiments_dir", lambda: artifact_tree)
+    monkeypatch.setattr("backend.routers.visualizer.get_experiments_dir", lambda: artifact_tree)
+    monkeypatch.setattr("backend.routers.remediation.get_experiments_dir", lambda: artifact_tree)
     with TestClient(app) as client:
         detail = client.get("/api/v1/experiments/..%5Coutside")
         rounds = client.get("/api/v1/experiments/..%5Coutside/rounds")

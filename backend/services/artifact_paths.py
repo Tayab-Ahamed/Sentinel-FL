@@ -1,4 +1,5 @@
 """Resolve experiment artifact paths without allowing caller-controlled escapes."""
+
 from __future__ import annotations
 
 from pathlib import Path
