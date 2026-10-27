@@ -18,6 +18,8 @@ import logging
 from pathlib import Path
 from typing import Any
 
+from backend.services.artifact_paths import artifact_path
+
 logger = logging.getLogger(__name__)
 
 
@@ -31,13 +33,13 @@ class RemediationService:
     _DEMO_FILE = "remediation_results.json"
 
     def __init__(self, experiments_dir: Path) -> None:
-        self._dir = experiments_dir
+        self._dir = experiments_dir.resolve()
 
     def get_report(self, experiment_id: str) -> dict[str, Any] | None:
         """Return the remediation report for one experiment, or None."""
         if experiment_id == "demo":
-            return self._load_json(self._dir / self._DEMO_FILE)
-        return self._load_json(self._dir / experiment_id / "remediation.json")
+            return self._load_json(artifact_path(self._dir, None, self._DEMO_FILE))
+        return self._load_json(artifact_path(self._dir, experiment_id, "remediation.json"))
 
     def list_manual_review(self) -> list[dict[str, Any]]:
         """Return every remediation report currently flagged for manual review.
@@ -55,7 +57,7 @@ class RemediationService:
     # ------------------------------------------------------------------
 
     def _iter_reports(self):
-        demo = self._load_json(self._dir / self._DEMO_FILE)
+        demo = self._load_json(artifact_path(self._dir, None, self._DEMO_FILE))
         if demo:
             yield from self._as_reports(demo)
         if not self._dir.exists():
@@ -63,7 +65,7 @@ class RemediationService:
         for subdir in sorted(self._dir.iterdir()):
             if not subdir.is_dir():
                 continue
-            data = self._load_json(subdir / "remediation.json")
+            data = self._load_json(artifact_path(self._dir, subdir.name, "remediation.json"))
             if data:
                 yield from self._as_reports(data)
 
@@ -80,8 +82,8 @@ class RemediationService:
                 yield data
 
     @staticmethod
-    def _load_json(path: Path) -> Any | None:
-        if not path.exists():
+    def _load_json(path: Path | None) -> Any | None:
+        if path is None or not path.exists():
             return None
         try:
             with open(path, encoding="utf-8") as fh:

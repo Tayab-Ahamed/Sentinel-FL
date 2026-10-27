@@ -17,6 +17,8 @@ import logging
 from pathlib import Path
 from typing import Any
 
+from backend.services.artifact_paths import artifact_path
+
 logger = logging.getLogger(__name__)
 
 
@@ -31,7 +33,7 @@ class ExperimentService:
     _DEMO_RESULTS_FILE = "demo_results.json"
 
     def __init__(self, experiments_dir: Path) -> None:
-        self._dir = experiments_dir
+        self._dir = experiments_dir.resolve()
 
     def list_experiments(self, limit: int = 50, offset: int = 0) -> list[dict[str, Any]]:
         """Return all experiments, including the Phase 0 demo results."""
@@ -46,8 +48,8 @@ class ExperimentService:
         for subdir in sorted(self._dir.iterdir()):
             if not subdir.is_dir():
                 continue
-            exp_file = subdir / "experiment.json"
-            if exp_file.exists():
+            exp_file = artifact_path(self._dir, subdir.name, "experiment.json")
+            if exp_file is not None and exp_file.exists():
                 try:
                     with open(exp_file, encoding="utf-8") as fh:
                         experiments.append(json.load(fh))
@@ -61,8 +63,8 @@ class ExperimentService:
         if experiment_id == self._DEMO_EXPERIMENT_ID:
             return self._load_demo_results()
 
-        exp_file = self._dir / experiment_id / "experiment.json"
-        if not exp_file.exists():
+        exp_file = artifact_path(self._dir, experiment_id, "experiment.json")
+        if exp_file is None or not exp_file.exists():
             return None
         try:
             with open(exp_file, encoding="utf-8") as fh:
@@ -74,13 +76,15 @@ class ExperimentService:
     def experiment_exists(self, experiment_id: str) -> bool:
         """Return True if the experiment is known."""
         if experiment_id == self._DEMO_EXPERIMENT_ID:
-            return (self._dir / self._DEMO_RESULTS_FILE).exists()
-        return (self._dir / experiment_id / "experiment.json").exists()
+            exp_file = artifact_path(self._dir, None, self._DEMO_RESULTS_FILE)
+        else:
+            exp_file = artifact_path(self._dir, experiment_id, "experiment.json")
+        return exp_file is not None and exp_file.exists()
 
     def get_rounds(self, experiment_id: str) -> list[dict[str, Any]]:
         """Return per-round data for the given experiment."""
-        rounds_file = self._dir / experiment_id / "rounds.json"
-        if not rounds_file.exists():
+        rounds_file = artifact_path(self._dir, experiment_id, "rounds.json")
+        if rounds_file is None or not rounds_file.exists():
             return []
         try:
             with open(rounds_file, encoding="utf-8") as fh:
@@ -95,8 +99,8 @@ class ExperimentService:
 
     def _load_demo_results(self) -> dict[str, Any] | None:
         """Load the Phase 0 demo_results.json and map to Experiment schema."""
-        demo_file = self._dir / self._DEMO_RESULTS_FILE
-        if not demo_file.exists():
+        demo_file = artifact_path(self._dir, None, self._DEMO_RESULTS_FILE)
+        if demo_file is None or not demo_file.exists():
             return None
         try:
             with open(demo_file, encoding="utf-8") as fh:
